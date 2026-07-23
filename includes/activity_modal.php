@@ -58,7 +58,7 @@ $amCategories = db()->query('SELECT * FROM activity_categories WHERE is_active =
               <div class="col-md-6 mb-2"><label class="form-label">Target completion</label><input type="datetime-local" class="form-control" name="target_completion_at" id="am_target_completion_at"></div>
             </div>
             <div class="row">
-              <div class="col-md-4 mb-2"><label class="form-label">Estimated (min)</label><input type="number" min="0" class="form-control" name="estimated_minutes" id="am_estimated_minutes"></div>
+              <div class="col-md-4 mb-2"><label class="form-label">Estimated (hours)</label><input type="number" min="0" step="0.25" class="form-control" name="estimated_hours" id="am_estimated_hours" placeholder="e.g. 1.5"></div>
               <div class="col-md-4 mb-2"><label class="form-label">Priority</label>
                 <select class="form-select" name="priority" id="am_priority">
                   <option value="low">Low</option><option value="normal">Normal</option><option value="high">High</option><option value="urgent">Urgent</option>

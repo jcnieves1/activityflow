@@ -57,7 +57,11 @@ window.afActivities = (function () {
     document.getElementById('am_requester_id').value = a.requester_id || '';
     document.getElementById('am_planned_start_at').value = (a.planned_start_at || '').replace(' ', 'T').slice(0, 16);
     document.getElementById('am_target_completion_at').value = (a.target_completion_at || '').replace(' ', 'T').slice(0, 16);
-    document.getElementById('am_estimated_minutes').value = a.estimated_minutes || '';
+    // estimated_minutes is stored in the database in minutes; the form field shows
+    // and edits it in hours (supports fractions, e.g. 1.5h), converted at the boundary.
+    document.getElementById('am_estimated_hours').value = a.estimated_minutes
+      ? Math.round((a.estimated_minutes / 60) * 100) / 100
+      : '';
     document.getElementById('am_priority').value = a.priority || 'normal';
     document.getElementById('am_request_channel').value = a.request_channel || '';
     document.getElementById('am_tags').value = (a.tags || []).join(', ');
@@ -109,6 +113,12 @@ window.afActivities = (function () {
     const data = Object.fromEntries(new FormData(form).entries());
     data.is_milestone = form.querySelector('[name=is_milestone]').checked ? 1 : 0;
     data.tags = data.tags ? data.tags.split(',').map((t) => t.trim()).filter(Boolean) : [];
+    // The form collects estimated effort in hours (as a float, e.g. 1.5) but the API/DB
+    // store it as whole minutes — convert at the boundary and drop the hours field so it
+    // isn't sent to the server under a name it doesn't recognize.
+    const hours = parseFloat(data.estimated_hours);
+    data.estimated_minutes = data.estimated_hours !== '' && !isNaN(hours) ? Math.round(hours * 60) : '';
+    delete data.estimated_hours;
     const isEdit = !!data.id;
     const action = isEdit ? 'update' : 'create_planned';
     afFetch(API(), { method: 'POST', body: Object.assign({ action }, data) })
