@@ -87,6 +87,40 @@ function get_activity(int $id): ?array
     return $row ?: null;
 }
 
+/**
+ * Permanently deletes a task. Existing ON DELETE CASCADE foreign keys take care
+ * of its comments, time entries, tags, dependencies, status history, and
+ * interruptions (see schema.sql); subtasks that had this task as their parent
+ * are kept but detached (parent_activity_id is set NULL by the same FK rule)
+ * rather than deleted themselves. There is no undo — the caller must obtain
+ * explicit, informed confirmation before calling this.
+ */
+function delete_activity(int $id): bool
+{
+    $activity = get_activity($id);
+    if (!$activity) {
+        return false;
+    }
+
+    $stmt = db()->prepare('SELECT COUNT(*) FROM activity_comments WHERE activity_id = ?');
+    $stmt->execute([$id]);
+    $commentCount = (int)$stmt->fetchColumn();
+
+    $stmt = db()->prepare('SELECT COUNT(*) FROM time_entries WHERE activity_id = ?');
+    $stmt->execute([$id]);
+    $timeEntryCount = (int)$stmt->fetchColumn();
+
+    audit_log('activity', $id, 'deleted', [
+        'title' => $activity['title'],
+        'project_id' => $activity['project_id'],
+        'comment_count' => $commentCount,
+        'time_entry_count' => $timeEntryCount,
+    ], null);
+
+    db()->prepare('DELETE FROM activities WHERE id = ?')->execute([$id]);
+    return true;
+}
+
 function validate_activity_input(array $data): array
 {
     $errors = [];

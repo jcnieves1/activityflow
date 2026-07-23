@@ -106,6 +106,19 @@ function can_edit_activity(array $activity): bool
     return false;
 }
 
+/**
+ * Deletion follows the same rule set as editing: administrators can delete any
+ * task; a project manager can delete any task in a project they own; everyone
+ * else (regular employees) can only delete a task they're the assignee or
+ * original creator of. Kept as its own named function (rather than calling
+ * can_edit_activity() directly at every call site) so delete rules can diverge
+ * from edit rules later without hunting down every caller.
+ */
+function can_delete_activity(array $activity): bool
+{
+    return can_edit_activity($activity);
+}
+
 function can_reclassify_activity(array $activity): bool
 {
     return is_admin() || can_manage_project(['owner_id' => project_owner_id($activity['project_id'] ?? null)]);

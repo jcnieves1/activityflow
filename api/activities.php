@@ -28,6 +28,10 @@ if ($method === 'GET' && $action === 'get') {
     $activity['interruptions'] = list_interruptions_for_activity((int)$activity['id']);
     $activity['dependencies'] = list_activity_dependencies((int)$activity['id']);
     $activity['history'] = audit_history('activity', (int)$activity['id']);
+    // Computed server-side so the client can decide whether to show the Delete
+    // button without re-implementing (and risking drifting out of sync with)
+    // the permission rules in JS.
+    $activity['can_delete'] = can_delete_activity($activity);
     json_response(['ok' => true, 'activity' => $activity]);
 }
 
@@ -188,6 +192,16 @@ if ($method === 'POST') {
     if ($action === 'add_dependency') {
         add_activity_dependency((int)$data['id'], (int)$data['depends_on_id']);
         json_response(['ok' => true, 'dependencies' => list_activity_dependencies((int)$data['id'])]);
+    }
+
+    if ($action === 'delete') {
+        $activity = get_activity((int)($data['id'] ?? 0));
+        if (!$activity) json_error('Activity not found.', 404);
+        if (!can_delete_activity($activity)) {
+            deny('Only the assignee, the task\'s creator, an administrator, or the owning project manager can delete this task.');
+        }
+        delete_activity((int)$activity['id']);
+        json_response(['ok' => true]);
     }
 }
 

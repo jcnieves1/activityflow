@@ -17,6 +17,7 @@ window.afActivities = (function () {
     document.getElementById('activityTabs').style.display = 'none';
     document.getElementById('am_reclassify_block').classList.add('d-none');
     document.getElementById('am_repeat_block').style.display = '';
+    document.getElementById('am_delete_btn').classList.add('d-none'); // re-shown by fillForm() only when editing a task the user is allowed to delete
     // Clear only the dynamically-populated content areas, not the tab panes that
     // contain them — am_tab_time also holds the static Status/Completion controls
     // (am_status, am_completion_pct), so wiping its innerHTML deleted those
@@ -75,6 +76,10 @@ window.afActivities = (function () {
       ? '<span class="badge bg-orange">Unplanned</span>' : '<span class="badge bg-primary">Planned</span>';
     document.getElementById('am_reclassify_block').classList.remove('d-none');
     document.getElementById('am_repeat_block').style.display = 'none';
+    // can_delete is computed server-side (api/activities.php's 'get' action) from
+    // the same permission rules enforced on the actual delete request, so the
+    // button's visibility can't drift out of sync with what's really allowed.
+    document.getElementById('am_delete_btn').classList.toggle('d-none', !a.can_delete);
 
     document.getElementById('am_time_totals').textContent =
       `Estimated: ${a.time_totals.estimated_minutes || 0} min · Actual logged: ${a.time_totals.actual_minutes || 0} min`;
@@ -219,6 +224,28 @@ window.afActivities = (function () {
       .catch((err) => afToast(err.message, 'danger'));
   }
 
+  function deleteActivity() {
+    if (!currentId) return;
+    const confirmed = afConfirm(
+      'Delete this task? This will permanently remove it, along with all of its comments, ' +
+      'time entries, and history. This cannot be undone.'
+    );
+    if (!confirmed) return;
+    const deletingId = currentId;
+    afFetch(API(), { method: 'POST', body: { action: 'delete', id: deletingId } })
+      .then(() => {
+        afToast('Task deleted.');
+        modal && modal.hide();
+        document.dispatchEvent(new CustomEvent('af:activity-deleted', { detail: { id: deletingId } }));
+        // Reuses whatever refresh strategy the host page already wired up for
+        // save() (full reload on most pages, calendar.refetchEvents() on the
+        // calendar) — deleting a task needs the same "make the list match the
+        // server again" refresh as creating or editing one does.
+        if (window.afOnActivityCreated) { window.afOnActivityCreated(); } else { setTimeout(() => location.reload(), 400); }
+      })
+      .catch((err) => afToast(err.message, 'danger'));
+  }
+
   document.addEventListener('submit', function (e) {
     if (e.target && e.target.id === 'manualTimeForm') {
       e.preventDefault();
@@ -240,6 +267,6 @@ window.afActivities = (function () {
 
   return {
     openCreate, openEdit, save, updateStatus, updateProgress, startTimer, stopTimer, reclassify,
-    editComment, cancelEditComment, saveCommentEdit,
+    editComment, cancelEditComment, saveCommentEdit, deleteActivity,
   };
 })();

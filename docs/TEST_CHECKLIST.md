@@ -50,6 +50,18 @@ Mapped to the acceptance criteria. Run through this after installation
       original classification remains visible in its audit history.
 - [ ] Confirm an Employee account cannot reclassify a task (button/permission
       absent, and a direct API call is rejected server-side).
+- [ ] Open a task you're assigned to (or created) as an Employee from My
+      Tasks — confirm a "Delete task" button appears in the Edit Activity
+      dialog, a confirmation warning appears on click, and deleting removes
+      the task, its comments, and its time entries. Confirm the same Employee
+      does NOT see the Delete button on a task assigned to someone else, and
+      that a direct API call to delete it is rejected server-side.
+- [ ] As an Administrator or the owning Project Manager, confirm the Delete
+      button appears and works on any task in the project regardless of who
+      it's assigned to, opened from Team Activities, My Day, Calendar, and
+      the Project Board (all routes into the same Edit Activity dialog).
+      Confirm a subtask of a deleted task is not itself deleted (just
+      detached from the removed parent).
 
 ## Projects & collaboration
 

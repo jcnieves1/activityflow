@@ -145,6 +145,7 @@ $amCategories = db()->query('SELECT * FROM activity_categories WHERE is_active =
         </div>
       </div>
       <div class="modal-footer">
+        <button type="button" class="btn btn-outline-danger me-auto d-none" id="am_delete_btn" onclick="afActivities.deleteActivity()"><i class="bi bi-trash3"></i> Delete task</button>
         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
         <button type="button" class="btn btn-primary" id="activitySaveBtn" onclick="afActivities.save()">Save activity</button>
       </div>
