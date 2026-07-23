@@ -41,6 +41,11 @@ Mapped to the acceptance criteria. Run through this after installation
 
 - [ ] From My Day, create a planned activity with a scheduled time; confirm
       it appears in the Planned column and on the Calendar.
+- [ ] In the New/Edit Activity dialog, use the Planned start field's calendar
+      picker to choose a day — confirm the time defaults to 9:00 AM. Do the
+      same for Target completion — confirm it defaults to 5:00 PM. Then
+      manually change just the hour on either field and confirm it's kept
+      (not reset) until you pick a different day again.
 - [ ] Use the floating quick-add button to log an unplanned task in under
       10 seconds; confirm it's tagged "Unplanned" everywhere it appears.
 - [ ] Quick-add a task that interrupts an in-progress task; confirm the

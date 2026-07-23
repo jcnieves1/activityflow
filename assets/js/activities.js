@@ -9,6 +9,37 @@ window.afActivities = (function () {
 
   const API = () => window.AF_BASE_URL + 'api/activities.php';
 
+  // Picking a new day from the native datetime-local calendar widget shouldn't
+  // force the user to also manually reset the hour every time — Planned start
+  // defaults to 9:00 AM and Target completion to 5:00 PM whenever the DATE
+  // portion changes. Changing just the time (without touching the date) is left
+  // alone. `dataset.lastDate` tracks the date last seen on each field so a
+  // "change" event can tell a real date change apart from a time-only edit;
+  // it's kept in sync with syncDatetimeTracking() everywhere the fields get set
+  // programmatically (reset/fillForm/openCreate), since programmatic .value
+  // assignment doesn't fire "change" on its own.
+  function initDefaultTimeOnDateChange(inputId, defaultTime) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    input.dataset.lastDate = (input.value || '').slice(0, 10);
+    input.addEventListener('change', function () {
+      const newDate = (input.value || '').slice(0, 10);
+      if (newDate && newDate !== input.dataset.lastDate) {
+        input.value = newDate + 'T' + defaultTime;
+      }
+      input.dataset.lastDate = (input.value || '').slice(0, 10);
+    });
+  }
+  initDefaultTimeOnDateChange('am_planned_start_at', '09:00');
+  initDefaultTimeOnDateChange('am_target_completion_at', '17:00');
+
+  function syncDatetimeTracking() {
+    ['am_planned_start_at', 'am_target_completion_at'].forEach((id) => {
+      const input = document.getElementById(id);
+      if (input) input.dataset.lastDate = (input.value || '').slice(0, 10);
+    });
+  }
+
   function reset() {
     form.reset();
     currentId = null;
@@ -24,6 +55,7 @@ window.afActivities = (function () {
     // permanently and broke every subsequent fillForm() call.
     document.getElementById('am_time_totals').textContent = '';
     ['am_time_entries', 'am_comments', 'am_history'].forEach((id) => { document.getElementById(id).innerHTML = ''; });
+    syncDatetimeTracking();
   }
 
   function loadParentOptions(excludeId, selectedId) {
@@ -45,6 +77,7 @@ window.afActivities = (function () {
     if (defaults.assignee_id) document.getElementById('am_assignee_id').value = defaults.assignee_id;
     if (defaults.planned_start_at) document.getElementById('am_planned_start_at').value = defaults.planned_start_at;
     if (window.AF_PERSON_ID) document.getElementById('am_requester_id').value = window.AF_PERSON_ID;
+    syncDatetimeTracking();
     loadParentOptions(null);
     modal && modal.show();
   }
@@ -59,6 +92,7 @@ window.afActivities = (function () {
     document.getElementById('am_requester_id').value = a.requester_id || '';
     document.getElementById('am_planned_start_at').value = (a.planned_start_at || '').replace(' ', 'T').slice(0, 16);
     document.getElementById('am_target_completion_at').value = (a.target_completion_at || '').replace(' ', 'T').slice(0, 16);
+    syncDatetimeTracking();
     // estimated_minutes is stored in the database in minutes; the form field shows
     // and edits it in hours (supports fractions, e.g. 1.5h), converted at the boundary.
     document.getElementById('am_estimated_hours').value = a.estimated_minutes
