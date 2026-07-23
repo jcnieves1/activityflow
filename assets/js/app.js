@@ -27,7 +27,11 @@
     return fetch(url, opts).then(async (res) => {
       let data = null;
       try { data = await res.json(); } catch (e) { /* non-JSON response */ }
-      if (!res.ok) {
+      // API responses always answer with HTTP 200 (see includes/functions.php::json_response) —
+      // success/failure is carried by the `ok` flag in the body, not the transport status. A
+      // non-OK transport status here means something outside the app intercepted the response
+      // (e.g. a proxy/server error page), so data will typically be null in that case too.
+      if (!res.ok || !data || data.ok === false) {
         const message = (data && data.error) ? data.error : 'Something went wrong. Please try again.';
         throw new Error(message);
       }

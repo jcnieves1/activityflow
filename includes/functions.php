@@ -29,10 +29,27 @@ function redirect(string $path): void
     exit;
 }
 
+/**
+ * Sends a JSON payload. The transport-level HTTP status is always 200 — the
+ * payload's own `ok` boolean (and `error` string, when `ok` is false) carries
+ * the real success/failure result; the semantic status passed by the caller
+ * is still included in the body as `status` for reference/debugging.
+ *
+ * This is intentional, not an oversight: 401/403/404/419/500 are also the
+ * codes .htaccess maps to custom error pages (ErrorDocument). Apache (and
+ * some proxy/CDN setups) can intercept a script's own response when it sets
+ * one of those status codes and substitute the configured error page's HTML
+ * for our JSON body — which silently breaks JSON.parse() on the client even
+ * though the request "succeeded" from the application's point of view. Using
+ * 200 for every API response sidesteps that class of bug entirely.
+ */
 function json_response($data, int $status = 200): void
 {
-    http_response_code($status);
+    http_response_code(200);
     header('Content-Type: application/json; charset=utf-8');
+    if ($status !== 200 && is_array($data) && !array_key_exists('status', $data)) {
+        $data['status'] = $status;
+    }
     echo json_encode($data, JSON_UNESCAPED_SLASHES);
     exit;
 }

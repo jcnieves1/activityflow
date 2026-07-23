@@ -6,7 +6,10 @@ require_login();
 $reportKey = $_GET['report'] ?? '';
 if (!array_key_exists($reportKey, REPORT_DEFINITIONS)) {
     if (($_GET['action'] ?? '') === 'export_csv') {
-        http_response_code(404);
+        // Avoid HTTP 404 here: it collides with the ErrorDocument 404 mapping in
+        // .htaccess, which can substitute our custom 404 page for this plain-text
+        // response. 400 (Bad Request) isn't mapped, so it always passes through.
+        http_response_code(400);
         exit('Unknown report.');
     }
     header('Content-Type: application/json');
