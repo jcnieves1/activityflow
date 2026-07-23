@@ -35,11 +35,18 @@
   const editProjectForm = document.getElementById('editProjectForm');
   editProjectForm && editProjectForm.addEventListener('submit', function (e) {
     e.preventDefault();
-    const data = Object.fromEntries(new FormData(editProjectForm).entries());
-    data.is_archived = editProjectForm.querySelector('[name=is_archived]').checked ? 1 : 0;
-    afFetch(window.AF_BASE_URL + 'api/projects.php', { method: 'POST', body: Object.assign({ action: 'update' }, data) })
-      .then(() => { afToast('Project updated.'); location.reload(); })
-      .catch((err) => afToast(err.message, 'danger'));
+    try {
+      // FormData omits a checkbox entirely when it's unchecked (rather than sending
+      // "0"), so its presence/absence in `data` already tells us the checked state —
+      // no need to re-query the DOM for it, which is one less thing that can fail.
+      const data = Object.fromEntries(new FormData(editProjectForm).entries());
+      data.is_archived = data.is_archived ? 1 : 0;
+      afFetch(window.AF_BASE_URL + 'api/projects.php', { method: 'POST', body: Object.assign({ action: 'update' }, data) })
+        .then(() => { afToast('Project updated.'); location.reload(); })
+        .catch((err) => afToast(err.message, 'danger'));
+    } catch (err) {
+      afToast(err.message || 'Unable to save the project. Please try again.', 'danger');
+    }
   });
 
   window.afProjectDetail = {
