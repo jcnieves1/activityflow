@@ -67,6 +67,27 @@ Mapped to the acceptance criteria. Run through this after installation
       the Project Board (all routes into the same Edit Activity dialog).
       Confirm a subtask of a deleted task is not itself deleted (just
       detached from the removed parent).
+- [ ] Open a task you can edit and click "Clone…" — choose a destination
+      project (same or different) and confirm a new task appears titled
+      "<original title> (Copy)" with the same assignee/requester/estimate/
+      priority/tags, fresh status/0% progress, and no comments or time
+      entries carried over. Click "Move…" on a task instead and confirm its
+      project changes but its comments/time entries/history stay attached
+      (same task, not a copy).
+- [ ] On a project's Task Board, use the team-member filter dropdown to
+      select one or more members — confirm the board only shows tasks
+      assigned to those people, the button label updates ("All team
+      members" / "1 member selected" / "N members selected"), and the
+      selection persists after a drag-and-drop status change (which
+      reloads the page). Re-check "All team members" and confirm it
+      clears the individual selections and shows every task again.
+- [ ] On My Tasks and Team Activities, select several tasks via the row
+      checkboxes (and the header "select all"), then use "Clone selected" /
+      "Move selected" from the bulk bar — confirm all selected tasks are
+      cloned/moved together. Confirm the destination dropdown only lists
+      projects you're a member of (unless you're an admin or PM, who see
+      all), and that a direct API call naming a project you don't belong to
+      is rejected server-side.
 
 ## Projects & collaboration
 

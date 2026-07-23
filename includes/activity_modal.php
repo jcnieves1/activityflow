@@ -4,6 +4,11 @@ declare(strict_types=1);
 $amPeople = list_people(['is_active' => 1]);
 $amProjects = list_projects(['is_archived' => 0]);
 $amCategories = db()->query('SELECT * FROM activity_categories WHERE is_active = 1 ORDER BY name')->fetchAll();
+// Only offer projects the current user is actually allowed to clone/move tasks
+// into (admin/PM, or a member of that project) — narrower than $amProjects
+// (used for the task's own Project field) so the destination dropdown never
+// offers a choice the server would just reject.
+$amTargetProjects = array_values(array_filter($amProjects, fn($p) => can_add_task_to_project($p)));
 ?>
 <div class="modal fade" id="activityModal" tabindex="-1">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
@@ -145,10 +150,46 @@ $amCategories = db()->query('SELECT * FROM activity_categories WHERE is_active =
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-outline-danger me-auto d-none" id="am_delete_btn" onclick="afActivities.deleteActivity()"><i class="bi bi-trash3"></i> Delete task</button>
+        <div class="me-auto d-flex gap-2">
+          <button type="button" class="btn btn-outline-danger d-none" id="am_delete_btn" onclick="afActivities.deleteActivity()"><i class="bi bi-trash3"></i> Delete task</button>
+          <button type="button" class="btn btn-outline-secondary d-none" id="am_clone_btn" onclick="afActivities.openMoveOrClone('clone')"><i class="bi bi-files"></i> Clone…</button>
+          <button type="button" class="btn btn-outline-secondary d-none" id="am_move_btn" onclick="afActivities.openMoveOrClone('move')"><i class="bi bi-arrow-left-right"></i> Move…</button>
+        </div>
         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
         <button type="button" class="btn btn-primary" id="activitySaveBtn" onclick="afActivities.save()">Save activity</button>
       </div>
     </div>
+  </div>
+</div>
+
+<div class="modal fade" id="taskMoveCloneModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="taskMoveCloneTitle">Move task</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p id="taskMoveCloneSummary" class="text-muted small"></p>
+        <label class="form-label">Destination project</label>
+        <select class="form-select" id="taskMoveCloneProject" <?= !$amTargetProjects ? 'disabled' : '' ?>>
+          <?php if (!$amTargetProjects): ?>
+            <option value="">No projects available</option>
+          <?php else: ?>
+            <?php foreach ($amTargetProjects as $p): ?><option value="<?= (int)$p['id'] ?>"><?= e($p['name']) ?> (<?= e($p['code']) ?>)</option><?php endforeach; ?>
+          <?php endif; ?>
+        </select>
+        <?php if (!$amTargetProjects): ?>
+          <p class="text-danger small mt-2 mb-0">You're not a member of any project you could move or clone a task into.</p>
+        <?php endif; ?>
+        <p class="text-muted small mt-2 mb-0" id="taskMoveCloneNote"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="taskMoveCloneConfirmBtn" onclick="afActivities.confirmMoveOrClone()">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
   </div>
 </div>

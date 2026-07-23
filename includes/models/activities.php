@@ -49,6 +49,14 @@ function list_activities(array $filters = []): array
             $params[] = $filters[$key];
         }
     }
+    if (!empty($filters['assignee_id_in']) && is_array($filters['assignee_id_in'])) {
+        $ids = array_values(array_unique(array_map('intval', $filters['assignee_id_in'])));
+        if ($ids) {
+            $placeholders = implode(',', array_fill(0, count($ids), '?'));
+            $sql .= " AND a.assignee_id IN ($placeholders)";
+            array_push($params, ...$ids);
+        }
+    }
     if (isset($filters['is_adhoc']) && $filters['is_adhoc'] !== '') {
         $sql .= ' AND a.is_adhoc = ?';
         $params[] = (int)$filters['is_adhoc'];
@@ -198,6 +206,62 @@ function create_activity(array $data, string $activityType, int $createdByUserId
     }
 
     return $id;
+}
+
+/**
+ * Duplicates a task's descriptive fields and tags into a brand-new task, in the
+ * same or a different project. Comments, time entries, and audit history are
+ * deliberately NOT copied — a clone is a fresh, unstarted copy of what the task
+ * IS, not a duplicate of the original's progress. It's always created as a
+ * top-level task (no parent_activity_id): the source's parent may belong to a
+ * different project, or may not make sense in the destination.
+ *
+ * Builds on create_activity() rather than a bespoke INSERT so it automatically
+ * gets the same status/notification defaults as any other new task.
+ */
+function clone_activity(array $source, int $targetProjectId, int $createdByUserId): int
+{
+    $data = [
+        'title' => $source['title'] . ' (Copy)',
+        'description' => $source['description'],
+        'project_id' => $targetProjectId,
+        'assignee_id' => $source['assignee_id'],
+        'requester_id' => $source['requester_id'],
+        'planned_start_at' => $source['planned_start_at'],
+        'target_completion_at' => $source['target_completion_at'],
+        'estimated_minutes' => $source['estimated_minutes'],
+        'priority' => $source['priority'],
+        'category_id' => $source['category_id'],
+        'request_channel' => $source['request_channel'],
+        'notes' => $source['notes'],
+        'is_milestone' => $source['is_milestone'],
+    ];
+
+    $newId = create_activity($data, $source['activity_type'], $createdByUserId, (bool)$source['is_adhoc']);
+
+    $tags = get_activity_tags((int)$source['id']);
+    if ($tags) {
+        set_activity_tags($newId, $tags);
+    }
+
+    audit_log('activity', $newId, 'cloned_from', null, ['source_activity_id' => (int)$source['id']]);
+
+    return $newId;
+}
+
+/**
+ * Reassigns a task to a different project in place — its comments, time
+ * entries, and history all stay attached, only project_id changes.
+ */
+function move_activity_to_project(int $activityId, int $targetProjectId): void
+{
+    $before = get_activity($activityId);
+    if (!$before) {
+        return;
+    }
+    db()->prepare('UPDATE activities SET project_id = ? WHERE id = ?')->execute([$targetProjectId, $activityId]);
+    audit_log('activity', $activityId, 'moved_to_project',
+        ['project_id' => $before['project_id']], ['project_id' => $targetProjectId]);
 }
 
 /** Update editable fields; preserves activity_type/original_classification (use reclassify_activity for that). */

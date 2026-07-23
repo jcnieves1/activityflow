@@ -3,4 +3,5 @@
   if (window.AF_OPEN_ACTIVITY) {
     afActivities.openEdit(window.AF_OPEN_ACTIVITY);
   }
+  window.afInitBulkTaskSelect && window.afInitBulkTaskSelect();
 })();

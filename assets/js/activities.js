@@ -3,9 +3,13 @@ window.afActivities = (function () {
   const modalEl = document.getElementById('activityModal');
   const modal = modalEl ? new bootstrap.Modal(modalEl) : null;
   const form = document.getElementById('activityForm');
+  const moveCloneModalEl = document.getElementById('taskMoveCloneModal');
+  const moveCloneModal = moveCloneModalEl ? new bootstrap.Modal(moveCloneModalEl) : null;
   let currentId = null;
   let currentType = 'planned';
   let currentComments = [];
+  let moveCloneMode = 'move'; // 'move' | 'clone'
+  let moveCloneIds = [];
 
   const API = () => window.AF_BASE_URL + 'api/activities.php';
 
@@ -48,7 +52,10 @@ window.afActivities = (function () {
     document.getElementById('activityTabs').style.display = 'none';
     document.getElementById('am_reclassify_block').classList.add('d-none');
     document.getElementById('am_repeat_block').style.display = '';
-    document.getElementById('am_delete_btn').classList.add('d-none'); // re-shown by fillForm() only when editing a task the user is allowed to delete
+    // Re-shown by fillForm() only when editing a task the user is allowed to delete/edit.
+    document.getElementById('am_delete_btn').classList.add('d-none');
+    document.getElementById('am_clone_btn').classList.add('d-none');
+    document.getElementById('am_move_btn').classList.add('d-none');
     // Clear only the dynamically-populated content areas, not the tab panes that
     // contain them — am_tab_time also holds the static Status/Completion controls
     // (am_status, am_completion_pct), so wiping its innerHTML deleted those
@@ -110,10 +117,12 @@ window.afActivities = (function () {
       ? '<span class="badge bg-orange">Unplanned</span>' : '<span class="badge bg-primary">Planned</span>';
     document.getElementById('am_reclassify_block').classList.remove('d-none');
     document.getElementById('am_repeat_block').style.display = 'none';
-    // can_delete is computed server-side (api/activities.php's 'get' action) from
-    // the same permission rules enforced on the actual delete request, so the
-    // button's visibility can't drift out of sync with what's really allowed.
+    // can_delete/can_edit are computed server-side (api/activities.php's 'get'
+    // action) from the same permission rules enforced on the actual requests, so
+    // button visibility can't drift out of sync with what's really allowed.
     document.getElementById('am_delete_btn').classList.toggle('d-none', !a.can_delete);
+    document.getElementById('am_clone_btn').classList.toggle('d-none', !a.can_edit);
+    document.getElementById('am_move_btn').classList.toggle('d-none', !a.can_edit);
 
     document.getElementById('am_time_totals').textContent =
       `Estimated: ${a.time_totals.estimated_minutes || 0} min · Actual logged: ${a.time_totals.actual_minutes || 0} min`;
@@ -280,6 +289,46 @@ window.afActivities = (function () {
       .catch((err) => afToast(err.message, 'danger'));
   }
 
+  // Shared by the single-task Clone…/Move… buttons in the Edit Activity dialog
+  // (ids defaults to the task currently open) and by bulk "Clone selected" /
+  // "Move selected" toolbars on list pages (which pass an explicit array).
+  function openMoveOrClone(mode, ids) {
+    ids = ids && ids.length ? ids : (currentId ? [currentId] : []);
+    if (!ids.length) return;
+    if (!moveCloneModal) { afToast('Unable to open the move/clone dialog.', 'danger'); return; }
+    moveCloneMode = mode;
+    moveCloneIds = ids;
+    document.getElementById('taskMoveCloneTitle').textContent = mode === 'clone'
+      ? (ids.length > 1 ? `Clone ${ids.length} tasks` : 'Clone task')
+      : (ids.length > 1 ? `Move ${ids.length} tasks` : 'Move task');
+    document.getElementById('taskMoveCloneSummary').textContent = mode === 'clone'
+      ? `Choose a project to create ${ids.length > 1 ? 'copies of the selected tasks' : 'a copy of this task'} in.`
+      : `Choose a project to move ${ids.length > 1 ? 'the selected tasks' : 'this task'} to. Comments and time entries move with ${ids.length > 1 ? 'them' : 'it'}.`;
+    document.getElementById('taskMoveCloneNote').textContent = mode === 'clone'
+      ? 'The copy starts fresh — no comments, time entries, or history carry over.'
+      : '';
+    document.getElementById('taskMoveCloneConfirmBtn').textContent = mode === 'clone' ? 'Clone' : 'Move';
+    // Modal-in-modal: hide the task editor first so only one is visible/focused at a time.
+    modal && modal.hide();
+    moveCloneModal.show();
+  }
+
+  function confirmMoveOrClone() {
+    const select = document.getElementById('taskMoveCloneProject');
+    const projectId = select ? select.value : '';
+    if (!projectId) { afToast('Choose a destination project.', 'danger'); return; }
+    afFetch(API(), { method: 'POST', body: { action: moveCloneMode, ids: moveCloneIds, project_id: projectId } })
+      .then(() => {
+        afToast(moveCloneMode === 'clone'
+          ? (moveCloneIds.length > 1 ? 'Tasks cloned.' : 'Task cloned.')
+          : (moveCloneIds.length > 1 ? 'Tasks moved.' : 'Task moved.'));
+        moveCloneModal && moveCloneModal.hide();
+        document.dispatchEvent(new CustomEvent('af:activity-created'));
+        if (window.afOnActivityCreated) { window.afOnActivityCreated(); } else { setTimeout(() => location.reload(), 400); }
+      })
+      .catch((err) => afToast(err.message, 'danger'));
+  }
+
   document.addEventListener('submit', function (e) {
     if (e.target && e.target.id === 'manualTimeForm') {
       e.preventDefault();
@@ -302,5 +351,54 @@ window.afActivities = (function () {
   return {
     openCreate, openEdit, save, updateStatus, updateProgress, startTimer, stopTimer, reclassify,
     editComment, cancelEditComment, saveCommentEdit, deleteActivity,
+    openMoveOrClone, confirmMoveOrClone,
   };
 })();
+
+// Reusable bulk task-selection toolbar for table-based task lists (My Tasks,
+// Team Activities). Expects a first-column "select all" checkbox with
+// id="af-select-all", per-row checkboxes with class="af-task-select" (their
+// value being the task id), and a toolbar with id="af-bulk-bar" containing
+// #af-bulk-count, #af-bulk-clone, and #af-bulk-move. Pages that don't have
+// these elements simply get a no-op — safe to call unconditionally.
+window.afInitBulkTaskSelect = function () {
+  const bar = document.getElementById('af-bulk-bar');
+  const countEl = document.getElementById('af-bulk-count');
+  const selectAll = document.getElementById('af-select-all');
+  const cloneBtn = document.getElementById('af-bulk-clone');
+  const moveBtn = document.getElementById('af-bulk-move');
+  if (!bar || !countEl) return;
+
+  function checkboxes() { return Array.from(document.querySelectorAll('.af-task-select')); }
+  function selectedIds() { return checkboxes().filter((c) => c.checked).map((c) => parseInt(c.value, 10)); }
+
+  function refresh() {
+    const all = checkboxes();
+    const ids = selectedIds();
+    bar.classList.toggle('d-none', ids.length === 0);
+    bar.classList.toggle('d-flex', ids.length > 0);
+    countEl.textContent = ids.length ? `${ids.length} task${ids.length === 1 ? '' : 's'} selected` : '';
+    if (selectAll) {
+      selectAll.checked = all.length > 0 && ids.length === all.length;
+      selectAll.indeterminate = ids.length > 0 && ids.length < all.length;
+    }
+  }
+
+  document.addEventListener('change', function (e) {
+    if (e.target && e.target.classList && e.target.classList.contains('af-task-select')) refresh();
+  });
+  selectAll && selectAll.addEventListener('change', function () {
+    checkboxes().forEach((c) => { c.checked = selectAll.checked; });
+    refresh();
+  });
+  cloneBtn && cloneBtn.addEventListener('click', function () {
+    const ids = selectedIds();
+    if (ids.length) window.afActivities.openMoveOrClone('clone', ids);
+  });
+  moveBtn && moveBtn.addEventListener('click', function () {
+    const ids = selectedIds();
+    if (ids.length) window.afActivities.openMoveOrClone('move', ids);
+  });
+
+  refresh();
+};

@@ -58,13 +58,20 @@ require __DIR__ . '/includes/activity_modal.php';
   <div class="col-md-1"><button class="btn btn-outline-secondary w-100">Go</button></div>
 </form>
 
+<div class="d-none align-items-center gap-2 mb-2" id="af-bulk-bar">
+  <span class="text-muted small" id="af-bulk-count"></span>
+  <button type="button" class="btn btn-sm btn-outline-secondary" id="af-bulk-clone"><i class="bi bi-files"></i> Clone selected</button>
+  <button type="button" class="btn btn-sm btn-outline-secondary" id="af-bulk-move"><i class="bi bi-arrow-left-right"></i> Move selected</button>
+</div>
+
 <div class="af-card p-0">
   <div class="table-responsive">
     <table class="table table-hover align-middle mb-0">
-      <thead class="table-light"><tr><th>Task</th><th>Type</th><th>Project</th><th>Requester</th><th>Priority</th><th>Status</th><th>Target</th><th></th></tr></thead>
+      <thead class="table-light"><tr><th style="width:2rem"><input type="checkbox" id="af-select-all" aria-label="Select all"></th><th>Task</th><th>Type</th><th>Project</th><th>Requester</th><th>Priority</th><th>Status</th><th>Target</th><th></th></tr></thead>
       <tbody>
       <?php foreach ($activities as $a): ?>
         <tr>
+          <td><input type="checkbox" class="af-task-select" value="<?= (int)$a['id'] ?>" aria-label="Select task"></td>
           <td class="fw-semibold"><?= e($a['title']) ?><?= $a['is_milestone'] ? ' <i class="bi bi-flag-fill text-warning" title="Milestone"></i>' : '' ?></td>
           <td><?= activity_type_badge($a['activity_type']) ?></td>
           <td><?= $a['project_name'] ? e($a['project_name']) : '<span class="text-muted">No project</span>' ?></td>
@@ -76,7 +83,7 @@ require __DIR__ . '/includes/activity_modal.php';
         </tr>
       <?php endforeach; ?>
       <?php if (!$activities): ?>
-        <tr><td colspan="8"><div class="af-empty"><i class="bi bi-check2-square"></i>No tasks match these filters.</div></td></tr>
+        <tr><td colspan="9"><div class="af-empty"><i class="bi bi-check2-square"></i>No tasks match these filters.</div></td></tr>
       <?php endif; ?>
       </tbody>
     </table>

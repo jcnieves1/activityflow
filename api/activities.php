@@ -28,9 +28,12 @@ if ($method === 'GET' && $action === 'get') {
     $activity['interruptions'] = list_interruptions_for_activity((int)$activity['id']);
     $activity['dependencies'] = list_activity_dependencies((int)$activity['id']);
     $activity['history'] = audit_history('activity', (int)$activity['id']);
-    // Computed server-side so the client can decide whether to show the Delete
-    // button without re-implementing (and risking drifting out of sync with)
-    // the permission rules in JS.
+    // Computed server-side so the client can decide which buttons to show without
+    // re-implementing (and risking drifting out of sync with) the permission
+    // rules in JS. can_edit also gates the Clone/Move buttons — cloning or
+    // moving a task out of its current context requires being able to edit it,
+    // same as any other change to the task.
+    $activity['can_edit'] = can_edit_activity($activity);
     $activity['can_delete'] = can_delete_activity($activity);
     json_response(['ok' => true, 'activity' => $activity]);
 }
@@ -202,6 +205,44 @@ if ($method === 'POST') {
         }
         delete_activity((int)$activity['id']);
         json_response(['ok' => true]);
+    }
+
+    // Shared by single-task and bulk clone/move: validates every source task and
+    // the destination project up front, so the request either fully succeeds or
+    // fully fails — no partial batches left half-applied.
+    if ($action === 'clone' || $action === 'move') {
+        $ids = array_values(array_unique(array_filter(array_map('intval', (array)($data['ids'] ?? [])))));
+        if (!$ids) json_error('No tasks were selected.');
+
+        $targetProjectId = (int)($data['project_id'] ?? 0);
+        if (!$targetProjectId) json_error('Choose a destination project.');
+        $targetProject = get_project($targetProjectId);
+        if (!$targetProject) json_error('Destination project not found.', 404);
+        if (!can_add_task_to_project($targetProject)) {
+            deny('You do not have permission to add tasks to that project.');
+        }
+
+        $activities = [];
+        foreach ($ids as $id) {
+            $activity = get_activity($id);
+            if (!$activity) json_error("Task #$id was not found.", 404);
+            if (!can_edit_activity($activity)) {
+                deny('You do not have permission to ' . ($action === 'clone' ? 'clone' : 'move') . ' one or more of the selected tasks.');
+            }
+            $activities[] = $activity;
+        }
+
+        $resultIds = [];
+        foreach ($activities as $activity) {
+            if ($action === 'clone') {
+                $resultIds[] = clone_activity($activity, $targetProjectId, $user['id']);
+            } else {
+                move_activity_to_project((int)$activity['id'], $targetProjectId);
+                $resultIds[] = (int)$activity['id'];
+            }
+        }
+
+        json_response(['ok' => true, 'action' => $action, 'ids' => $resultIds]);
     }
 }
 

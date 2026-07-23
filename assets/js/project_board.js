@@ -27,4 +27,27 @@
   });
 
   window.afOnActivityCreated = function () { location.reload(); };
+
+  const allCb = document.getElementById('boardFilterAll');
+  const memberCbs = Array.from(document.querySelectorAll('.board-member-checkbox'));
+  function updateBoardFilterLabel() {
+    const label = document.getElementById('boardMemberFilterLabel');
+    if (!label) return;
+    const checked = memberCbs.filter((cb) => cb.checked);
+    if (!checked.length) { label.textContent = 'All team members'; return; }
+    label.textContent = checked.length + ' member' + (checked.length === 1 ? '' : 's') + ' selected';
+  }
+  if (allCb) {
+    allCb.addEventListener('change', function () {
+      if (allCb.checked) memberCbs.forEach((cb) => { cb.checked = false; });
+      updateBoardFilterLabel();
+    });
+  }
+  memberCbs.forEach((cb) => {
+    cb.addEventListener('change', function () {
+      if (cb.checked && allCb) allCb.checked = false;
+      if (allCb && !memberCbs.some((c) => c.checked)) allCb.checked = true;
+      updateBoardFilterLabel();
+    });
+  });
 })();

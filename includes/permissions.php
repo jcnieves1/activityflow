@@ -119,6 +119,23 @@ function can_delete_activity(array $activity): bool
     return can_edit_activity($activity);
 }
 
+/**
+ * Governs whether tasks may be cloned or moved INTO this project. Admins and
+ * project managers are treated as having a blanket "qualified role" for this —
+ * deliberately broader than can_manage_project(), which restricts full project
+ * edit/delete to the project's own owning PM. Anyone else must already be a
+ * member of the destination project. This only covers the destination side;
+ * callers must separately confirm the user can touch the source task (e.g. via
+ * can_edit_activity()) before allowing a clone/move out of it.
+ */
+function can_add_task_to_project(array $project): bool
+{
+    if (is_admin() || is_pm()) {
+        return true;
+    }
+    return is_project_member((int)$project['id']);
+}
+
 function can_reclassify_activity(array $activity): bool
 {
     return is_admin() || can_manage_project(['owner_id' => project_owner_id($activity['project_id'] ?? null)]);

@@ -62,13 +62,20 @@ require __DIR__ . '/includes/activity_modal.php';
   <div class="col-md-2"><button class="btn btn-outline-secondary w-100">Filter</button></div>
 </form>
 
+<div class="d-none align-items-center gap-2 mb-2" id="af-bulk-bar">
+  <span class="text-muted small" id="af-bulk-count"></span>
+  <button type="button" class="btn btn-sm btn-outline-secondary" id="af-bulk-clone"><i class="bi bi-files"></i> Clone selected</button>
+  <button type="button" class="btn btn-sm btn-outline-secondary" id="af-bulk-move"><i class="bi bi-arrow-left-right"></i> Move selected</button>
+</div>
+
 <div class="af-card p-0">
   <div class="table-responsive">
     <table class="table table-hover align-middle mb-0">
-      <thead class="table-light"><tr><th>Task</th><th>Type</th><th>Assignee</th><th>Requester</th><th>Project</th><th>Status</th><th>Requested</th><th></th></tr></thead>
+      <thead class="table-light"><tr><th style="width:2rem"><input type="checkbox" id="af-select-all" aria-label="Select all"></th><th>Task</th><th>Type</th><th>Assignee</th><th>Requester</th><th>Project</th><th>Status</th><th>Requested</th><th></th></tr></thead>
       <tbody>
       <?php foreach ($all as $a): ?>
         <tr>
+          <td><input type="checkbox" class="af-task-select" value="<?= (int)$a['id'] ?>" aria-label="Select task"></td>
           <td class="fw-semibold"><?= e($a['title']) ?></td>
           <td><?= activity_type_badge($a['activity_type']) ?></td>
           <td><?= e($a['assignee_name']) ?></td>
@@ -79,7 +86,7 @@ require __DIR__ . '/includes/activity_modal.php';
           <td class="text-end"><button class="btn btn-sm btn-outline-secondary" onclick="afActivities.openEdit(<?= (int)$a['id'] ?>)">Open</button></td>
         </tr>
       <?php endforeach; ?>
-      <?php if (!$all): ?><tr><td colspan="8"><div class="af-empty"><i class="bi bi-people"></i>No activities match these filters.</div></td></tr><?php endif; ?>
+      <?php if (!$all): ?><tr><td colspan="9"><div class="af-empty"><i class="bi bi-people"></i>No activities match these filters.</div></td></tr><?php endif; ?>
       </tbody>
     </table>
   </div>
