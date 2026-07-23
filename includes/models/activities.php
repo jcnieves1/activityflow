@@ -412,6 +412,28 @@ function list_activity_comments(int $activityId): array
     return $stmt->fetchAll();
 }
 
+function get_activity_comment(int $id): ?array
+{
+    $stmt = db()->prepare(
+        'SELECT c.*, u.full_name AS author_name FROM activity_comments c
+         JOIN users u ON u.id = c.author_id WHERE c.id = ?'
+    );
+    $stmt->execute([$id]);
+    $row = $stmt->fetch();
+    return $row ?: null;
+}
+
+function update_activity_comment(int $id, string $body): void
+{
+    $before = get_activity_comment($id);
+    db()->prepare('UPDATE activity_comments SET body = ?, updated_at = NOW() WHERE id = ?')
+        ->execute([$body, $id]);
+    if ($before) {
+        audit_log('activity', (int)$before['activity_id'], 'comment_edited',
+            ['body' => $before['body']], ['body' => $body]);
+    }
+}
+
 function set_activity_tags(int $activityId, array $tagNames): void
 {
     $pdo = db();

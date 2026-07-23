@@ -83,6 +83,13 @@ Mapped to the acceptance criteria. Run through this after installation
       failing) and confirm the Description field still shows as a plain,
       editable textarea instead of breaking the form.
 
+- [ ] In the Edit Activity dialog's Comments tab, add a comment, then edit it —
+      confirm the body updates, an "(edited ...)" timestamp appears next to the
+      original posted time, and the Edit button only appears on your own
+      comments (not on comments posted by other users). Confirm a direct API
+      call to edit someone else's comment is rejected server-side, and that
+      saving an empty comment is blocked.
+
 ## Time tracking
 
 - [ ] Start a timer on a task, then try to start a second timer on another

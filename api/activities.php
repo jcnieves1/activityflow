@@ -168,6 +168,16 @@ if ($method === 'POST') {
         json_response(['ok' => true, 'comments' => list_activity_comments((int)$activity['id'])]);
     }
 
+    if ($action === 'edit_comment') {
+        $comment = get_activity_comment((int)($data['id'] ?? 0));
+        if (!$comment) json_error('Comment not found.', 404);
+        if (!can_edit_comment($comment)) deny('You can only edit your own comments.');
+        $body = trim($data['body'] ?? '');
+        if ($body === '') json_error('Comment cannot be empty.');
+        update_activity_comment((int)$comment['id'], $body);
+        json_response(['ok' => true, 'comments' => list_activity_comments((int)$comment['activity_id'])]);
+    }
+
     if ($action === 'set_tags') {
         $activity = get_activity((int)($data['id'] ?? 0));
         if (!$activity) json_error('Activity not found.', 404);

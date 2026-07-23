@@ -111,6 +111,16 @@ function can_reclassify_activity(array $activity): bool
     return is_admin() || can_manage_project(['owner_id' => project_owner_id($activity['project_id'] ?? null)]);
 }
 
+/**
+ * Comment edits are restricted to the comment's own author — intentionally not
+ * even administrators, per an explicit product decision to keep comment history
+ * trustworthy (no one editing someone else's words, including for moderation).
+ */
+function can_edit_comment(array $comment): bool
+{
+    return (int)$comment['author_id'] === (int)(current_user()['id'] ?? 0);
+}
+
 function project_owner_id(?int $projectId): ?int
 {
     if (!$projectId) {

@@ -5,6 +5,7 @@ window.afActivities = (function () {
   const form = document.getElementById('activityForm');
   let currentId = null;
   let currentType = 'planned';
+  let currentComments = [];
 
   const API = () => window.AF_BASE_URL + 'api/activities.php';
 
@@ -84,9 +85,8 @@ window.afActivities = (function () {
         ${t.notes ? `<div>${afEscapeHtml(t.notes)}</div>` : ''}
       </div>`).join('') || '<p class="text-muted small">No time logged yet.</p>';
 
-    document.getElementById('am_comments').innerHTML = (a.comments || []).map((c) => `
-      <div class="mb-2"><strong>${afEscapeHtml(c.author_name)}</strong> <span class="text-muted small">${c.created_at}</span>
-      <div>${afEscapeHtml(c.body)}</div></div>`).join('') || '<p class="text-muted small">No comments yet.</p>';
+    currentComments = a.comments || [];
+    renderComments();
 
     document.getElementById('am_history').innerHTML = (a.history || []).map((h) => `
       <div class="mb-1"><span class="text-muted">${h.created_at}</span> — ${afEscapeHtml(h.actor_name || 'System')} <em>${h.action.replace(/_/g, ' ')}</em></div>`
@@ -96,6 +96,55 @@ window.afActivities = (function () {
     currentType = a.activity_type;
     document.getElementById('activityModalTitle').textContent = 'Edit activity';
     document.getElementById('activityTabs').style.display = '';
+  }
+
+  // Comments are rendered from currentComments (rather than re-fetching) so
+  // cancelling an in-progress edit doesn't need a round trip to the server.
+  function renderComments() {
+    document.getElementById('am_comments').innerHTML = currentComments.map((c) => {
+      const isOwner = window.AF_USER_ID != null && String(c.author_id) === String(window.AF_USER_ID);
+      const editedNote = c.updated_at && c.updated_at !== c.created_at
+        ? ` <span class="text-muted small">(edited ${afEscapeHtml(c.updated_at)})</span>` : '';
+      return `
+      <div class="mb-2" id="am_comment_${c.id}">
+        <div class="d-flex justify-content-between align-items-start">
+          <div><strong>${afEscapeHtml(c.author_name)}</strong> <span class="text-muted small">${afEscapeHtml(c.created_at)}</span>${editedNote}</div>
+          ${isOwner ? `<button type="button" class="btn btn-sm btn-link p-0" onclick="afActivities.editComment(${c.id})">Edit</button>` : ''}
+        </div>
+        <div id="am_comment_body_${c.id}">${afEscapeHtml(c.body)}</div>
+      </div>`;
+    }).join('') || '<p class="text-muted small">No comments yet.</p>';
+  }
+
+  function editComment(id) {
+    const c = currentComments.find((x) => String(x.id) === String(id));
+    const bodyEl = document.getElementById('am_comment_body_' + id);
+    if (!c || !bodyEl) return;
+    bodyEl.innerHTML = `
+      <textarea class="form-control form-control-sm mb-1" id="am_comment_edit_${id}" rows="2"></textarea>
+      <button type="button" class="btn btn-sm btn-primary" onclick="afActivities.saveCommentEdit(${id})">Save</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" onclick="afActivities.cancelEditComment(${id})">Cancel</button>`;
+    const textarea = document.getElementById('am_comment_edit_' + id);
+    textarea.value = c.body; // set as a value, not interpolated into the HTML string, so the raw text can't be mistaken for markup
+    textarea.focus();
+  }
+
+  function cancelEditComment(id) {
+    renderComments();
+  }
+
+  function saveCommentEdit(id) {
+    const textarea = document.getElementById('am_comment_edit_' + id);
+    if (!textarea) return;
+    const body = textarea.value.trim();
+    if (!body) { afToast('Comment cannot be empty.', 'danger'); return; }
+    afFetch(API(), { method: 'POST', body: { action: 'edit_comment', id, body } })
+      .then((res) => {
+        currentComments = res.comments || [];
+        renderComments();
+        afToast('Comment updated.');
+      })
+      .catch((err) => afToast(err.message, 'danger'));
   }
 
   function openEdit(id) {
@@ -189,5 +238,8 @@ window.afActivities = (function () {
     }
   });
 
-  return { openCreate, openEdit, save, updateStatus, updateProgress, startTimer, stopTimer, reclassify };
+  return {
+    openCreate, openEdit, save, updateStatus, updateProgress, startTimer, stopTimer, reclassify,
+    editComment, cancelEditComment, saveCommentEdit,
+  };
 })();
