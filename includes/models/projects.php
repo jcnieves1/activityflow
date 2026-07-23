@@ -62,8 +62,8 @@ function create_project(array $data, int $createdBy): int
     );
     $stmt->execute([
         $data['name'], $data['code'], $data['description'] ?? null, $data['owner_id'],
-        $data['department_id'] ?: null, $data['start_date'] ?: null, $data['target_completion_date'] ?: null,
-        $data['priority'] ?? 'normal', $data['status'] ?? 'draft', $data['planned_effort_hours'] ?: null,
+        nz($data, 'department_id'), nz($data, 'start_date'), nz($data, 'target_completion_date'),
+        $data['priority'] ?? 'normal', $data['status'] ?? 'draft', nz($data, 'planned_effort_hours'),
         $data['color'] ?? '#4361ee', $data['notes'] ?? null, $createdBy,
     ]);
     $id = (int)db()->lastInsertId();
@@ -85,9 +85,9 @@ function update_project(int $id, array $data): void
     );
     $stmt->execute([
         $data['name'], $data['code'], $data['description'] ?? null, $data['owner_id'],
-        $data['department_id'] ?: null, $data['start_date'] ?: null, $data['target_completion_date'] ?: null,
-        $data['actual_completion_date'] ?: null, $data['priority'] ?? 'normal', $data['status'] ?? 'draft',
-        $data['planned_effort_hours'] ?: null, $data['color'] ?? '#4361ee', $data['notes'] ?? null,
+        nz($data, 'department_id'), nz($data, 'start_date'), nz($data, 'target_completion_date'),
+        nz($data, 'actual_completion_date'), $data['priority'] ?? 'normal', $data['status'] ?? 'draft',
+        nz($data, 'planned_effort_hours'), $data['color'] ?? '#4361ee', $data['notes'] ?? null,
         !empty($data['is_archived']) ? 1 : 0, $id,
     ]);
     [$old, $new] = diff_fields($before, $data);

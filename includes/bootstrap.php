@@ -30,7 +30,13 @@ $config = app_config();
 date_default_timezone_set($config['app']['timezone'] ?? 'UTC');
 
 $isProduction = ($config['app']['env'] ?? 'development') === 'production';
-ini_set('display_errors', $isProduction ? '0' : '1');
+// API endpoints always return JSON, so a displayed PHP warning/notice would get
+// printed into the response body and corrupt it client-side (the browser then
+// fails to parse the JSON at all). Never display errors inline for /api/
+// requests — always log them instead — regardless of environment.
+$isApiRequest = str_contains($_SERVER['SCRIPT_NAME'] ?? '', '/api/');
+ini_set('display_errors', ($isProduction || $isApiRequest) ? '0' : '1');
+ini_set('log_errors', '1');
 error_reporting(E_ALL);
 
 if (session_status() === PHP_SESSION_NONE) {

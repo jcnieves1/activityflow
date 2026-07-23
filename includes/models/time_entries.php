@@ -145,10 +145,10 @@ function record_interruption(array $data): int
     );
     $stmt->execute([
         $data['interrupting_activity_id'],
-        $data['interrupted_activity_id'] ?: null,
-        $data['started_at'] ?: null,
-        $data['ended_at'] ?: null,
-        $data['time_lost_minutes'] ?: null,
+        nz($data, 'interrupted_activity_id'),
+        nz($data, 'started_at'),
+        nz($data, 'ended_at'),
+        nz($data, 'time_lost_minutes'),
         isset($data['was_resumed']) ? (int)(bool)$data['was_resumed'] : null,
         $data['impact_on_target_date'] ?? null,
         $data['notes'] ?? null,

@@ -177,6 +177,20 @@ function request_channel_label(?string $channel): string
     return ucwords(str_replace('_', ' ', $channel));
 }
 
+/**
+ * Returns $data[$key] if present and non-empty (not null, '', or missing entirely),
+ * otherwise null. Use this instead of `$data['key'] ?: null` when $key may be
+ * entirely absent from the array (e.g. a field not present in a given form) —
+ * accessing a missing array key directly (as `?:` does) raises a PHP warning,
+ * which in development mode gets printed into the response body and can break
+ * JSON parsing on the client ("Cannot read properties of null" style errors
+ * after an otherwise-successful save).
+ */
+function nz(array $data, string $key)
+{
+    return empty($data[$key]) ? null : $data[$key];
+}
+
 /** Validate an array of required keys are present and non-empty in $data. Returns list of missing keys. */
 function missing_fields(array $data, array $required): array
 {

@@ -133,18 +133,18 @@ function create_activity(array $data, string $activityType, int $createdByUserId
         $data['description'] ?? null,
         $activityType,
         $isAdhoc ? 1 : 0,
-        $data['project_id'] ?: null,
-        $data['parent_activity_id'] ?: null,
+        nz($data, 'project_id'),
+        nz($data, 'parent_activity_id'),
         $data['assignee_id'],
         $data['requester_id'],
         $createdByUserId,
         $requestedAt,
-        $data['planned_start_at'] ?: null,
-        $data['target_completion_at'] ?: null,
-        $data['estimated_minutes'] ?: null,
+        nz($data, 'planned_start_at'),
+        nz($data, 'target_completion_at'),
+        nz($data, 'estimated_minutes'),
         $data['priority'] ?? 'normal',
         $status,
-        $data['category_id'] ?: null,
+        nz($data, 'category_id'),
         $data['interruption_reason'] ?? null,
         $data['request_channel'] ?? null,
         $data['notes'] ?? null,
@@ -190,10 +190,10 @@ function update_activity(int $id, array $data): void
             interruption_reason=?, request_channel=?, notes=?, is_milestone=? WHERE id=?'
     );
     $stmt->execute([
-        $data['title'], $data['description'] ?? null, $data['project_id'] ?: null, $parentId ?: null,
-        $data['assignee_id'], $data['requester_id'], $data['planned_start_at'] ?: null,
-        $data['target_completion_at'] ?: null, $data['estimated_minutes'] ?: null,
-        $data['priority'] ?? 'normal', $data['category_id'] ?: null, $data['interruption_reason'] ?? null,
+        $data['title'], $data['description'] ?? null, nz($data, 'project_id'), $parentId ?: null,
+        $data['assignee_id'], $data['requester_id'], nz($data, 'planned_start_at'),
+        nz($data, 'target_completion_at'), nz($data, 'estimated_minutes'),
+        $data['priority'] ?? 'normal', nz($data, 'category_id'), $data['interruption_reason'] ?? null,
         $data['request_channel'] ?? null, $data['notes'] ?? null, !empty($data['is_milestone']) ? 1 : 0, $id,
     ]);
 
@@ -204,7 +204,7 @@ function update_activity(int $id, array $data): void
              VALUES (?,?,?,?,?,?)'
         )->execute([
             $id, $before['planned_start_at'], $before['target_completion_at'],
-            $data['planned_start_at'] ?: null, $data['target_completion_at'] ?: null,
+            nz($data, 'planned_start_at'), nz($data, 'target_completion_at'),
             current_user()['id'] ?? null,
         ]);
     }

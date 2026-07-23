@@ -68,12 +68,12 @@ function create_person(array $data): int
     $stmt->execute([
         $data['full_name'],
         $data['job_title'] ?? null,
-        $data['department_id'] ?: null,
+        nz($data, 'department_id'),
         $data['organization'] ?? null,
         $data['org_role'] ?? null,
-        $data['email'] ?: null,
-        $data['phone'] ?: null,
-        $data['manager_id'] ?: null,
+        nz($data, 'email'),
+        nz($data, 'phone'),
+        nz($data, 'manager_id'),
         $data['notes'] ?? null,
     ]);
     $id = (int)db()->lastInsertId();
@@ -90,12 +90,12 @@ function update_person(int $id, array $data): void
     $stmt->execute([
         $data['full_name'],
         $data['job_title'] ?? null,
-        $data['department_id'] ?: null,
+        nz($data, 'department_id'),
         $data['organization'] ?? null,
         $data['org_role'] ?? null,
-        $data['email'] ?: null,
-        $data['phone'] ?: null,
-        $data['manager_id'] ?: null,
+        nz($data, 'email'),
+        nz($data, 'phone'),
+        nz($data, 'manager_id'),
         $data['notes'] ?? null,
         $id,
     ]);
