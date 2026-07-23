@@ -1,4 +1,6 @@
 (function () {
+  window.afInitRichText && window.afInitRichText('newProjectDescription');
+
   const form = document.getElementById('projectForm');
   form && form.addEventListener('submit', function (e) {
     e.preventDefault();

@@ -31,7 +31,12 @@ $actualHours = round(((int)$effort['actual_minutes']) / 60, 1);
 $pageTitle = $project['name'];
 $activeNav = 'projects';
 $breadcrumbs = [['label' => 'Projects', 'url' => base_url('projects.php')], ['label' => $project['name']]];
-$pageScripts = ['https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js', base_url('assets/js/project_detail.js')];
+$pageStyles = ['https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css'];
+$pageScripts = [
+    'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js',
+    base_url('assets/js/project_detail.js'),
+];
 require __DIR__ . '/includes/layout_header.php';
 ?>
 <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
@@ -56,7 +61,7 @@ require __DIR__ . '/includes/layout_header.php';
   </div>
 </div>
 
-<?php if ($project['description']): ?><p class="text-muted"><?= nl2br(e($project['description'])) ?></p><?php endif; ?>
+<?php if ($project['description']): ?><div class="text-muted af-rich-text mb-3"><?= $project['description'] /* sanitized on write via sanitize_html() — safe to echo raw */ ?></div><?php endif; ?>
 
 <div class="row g-3 mb-3">
   <div class="col-md-3">
@@ -186,7 +191,7 @@ require __DIR__ . '/includes/layout_header.php';
             </div>
           </div>
           <div class="mb-2"><label class="form-label">Description</label>
-            <textarea class="form-control" name="description" rows="2"><?= e($project['description'] ?? '') ?></textarea>
+            <textarea class="form-control" name="description" id="editProjectDescription" rows="2"><?= e($project['description'] ?? '') ?></textarea>
           </div>
           <div class="row">
             <div class="col-md-6 mb-2"><label class="form-label">Owner / Project Manager *</label>

@@ -104,3 +104,22 @@ body { background: #f4f6fb; color: #1f2937; }
   .af-sidebar, .af-topbar, .af-footer, .no-print { display:none !important; }
   .af-main { margin-left:0 !important; }
 }
+
+/* ---------- Rich text (project description) ---------- */
+/* Editor: give Quill's content area a sane minimum height and match Bootstrap's
+   rounded-corner/border look so it doesn't feel like a foreign widget. */
+.ql-container { min-height: 120px; border-bottom-left-radius:.375rem; border-bottom-right-radius:.375rem; font-size:1rem; }
+.ql-toolbar { border-top-left-radius:.375rem; border-top-right-radius:.375rem; background:#f9fafb; }
+.ql-editor { min-height: 120px; }
+
+/* Rendered output (project detail view): reset the typography a WYSIWYG editor
+   produces so headings/lists don't look oversized or lose their bullets inside
+   our narrower card layout. */
+.af-rich-text :first-child { margin-top: 0; }
+.af-rich-text :last-child { margin-bottom: 0; }
+.af-rich-text h1 { font-size: 1.3rem; }
+.af-rich-text h2 { font-size: 1.15rem; }
+.af-rich-text h3 { font-size: 1.05rem; }
+.af-rich-text ul, .af-rich-text ol { padding-left: 1.25rem; }
+.af-rich-text blockquote { border-left: 3px solid #cbd5e1; padding-left: .75rem; color: #6b7280; margin-left: 0; }
+.af-rich-text a { word-break: break-word; }

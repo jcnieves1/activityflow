@@ -62,6 +62,53 @@
     return window.confirm(message);
   };
 
+  // ---- Rich text (progressive enhancement over a plain <textarea>) ----
+  // Turns a <textarea> into a Quill WYSIWYG editor while keeping the textarea
+  // itself as the real form field (still submitted via its `name` under normal
+  // FormData serialization — no submit-handler changes needed anywhere this is
+  // used). If the Quill CDN script/CSS failed to load, or anything else goes
+  // wrong, this quietly leaves the plain textarea visible and working instead
+  // of throwing — a third-party CDN script failing here should never be able
+  // to break the form around it (see project_detail.js's Chart.js handling for
+  // the same principle).
+  window.afInitRichText = function (textareaId) {
+    const textarea = document.getElementById(textareaId);
+    if (!textarea || typeof Quill === 'undefined') return null;
+
+    try {
+      const editorEl = document.createElement('div');
+      textarea.insertAdjacentElement('afterend', editorEl);
+
+      const quill = new Quill(editorEl, {
+        theme: 'snow',
+        modules: {
+          toolbar: [
+            [{ header: [1, 2, 3, false] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ list: 'ordered' }, { list: 'bullet' }],
+            ['blockquote', 'link'],
+            ['clean'],
+          ],
+        },
+      });
+      quill.root.innerHTML = textarea.value;
+
+      const sync = () => { textarea.value = quill.root.innerHTML; };
+      quill.on('text-change', sync);
+
+      const form = textarea.closest('form');
+      // Capture phase + belt-and-braces sync in case text-change ever lags a
+      // fast programmatic submit.
+      form && form.addEventListener('submit', sync, true);
+
+      textarea.classList.add('d-none');
+      return quill;
+    } catch (err) {
+      console.warn('Rich text editor failed to initialize; using plain text area instead.', err);
+      return null;
+    }
+  };
+
   // ---- Notification bell ----
   const notifList = document.getElementById('afNotifList');
   function loadNotifications() {

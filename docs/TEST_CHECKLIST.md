@@ -73,6 +73,15 @@ Mapped to the acceptance criteria. Run through this after installation
       it's rejected instead of failing with a database error.
 - [ ] Edit a project to change its owner — confirm the new owner appears in
       the Members list as project manager.
+- [ ] In both "New project" and "Edit project", use the Description field's
+      rich text toolbar (headings, bold/italic/underline/strike, lists,
+      blockquote, link) and save — confirm the formatting appears correctly
+      on the project detail page. Try pasting a link with a `javascript:`
+      URL and confirm it's stripped down to plain text rather than becoming
+      a clickable link.
+- [ ] With browser dev tools, block the Quill CDN request (or simulate it
+      failing) and confirm the Description field still shows as a plain,
+      editable textarea instead of breaking the form.
 
 ## Time tracking
 

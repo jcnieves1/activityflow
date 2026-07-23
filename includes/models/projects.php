@@ -55,13 +55,18 @@ function get_project_by_code(string $code): ?array
 
 function create_project(array $data, int $createdBy): int
 {
+    // Description comes from a rich-text (WYSIWYG) editor — sanitize to a small
+    // allow-list of tags before it ever touches the database, so it's always
+    // safe to echo back out directly (see sanitize_html() in functions.php).
+    $data['description'] = sanitize_html($data['description'] ?? null);
+
     $stmt = db()->prepare(
         'INSERT INTO projects (name, code, description, owner_id, department_id, start_date, target_completion_date,
             priority, status, planned_effort_hours, color, notes, created_by)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
     );
     $stmt->execute([
-        $data['name'], $data['code'], $data['description'] ?? null, $data['owner_id'],
+        $data['name'], $data['code'], $data['description'] !== '' ? $data['description'] : null, $data['owner_id'],
         nz($data, 'department_id'), nz($data, 'start_date'), nz($data, 'target_completion_date'),
         $data['priority'] ?? 'normal', $data['status'] ?? 'draft', nz($data, 'planned_effort_hours'),
         $data['color'] ?? '#4361ee', $data['notes'] ?? null, $createdBy,
@@ -78,13 +83,14 @@ function create_project(array $data, int $createdBy): int
 function update_project(int $id, array $data): void
 {
     $before = get_project($id);
+    $data['description'] = sanitize_html($data['description'] ?? null);
     $stmt = db()->prepare(
         'UPDATE projects SET name=?, code=?, description=?, owner_id=?, department_id=?, start_date=?,
             target_completion_date=?, actual_completion_date=?, priority=?, status=?, planned_effort_hours=?,
             color=?, notes=?, is_archived=? WHERE id=?'
     );
     $stmt->execute([
-        $data['name'], $data['code'], $data['description'] ?? null, $data['owner_id'],
+        $data['name'], $data['code'], $data['description'] !== '' ? $data['description'] : null, $data['owner_id'],
         nz($data, 'department_id'), nz($data, 'start_date'), nz($data, 'target_completion_date'),
         nz($data, 'actual_completion_date'), $data['priority'] ?? 'normal', $data['status'] ?? 'draft',
         nz($data, 'planned_effort_hours'), $data['color'] ?? '#4361ee', $data['notes'] ?? null,

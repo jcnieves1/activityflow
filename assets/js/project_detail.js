@@ -2,6 +2,8 @@
   const P = window.AF_PROJECT;
   if (!P) return;
 
+  window.afInitRichText && window.afInitRichText('editProjectDescription');
+
   // Wire up the form handlers first, unconditionally. Chart rendering below is
   // "nice to have" and talks to a third-party CDN script (Chart.js) that can fail
   // to load (ad blockers, firewalls, CDN hiccups). Previously the chart code ran

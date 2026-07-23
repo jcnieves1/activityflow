@@ -32,6 +32,9 @@ $navItems = [
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
 <link rel="stylesheet" href="<?= e(base_url('assets/css/app.css')) ?>">
+<?php if (!empty($pageStyles)) foreach ($pageStyles as $href): ?>
+<link rel="stylesheet" href="<?= e($href) ?>">
+<?php endforeach; ?>
 </head>
 <body>
 <?php if ($user): ?>

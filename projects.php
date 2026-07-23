@@ -13,7 +13,8 @@ $statuses = ['draft','not_started','active','on_hold','completed','cancelled','a
 $pageTitle = 'Projects';
 $activeNav = 'projects';
 $breadcrumbs = [['label' => 'Projects']];
-$pageScripts = [base_url('assets/js/projects.js')];
+$pageStyles = ['https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css'];
+$pageScripts = ['https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js', base_url('assets/js/projects.js')];
 require __DIR__ . '/includes/layout_header.php';
 ?>
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
@@ -76,7 +77,7 @@ require __DIR__ . '/includes/layout_header.php';
             <div class="col-md-8 mb-2"><label class="form-label">Project name *</label><input class="form-control" name="name" required></div>
             <div class="col-md-4 mb-2"><label class="form-label">Code *</label><input class="form-control" name="code" required placeholder="e.g. PLAT-01"></div>
           </div>
-          <div class="mb-2"><label class="form-label">Description</label><textarea class="form-control" name="description" rows="2"></textarea></div>
+          <div class="mb-2"><label class="form-label">Description</label><textarea class="form-control" name="description" id="newProjectDescription" rows="2"></textarea></div>
           <div class="row">
             <div class="col-md-6 mb-2"><label class="form-label">Owner / Project Manager *</label>
               <select class="form-select" name="owner_id" required>
