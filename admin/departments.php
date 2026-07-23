@@ -41,7 +41,12 @@ require __DIR__ . '/../includes/layout_header.php';
     <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary">Save</button></div>
   </form>
 </div></div></div>
-<script>
+<?php
+// Rendered via $inlineScript (see includes/layout_footer.php) so it runs AFTER
+// Bootstrap's JS bundle and app.js have loaded — placing this in a plain
+// <script> tag here would run before those load and throw "bootstrap is not
+// defined" / "afFetch is not defined", which is what broke Add/Edit.
+$inlineScript = <<<'JS'
 window.afDept = (function () {
   const modal = new bootstrap.Modal(document.getElementById('deptModal'));
   const form = document.getElementById('deptForm');
@@ -62,5 +67,6 @@ window.afDept = (function () {
   });
   return { openCreate, openEdit };
 })();
-</script>
-<?php require __DIR__ . '/../includes/layout_footer.php'; ?>
+JS;
+require __DIR__ . '/../includes/layout_footer.php';
+?>
