@@ -74,6 +74,21 @@ if ($method === 'POST') {
         remove_project_member((int)$project['id'], (int)$data['person_id']);
         json_response(['ok' => true, 'members' => list_project_members((int)$project['id'])]);
     }
+
+    if ($action === 'delete') {
+        $project = get_project((int)($data['id'] ?? 0));
+        if (!$project) json_error('Project not found.', 404);
+        if (!can_manage_project($project)) deny('Only the project owner or an administrator can delete this project.');
+        // Require the exact project name as a deliberate, server-enforced confirmation
+        // step — this is a permanent, cascading delete (tasks, comments, time entries,
+        // members, etc.) with no undo, so a stray/automated request can't trigger it.
+        $confirmName = trim((string)($data['confirm_name'] ?? ''));
+        if ($confirmName === '' || strcasecmp($confirmName, $project['name']) !== 0) {
+            json_error('Type the project name exactly to confirm deletion.');
+        }
+        delete_project((int)$project['id']);
+        json_response(['ok' => true]);
+    }
 }
 
 json_error('Unknown action.', 404);

@@ -105,6 +105,51 @@ function update_project(int $id, array $data): void
     }
 }
 
+/**
+ * Permanently deletes a project and everything under it: all of its activities
+ * (tasks), and — via existing ON DELETE CASCADE foreign keys — those activities'
+ * comments, time entries, tags, dependencies, status history, and interruptions,
+ * plus the project's membership list. There is no undo; the caller is
+ * responsible for getting explicit, informed confirmation before calling this.
+ *
+ * Note: activities.project_id itself is ON DELETE SET NULL (so a raw `DELETE FROM
+ * projects` alone would orphan tasks rather than remove them), which is why the
+ * activities belonging to this project are deleted explicitly first, in the same
+ * transaction, before the project row itself.
+ */
+function delete_project(int $id): bool
+{
+    $pdo = db();
+    $project = get_project($id);
+    if (!$project) {
+        return false;
+    }
+
+    $stmt = $pdo->prepare('SELECT COUNT(*) FROM activities WHERE project_id = ?');
+    $stmt->execute([$id]);
+    $activityCount = (int)$stmt->fetchColumn();
+    $memberCount = count(list_project_members($id));
+
+    $pdo->beginTransaction();
+    try {
+        audit_log('project', $id, 'deleted', [
+            'name' => $project['name'],
+            'code' => $project['code'],
+            'task_count' => $activityCount,
+            'member_count' => $memberCount,
+        ], null);
+
+        $pdo->prepare('DELETE FROM activities WHERE project_id = ?')->execute([$id]);
+        $pdo->prepare('DELETE FROM projects WHERE id = ?')->execute([$id]);
+
+        $pdo->commit();
+        return true;
+    } catch (Throwable $e) {
+        $pdo->rollBack();
+        throw $e;
+    }
+}
+
 function list_project_members(int $projectId): array
 {
     $stmt = db()->prepare(

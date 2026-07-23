@@ -23,6 +23,7 @@ $people = list_people(['is_active' => 1]);
 $departments = department_list();
 $recent = array_slice(audit_history('project', $projectId), 0, 8);
 $projectStatuses = ['draft', 'not_started', 'active', 'on_hold', 'completed', 'cancelled', 'archived'];
+$totalTaskCount = array_sum(array_column($stats['by_status'], 'n'));
 
 $effort = $stats['effort'];
 $plannedHours = round(((int)$effort['planned_minutes']) / 60, 1);
@@ -57,6 +58,7 @@ require __DIR__ . '/includes/layout_header.php';
     <?php if ($canManage): ?>
       <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editProjectModal"><i class="bi bi-pencil-square"></i> Edit project</button>
       <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#memberModal"><i class="bi bi-person-plus"></i> Add member</button>
+      <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteProjectModal"><i class="bi bi-trash3"></i> Delete project</button>
     <?php endif; ?>
   </div>
 </div>
@@ -291,11 +293,42 @@ require __DIR__ . '/includes/layout_header.php';
     </div>
   </div>
 </div>
+
+<div class="modal fade" id="deleteProjectModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-danger"><i class="bi bi-exclamation-triangle-fill"></i> Delete project</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-danger">
+          <strong>This cannot be undone.</strong> Deleting "<?= e($project['name']) ?>" will
+          permanently remove the project along with:
+          <ul class="mb-0 mt-1">
+            <li><?= (int)$totalTaskCount ?> task<?= $totalTaskCount === 1 ? '' : 's' ?> (planned and unplanned), including all their comments, time entries, and history</li>
+            <li><?= count($members) ?> project member<?= count($members) === 1 ? '' : 's' ?></li>
+          </ul>
+        </div>
+        <label class="form-label">Type <strong><?= e($project['name']) ?></strong> to confirm:</label>
+        <input type="text" class="form-control" id="deleteProjectConfirmInput" autocomplete="off">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" id="deleteProjectConfirmBtn" disabled
+          onclick="afProjectDetail.deleteProject(<?= $projectId ?>, <?= json_encode($project['name']) ?>)">
+          <i class="bi bi-trash3"></i> Delete this project permanently
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 <?php endif; ?>
 
 <script>
 window.AF_PROJECT = {
   id: <?= $projectId ?>,
+  name: <?= json_encode($project['name']) ?>,
   statusData: <?= json_encode(array_map(fn($r) => ['status' => status_label($r['status']), 'n' => (int)$r['n']], $stats['by_status'])) ?>,
   assigneeData: <?= json_encode(array_map(fn($r) => ['name' => $r['full_name'], 'n' => (int)$r['n']], $stats['by_assignee'])) ?>
 };

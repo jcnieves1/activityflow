@@ -73,6 +73,15 @@ Mapped to the acceptance criteria. Run through this after installation
       it's rejected instead of failing with a database error.
 - [ ] Edit a project to change its owner — confirm the new owner appears in
       the Members list as project manager.
+- [ ] As an administrator (or the owning Project Manager), click "Delete
+      project" on a project with several tasks (some with comments and time
+      entries) and members — confirm the warning modal shows the correct
+      task/member counts, the Delete button stays disabled until you type the
+      exact project name, and after confirming, the project, its tasks, their
+      comments/time entries, and its members are all gone, and you're
+      redirected to the Projects list. Confirm an Employee or non-owning PM
+      does not see the Delete button and a direct API call is rejected.
+      Confirm an unrelated task from a *different* project is unaffected.
 - [ ] In both "New project" and "Edit project", use the Description field's
       rich text toolbar (headings, bold/italic/underline/strike, lists,
       blockquote, link) and save — confirm the formatting appears correctly

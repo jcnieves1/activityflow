@@ -38,12 +38,41 @@
     }
   });
 
+  // Delete confirmation: the button stays disabled until the typed text exactly
+  // matches the project name, so deletion (which cascades to every task, comment,
+  // and time entry under the project, with no undo) requires a deliberate,
+  // informed action rather than a single reflexive click.
+  const deleteConfirmInput = document.getElementById('deleteProjectConfirmInput');
+  const deleteConfirmBtn = document.getElementById('deleteProjectConfirmBtn');
+  if (deleteConfirmInput && deleteConfirmBtn) {
+    deleteConfirmInput.addEventListener('input', function () {
+      deleteConfirmBtn.disabled = deleteConfirmInput.value !== P.name;
+    });
+  }
+
   window.afProjectDetail = {
     removeMember(personId) {
       if (!afConfirm('Remove this member from the project?')) return;
       afFetch(window.AF_BASE_URL + 'api/projects.php', { method: 'POST', body: { action: 'remove_member', project_id: P.id, person_id: personId } })
         .then(() => location.reload())
         .catch((err) => afToast(err.message, 'danger'));
+    },
+
+    deleteProject(id, name) {
+      if (deleteConfirmInput && deleteConfirmInput.value !== name) return; // belt-and-braces alongside the disabled button
+      deleteConfirmBtn.disabled = true;
+      afFetch(window.AF_BASE_URL + 'api/projects.php', {
+        method: 'POST',
+        body: { action: 'delete', id, confirm_name: deleteConfirmInput ? deleteConfirmInput.value : name },
+      })
+        .then(() => {
+          afToast('Project deleted.');
+          setTimeout(() => { window.location.href = window.AF_BASE_URL + 'projects.php'; }, 400);
+        })
+        .catch((err) => {
+          afToast(err.message, 'danger');
+          if (deleteConfirmBtn) deleteConfirmBtn.disabled = false;
+        });
     },
   };
 
