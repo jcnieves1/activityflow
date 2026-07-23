@@ -2,27 +2,14 @@
   const P = window.AF_PROJECT;
   if (!P) return;
 
-  const statusCtx = document.getElementById('statusChart');
-  if (statusCtx) {
-    new Chart(statusCtx, {
-      type: 'doughnut',
-      data: {
-        labels: P.statusData.map((d) => d.status),
-        datasets: [{ data: P.statusData.map((d) => d.n), backgroundColor: ['#6c757d','#4361ee','#0dcaf0','#4361ee','#212529','#ffc107','#2a9d8f','#adb5bd'] }],
-      },
-      options: { plugins: { legend: { position: 'bottom' } } },
-    });
-  }
-
-  const assigneeCtx = document.getElementById('assigneeChart');
-  if (assigneeCtx) {
-    new Chart(assigneeCtx, {
-      type: 'bar',
-      data: { labels: P.assigneeData.map((d) => d.name), datasets: [{ label: 'Tasks', data: P.assigneeData.map((d) => d.n), backgroundColor: '#4361ee' }] },
-      options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } },
-    });
-  }
-
+  // Wire up the form handlers first, unconditionally. Chart rendering below is
+  // "nice to have" and talks to a third-party CDN script (Chart.js) that can fail
+  // to load (ad blockers, firewalls, CDN hiccups). Previously the chart code ran
+  // first in this same function, so a "Chart is not defined" error there aborted
+  // the whole script and silently skipped attaching the Edit Project / Add Member
+  // submit handlers below it — the forms then fell back to a native, unhandled
+  // submission. Registering the handlers first means a chart failure can never
+  // again take down project editing or member management.
   const memberForm = document.getElementById('memberForm');
   memberForm && memberForm.addEventListener('submit', function (e) {
     e.preventDefault();
@@ -57,4 +44,37 @@
         .catch((err) => afToast(err.message, 'danger'));
     },
   };
+
+  // Charts are rendered last and are fully isolated: if Chart.js didn't load,
+  // or a chart's data shape is ever unexpected, log it and move on instead of
+  // throwing an uncaught error that could interfere with anything else on the page.
+  if (typeof Chart === 'undefined') {
+    console.warn('Chart.js failed to load — skipping project charts.');
+    return;
+  }
+
+  try {
+    const statusCtx = document.getElementById('statusChart');
+    if (statusCtx) {
+      new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+          labels: P.statusData.map((d) => d.status),
+          datasets: [{ data: P.statusData.map((d) => d.n), backgroundColor: ['#6c757d','#4361ee','#0dcaf0','#4361ee','#212529','#ffc107','#2a9d8f','#adb5bd'] }],
+        },
+        options: { plugins: { legend: { position: 'bottom' } } },
+      });
+    }
+
+    const assigneeCtx = document.getElementById('assigneeChart');
+    if (assigneeCtx) {
+      new Chart(assigneeCtx, {
+        type: 'bar',
+        data: { labels: P.assigneeData.map((d) => d.name), datasets: [{ label: 'Tasks', data: P.assigneeData.map((d) => d.n), backgroundColor: '#4361ee' }] },
+        options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } },
+      });
+    }
+  } catch (err) {
+    console.warn('Failed to render project charts:', err);
+  }
 })();
