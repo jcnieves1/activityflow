@@ -16,7 +16,12 @@ window.afActivities = (function () {
     document.getElementById('activityTabs').style.display = 'none';
     document.getElementById('am_reclassify_block').classList.add('d-none');
     document.getElementById('am_repeat_block').style.display = '';
-    ['am_tab_time', 'am_tab_comments', 'am_tab_history'].forEach((id) => { document.getElementById(id).innerHTML = ''; });
+    // Clear only the dynamically-populated content areas, not the tab panes that
+    // contain them — am_tab_time also holds the static Status/Completion controls
+    // (am_status, am_completion_pct), so wiping its innerHTML deleted those
+    // permanently and broke every subsequent fillForm() call.
+    document.getElementById('am_time_totals').textContent = '';
+    ['am_time_entries', 'am_comments', 'am_history'].forEach((id) => { document.getElementById(id).innerHTML = ''; });
   }
 
   function loadParentOptions(excludeId, selectedId) {
