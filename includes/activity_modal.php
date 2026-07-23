@@ -191,5 +191,3 @@ $amTargetProjects = array_values(array_filter($amProjects, fn($p) => can_add_tas
     </div>
   </div>
 </div>
-  </div>
-</div>
