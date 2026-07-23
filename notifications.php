@@ -5,14 +5,14 @@ $user = require_login();
 
 $notifications = list_notifications($user['id'], 100);
 
-$pageTitle = 'Notifications';
+$pageTitle = t('notif.title');
 $activeNav = '';
-$breadcrumbs = [['label' => 'Notifications']];
+$breadcrumbs = [['label' => t('notif.title')]];
 require __DIR__ . '/includes/layout_header.php';
 ?>
 <div class="d-flex justify-content-between align-items-center mb-3">
-  <h4 class="mb-0">Notifications</h4>
-  <button class="btn btn-outline-secondary btn-sm" id="markAllRead">Mark all as read</button>
+  <h4 class="mb-0"><?= e(t('notif.title')) ?></h4>
+  <button class="btn btn-outline-secondary btn-sm" id="markAllRead"><?= e(t('notif.mark_all_read')) ?></button>
 </div>
 <div class="af-card p-0">
   <?php foreach ($notifications as $n): ?>
@@ -24,7 +24,7 @@ require __DIR__ . '/includes/layout_header.php';
       <?php if ($n['body']): ?><div class="small text-muted"><?= e($n['body']) ?></div><?php endif; ?>
     </div>
   <?php endforeach; ?>
-  <?php if (!$notifications): ?><div class="af-empty"><i class="bi bi-bell"></i>No notifications yet.</div><?php endif; ?>
+  <?php if (!$notifications): ?><div class="af-empty"><i class="bi bi-bell"></i><?= e(t('topbar.no_notifications')) ?></div><?php endif; ?>
 </div>
 <script>
 document.getElementById('markAllRead').addEventListener('click', function () {

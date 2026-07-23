@@ -41,7 +41,9 @@
       if (!label) return;
       const checked = itemCbs.filter((cb) => cb.checked);
       if (!checked.length) { label.textContent = allText; return; }
-      label.textContent = checked.length + ' ' + (checked.length === 1 ? singular : plural) + ' selected';
+      const noun = checked.length === 1 ? singular : plural;
+      const suffix = (window.AF_I18N && window.AF_I18N.board_selected_suffix) || '{count} {noun} selected';
+      label.textContent = suffix.replace('{count}', checked.length).replace('{noun}', noun);
     }
     if (allCb) {
       allCb.addEventListener('change', function () {
@@ -58,6 +60,9 @@
     });
   }
 
-  wireFilterGroup('boardFilterAll', '.board-member-checkbox', 'boardMemberFilterLabel', 'All team members', 'member', 'members');
-  wireFilterGroup('boardStatusFilterAll', '.board-status-checkbox', 'boardStatusFilterLabel', 'All statuses', 'status', 'statuses');
+  const i18n = window.AF_I18N || {};
+  wireFilterGroup('boardFilterAll', '.board-member-checkbox', 'boardMemberFilterLabel',
+    i18n.board_all_team_members || 'All team members', i18n.board_member_singular || 'member', i18n.board_member_plural || 'members');
+  wireFilterGroup('boardStatusFilterAll', '.board-status-checkbox', 'boardStatusFilterLabel',
+    i18n.board_all_statuses || 'All statuses', i18n.board_status_singular || 'status', i18n.board_status_plural || 'statuses');
 })();

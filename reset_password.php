@@ -17,13 +17,13 @@ $newPassword = (string)($_POST['new_password'] ?? '');
 $confirm = (string)($_POST['new_password_confirm'] ?? '');
 
 if ($newPassword !== $confirm) {
-    flash_set('danger', 'Passwords do not match.');
+    flash_set('danger', t('register.error_password_mismatch'));
     redirect('forgot_password.php');
 }
 
 $result = recovery_reset_password($email, $newPassword, $token);
 if ($result['ok']) {
-    flash_set('success', 'Your password has been reset. Please log in.');
+    flash_set('success', t('reset.success'));
     redirect('login.php');
 }
 

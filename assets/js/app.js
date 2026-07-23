@@ -116,8 +116,9 @@
     afFetch(window.AF_BASE_URL + 'api/notifications.php?action=list&limit=8')
       .then((data) => {
         const items = (data && data.notifications) || [];
+        const i18n = window.AF_I18N || {};
         if (!items.length) {
-          notifList.innerHTML = '<div class="p-3 text-muted small">No notifications yet.</div>';
+          notifList.innerHTML = `<div class="p-3 text-muted small">${i18n.no_notifications || 'No notifications yet.'}</div>`;
           return;
         }
         notifList.innerHTML = items.map((n) => `
@@ -127,7 +128,10 @@
             <div class="text-muted" style="font-size:.72rem">${n.created_at}</div>
           </div>`).join('');
       })
-      .catch(() => { notifList.innerHTML = '<div class="p-3 text-muted small">Unable to load notifications.</div>'; });
+      .catch(() => {
+        const i18n = window.AF_I18N || {};
+        notifList.innerHTML = `<div class="p-3 text-muted small">${i18n.unable_to_load_notifications || 'Unable to load notifications.'}</div>`;
+      });
   }
   document.addEventListener('DOMContentLoaded', loadNotifications);
 

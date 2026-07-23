@@ -195,6 +195,34 @@ Mapped to the acceptance criteria. Run through this after installation
 - [ ] Directly call an `api/*.php` write endpoint without a valid CSRF token
       (e.g. via browser dev tools) and confirm it's rejected.
 
+## Color schemes & language
+
+- [ ] From the topbar swatch dropdown, switch between Golden & White, Light
+      Green, and Dark Blue — confirm the change applies instantly (no page
+      reload) across sidebar, topbar, buttons, links, and form-check states.
+- [ ] Reload the page and log out/in again — confirm the chosen color scheme
+      is remembered (stored on your profile).
+- [ ] As a guest (logged out), change the color scheme on the Log in page —
+      confirm it applies to the login/register/forgot-password pages, and
+      confirm it carries over once you register or log in (session-based
+      until an account exists, then saved to the profile).
+- [ ] From the topbar language dropdown, switch to Español — confirm the
+      page reloads and text throughout the app (nav, buttons, forms, table
+      headers) is translated. Switch back to English and confirm it reverts.
+- [ ] Reload and log out/in again — confirm the chosen language persists.
+- [ ] From Profile & Settings, confirm the "Appearance & language" section
+      shows the currently active theme/language as selected and that
+      choosing a different option there also applies and saves correctly
+      (same mechanism as the topbar controls).
+- [ ] Spot-check a few pages in Spanish (Dashboard, Task Board, My Tasks,
+      Project Detail, a Reports Center filter form) and confirm labels read
+      naturally; note that report table columns (built by `reports.js`) and
+      the admin Users table (built by `admin_users.js`) remain in English —
+      this is a known, disclosed gap, not a bug.
+- [ ] Confirm times still show AM/PM in English regardless of language
+      selected (native PHP date formatting is not locale-aware) — also a
+      known, disclosed gap.
+
 ## General
 
 - [ ] Resize the browser to a mobile width and confirm the sidebar collapses

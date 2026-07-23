@@ -38,6 +38,8 @@ CREATE TABLE users (
     failed_login_count INT UNSIGNED NOT NULL DEFAULT 0,
     locked_until DATETIME DEFAULT NULL,
     last_login_at DATETIME DEFAULT NULL,
+    theme ENUM('golden','green','blue') NOT NULL DEFAULT 'golden',
+    locale ENUM('en','es') NOT NULL DEFAULT 'en',
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     UNIQUE KEY uq_users_email (email)

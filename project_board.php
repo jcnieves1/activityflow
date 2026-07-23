@@ -6,7 +6,7 @@ require_login();
 $projectId = (int)($_GET['id'] ?? 0);
 $project = get_project($projectId);
 if (!$project) { http_response_code(404); require __DIR__ . '/404.php'; exit; }
-if (!can_view_project($project)) deny('You do not have access to this project.');
+if (!can_view_project($project)) deny(t('pd.no_access'));
 
 $members = list_project_members($projectId);
 $selectedMemberIds = array_values(array_unique(array_map('intval', array_filter((array)($_GET['members'] ?? []), fn($v) => $v !== ''))));
@@ -25,30 +25,30 @@ foreach (ACTIVITY_STATUSES as $s) { $byStatus[$s] = []; }
 foreach ($activities as $a) { $byStatus[$a['status']][] = $a; }
 $displayStatuses = $selectedStatuses ?: ACTIVITY_STATUSES;
 
-$pageTitle = $project['name'] . ' — Task Board';
+$pageTitle = t('board.title', ['name' => $project['name']]);
 $activeNav = 'projects';
-$breadcrumbs = [['label' => 'Projects', 'url' => base_url('projects.php')], ['label' => $project['name'], 'url' => base_url('project_detail.php?id=' . $projectId)], ['label' => 'Task board']];
+$breadcrumbs = [['label' => t('projects.title'), 'url' => base_url('projects.php')], ['label' => $project['name'], 'url' => base_url('project_detail.php?id=' . $projectId)], ['label' => t('pd.task_board')]];
 $pageScripts = [base_url('assets/js/activities.js'), base_url('assets/js/project_board.js')];
 require __DIR__ . '/includes/layout_header.php';
 require __DIR__ . '/includes/activity_modal.php';
 ?>
 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-  <h4 class="mb-0"><?= e($project['name']) ?> — Task board</h4>
+  <h4 class="mb-0"><?= e(t('board.title', ['name' => $project['name']])) ?></h4>
   <div class="d-flex align-items-center gap-2">
     <form method="get" class="d-flex align-items-center gap-2" id="boardFilterForm">
       <input type="hidden" name="id" value="<?= $projectId ?>">
 
       <div class="dropdown">
         <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="boardMemberFilterBtn" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
-          <i class="bi bi-people"></i> <span id="boardMemberFilterLabel"><?= $selectedMemberIds ? count($selectedMemberIds) . ' member' . (count($selectedMemberIds) === 1 ? '' : 's') . ' selected' : 'All team members' ?></span>
+          <i class="bi bi-people"></i> <span id="boardMemberFilterLabel"><?= $selectedMemberIds ? e(t('board.selected_suffix', ['count' => count($selectedMemberIds), 'noun' => count($selectedMemberIds) === 1 ? t('board.member_singular') : t('board.member_plural')])) : e(t('board.all_team_members')) ?></span>
         </button>
         <div class="dropdown-menu p-3" style="min-width:260px;max-height:340px;overflow-y:auto;">
           <div class="form-check mb-2 border-bottom pb-2">
             <input class="form-check-input" type="checkbox" id="boardFilterAll" <?= !$selectedMemberIds ? 'checked' : '' ?>>
-            <label class="form-check-label fw-semibold" for="boardFilterAll">All team members</label>
+            <label class="form-check-label fw-semibold" for="boardFilterAll"><?= e(t('board.all_team_members')) ?></label>
           </div>
           <?php if (!$members): ?>
-            <div class="text-muted small">No members on this project yet.</div>
+            <div class="text-muted small"><?= e(t('board.no_members_yet')) ?></div>
           <?php endif; ?>
           <?php foreach ($members as $m): ?>
             <div class="form-check">
@@ -56,18 +56,18 @@ require __DIR__ . '/includes/activity_modal.php';
               <label class="form-check-label" for="boardMember<?= (int)$m['person_id'] ?>"><?= e($m['full_name']) ?></label>
             </div>
           <?php endforeach; ?>
-          <button type="submit" class="btn btn-sm btn-primary w-100 mt-3">Apply filter</button>
+          <button type="submit" class="btn btn-sm btn-primary w-100 mt-3"><?= e(t('common.apply')) ?></button>
         </div>
       </div>
 
       <div class="dropdown">
         <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="boardStatusFilterBtn" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
-          <i class="bi bi-flag"></i> <span id="boardStatusFilterLabel"><?= $selectedStatuses ? count($selectedStatuses) . ' status' . (count($selectedStatuses) === 1 ? '' : 'es') . ' selected' : 'All statuses' ?></span>
+          <i class="bi bi-flag"></i> <span id="boardStatusFilterLabel"><?= $selectedStatuses ? e(t('board.selected_suffix', ['count' => count($selectedStatuses), 'noun' => count($selectedStatuses) === 1 ? t('board.status_singular') : t('board.status_plural')])) : e(t('board.all_statuses')) ?></span>
         </button>
         <div class="dropdown-menu p-3" style="min-width:220px;max-height:340px;overflow-y:auto;">
           <div class="form-check mb-2 border-bottom pb-2">
             <input class="form-check-input" type="checkbox" id="boardStatusFilterAll" <?= !$selectedStatuses ? 'checked' : '' ?>>
-            <label class="form-check-label fw-semibold" for="boardStatusFilterAll">All statuses</label>
+            <label class="form-check-label fw-semibold" for="boardStatusFilterAll"><?= e(t('board.all_statuses')) ?></label>
           </div>
           <?php foreach (ACTIVITY_STATUSES as $s): ?>
             <div class="form-check">
@@ -75,17 +75,17 @@ require __DIR__ . '/includes/activity_modal.php';
               <label class="form-check-label" for="boardStatus<?= $s ?>"><?= e(status_label($s)) ?></label>
             </div>
           <?php endforeach; ?>
-          <button type="submit" class="btn btn-sm btn-primary w-100 mt-3">Apply filter</button>
+          <button type="submit" class="btn btn-sm btn-primary w-100 mt-3"><?= e(t('common.apply')) ?></button>
         </div>
       </div>
     </form>
 
-    <button class="btn btn-primary" onclick="afActivities.openCreate({project_id: <?= $projectId ?>})"><i class="bi bi-plus-lg"></i> Add task</button>
+    <button class="btn btn-primary" onclick="afActivities.openCreate({project_id: <?= $projectId ?>})"><i class="bi bi-plus-lg"></i> <?= e(t('board.add_task')) ?></button>
   </div>
 </div>
 
 <?php if (count($displayStatuses) < count(ACTIVITY_STATUSES)): ?>
-  <p class="text-muted small mb-2">Showing <?= count($displayStatuses) ?> of <?= count(ACTIVITY_STATUSES) ?> statuses.</p>
+  <p class="text-muted small mb-2"><?= e(t('board.showing_statuses', ['shown' => count($displayStatuses), 'total' => count(ACTIVITY_STATUSES)])) ?></p>
 <?php endif; ?>
 <div class="af-board d-flex gap-3" style="overflow-x:auto;">
   <?php foreach ($displayStatuses as $status): ?>

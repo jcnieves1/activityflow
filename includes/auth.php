@@ -28,7 +28,7 @@ function load_user_session(int $userId): void
 {
     $pdo = db();
     $stmt = $pdo->prepare(
-        'SELECT u.id, u.full_name, u.email, u.status, p.id AS person_id
+        'SELECT u.id, u.full_name, u.email, u.status, u.theme, u.locale, p.id AS person_id
          FROM users u LEFT JOIN people p ON p.user_id = u.id
          WHERE u.id = ?'
     );
@@ -52,6 +52,8 @@ function load_user_session(int $userId): void
         'email'     => $user['email'],
         'person_id' => $user['person_id'] !== null ? (int)$user['person_id'] : null,
         'roles'     => $roles,
+        'theme'     => $user['theme'] ?? 'golden',
+        'locale'    => $user['locale'] ?? 'en',
     ];
 }
 
@@ -82,14 +84,14 @@ function attempt_login(string $email, string $password): array
 
     $recentFailures = login_attempt_count($email, $security['login_lockout_minutes']);
     if ($recentFailures >= $security['login_max_attempts']) {
-        return ['ok' => false, 'error' => 'Too many failed attempts. Please try again later.'];
+        return ['ok' => false, 'error' => t('auth.too_many_attempts')];
     }
 
     $stmt = db()->prepare('SELECT * FROM users WHERE email = ?');
     $stmt->execute([$email]);
     $user = $stmt->fetch();
 
-    $genericError = 'Invalid email or password.';
+    $genericError = t('auth.invalid_credentials');
 
     if (!$user) {
         record_login_attempt($email, false);
@@ -98,7 +100,7 @@ function attempt_login(string $email, string $password): array
 
     if ($user['status'] === 'locked' || $user['status'] === 'inactive') {
         record_login_attempt($email, false);
-        return ['ok' => false, 'error' => 'This account is not available. Contact an administrator.'];
+        return ['ok' => false, 'error' => t('auth.account_unavailable')];
     }
 
     if (!password_verify($password, $user['password_hash'])) {
@@ -137,25 +139,25 @@ function register_user(string $fullName, string $email, string $password, string
     $security = app_config()['security'];
 
     if (mb_strlen(trim($fullName)) < 2) {
-        return ['ok' => false, 'error' => 'Please enter your full name.'];
+        return ['ok' => false, 'error' => t('auth.register_name_required')];
     }
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        return ['ok' => false, 'error' => 'Please enter a valid email address.'];
+        return ['ok' => false, 'error' => t('auth.register_email_invalid')];
     }
     if (mb_strlen($password) < 8) {
-        return ['ok' => false, 'error' => 'Password must be at least 8 characters.'];
+        return ['ok' => false, 'error' => t('auth.register_password_length')];
     }
     if (mb_strlen(trim($question)) < 5) {
-        return ['ok' => false, 'error' => 'Please provide a recovery question.'];
+        return ['ok' => false, 'error' => t('auth.register_question_required')];
     }
     if (mb_strlen(normalize_secret_answer($answer)) < $security['min_secret_answer_length']) {
-        return ['ok' => false, 'error' => 'Recovery answer is too short.'];
+        return ['ok' => false, 'error' => t('auth.register_answer_too_short')];
     }
 
     $stmt = db()->prepare('SELECT id FROM users WHERE email = ?');
     $stmt->execute([$email]);
     if ($stmt->fetch()) {
-        return ['ok' => false, 'error' => 'An account with that email already exists.'];
+        return ['ok' => false, 'error' => t('auth.register_email_exists')];
     }
 
     $passwordHash = password_hash($password, PASSWORD_DEFAULT);
@@ -215,7 +217,7 @@ function register_user(string $fullName, string $email, string $password, string
     } catch (Throwable $e) {
         $pdo->rollBack();
         error_log('[activityflow] registration failed: ' . $e->getMessage());
-        return ['ok' => false, 'error' => 'Registration failed. Please try again.'];
+        return ['ok' => false, 'error' => t('auth.register_failed')];
     }
 }
 
@@ -259,14 +261,14 @@ function recovery_start(string $email): array
 
     if (recovery_rate_limited($email)) {
         record_recovery_attempt($email, 'question_requested', false);
-        return ['ok' => false, 'error' => 'Too many recovery attempts. Please try again later.'];
+        return ['ok' => false, 'error' => t('auth.recovery_too_many_attempts')];
     }
 
     $stmt = db()->prepare('SELECT id, secret_question FROM users WHERE email = ?');
     $stmt->execute([$email]);
     $user = $stmt->fetch();
 
-    $question = $user['secret_question'] ?? RECOVERY_GENERIC_QUESTION;
+    $question = $user['secret_question'] ?? t('auth.recovery_generic_question');
 
     $ttl = (int)app_config()['security']['recovery_token_ttl_minutes'];
     $token = bin2hex(random_bytes(24));
@@ -302,11 +304,11 @@ function recovery_session_valid(string $email, string $token): bool
 function recovery_verify_answer(string $email, string $answer, string $token): array
 {
     $email = mb_strtolower(trim($email));
-    $generic = ['ok' => false, 'error' => 'That answer did not match our records.'];
+    $generic = ['ok' => false, 'error' => t('auth.recovery_answer_mismatch')];
 
     if (recovery_rate_limited($email) || !recovery_session_valid($email, $token)) {
         record_recovery_attempt($email, 'answer_checked', false);
-        return ['ok' => false, 'error' => 'This recovery session has expired. Please start again.'];
+        return ['ok' => false, 'error' => t('auth.recovery_session_expired')];
     }
 
     $stmt = db()->prepare('SELECT id, secret_answer_hash FROM users WHERE email = ?');
@@ -332,10 +334,10 @@ function recovery_reset_password(string $email, string $newPassword, string $tok
     $email = mb_strtolower(trim($email));
 
     if (!recovery_session_valid($email, $token) || empty($_SESSION['recovery']['answer_verified'])) {
-        return ['ok' => false, 'error' => 'This recovery session has expired. Please start again.'];
+        return ['ok' => false, 'error' => t('auth.recovery_session_expired')];
     }
     if (mb_strlen($newPassword) < 8) {
-        return ['ok' => false, 'error' => 'Password must be at least 8 characters.'];
+        return ['ok' => false, 'error' => t('auth.register_password_length')];
     }
 
     $stmt = db()->prepare('SELECT id FROM users WHERE email = ?');

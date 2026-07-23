@@ -1,4 +1,7 @@
 :root {
+  /* Activity status colors are semantic (urgent = red, completed = teal,
+     etc.) and stay constant across every color scheme below — only the
+     app's own chrome (sidebar/topbar/accent) re-themes. */
   --af-planned: #4361ee;
   --af-unplanned: #f4a261;
   --af-urgent: #e63946;
@@ -8,7 +11,72 @@
   --af-topbar-h: 60px;
 }
 
-body { background: #f4f6fb; color: #1f2937; }
+/* ---------- Color schemes ----------
+   Selected via <html data-theme="golden|green|blue">, applied instantly by
+   assets/js/theme.js and persisted to the user's profile (or the guest
+   session pre-login) through api/preferences.php. Overriding Bootstrap's
+   own --bs-primary/--bs-primary-rgb here re-themes every .btn-primary,
+   .text-primary/.bg-primary, form-check "checked" state, link color, etc.
+   throughout the whole app for free, without touching every page. */
+:root, [data-theme="golden"] {
+  --af-body-bg: #fbf8f0;
+  --af-sidebar-bg: #ffffff;
+  --af-sidebar-text: #55452a;
+  --af-sidebar-hover-bg: rgba(0,0,0,.05);
+  --af-sidebar-border: rgba(0,0,0,.08);
+  --af-sidebar-heading: #a3854f;
+  --af-topbar-bg: #ffffff;
+  --af-topbar-border: #e5e7eb;
+  --af-topbar-btn-bg: #f4f0e4;
+  --af-topbar-btn-text: #55452a;
+  --bs-primary: #b8860b;
+  --bs-primary-rgb: 184, 134, 11;
+  --bs-link-color: #96690a;
+  --bs-link-color-rgb: 150, 105, 10;
+  --bs-link-hover-color: #7a5608;
+  --bs-link-hover-color-rgb: 122, 86, 8;
+}
+[data-theme="green"] {
+  --af-body-bg: #f1faf3;
+  --af-sidebar-bg: #eaf7ee;
+  --af-sidebar-text: #1f4d2e;
+  --af-sidebar-hover-bg: rgba(0,0,0,.05);
+  --af-sidebar-border: rgba(0,0,0,.08);
+  --af-sidebar-heading: #4c8a63;
+  --af-topbar-bg: #ffffff;
+  --af-topbar-border: #e5e7eb;
+  --af-topbar-btn-bg: #eaf7ee;
+  --af-topbar-btn-text: #1f4d2e;
+  --bs-primary: #2e8b57;
+  --bs-primary-rgb: 46, 139, 87;
+  --bs-link-color: #247146;
+  --bs-link-color-rgb: 36, 113, 70;
+  --bs-link-hover-color: #1c5837;
+  --bs-link-hover-color-rgb: 28, 88, 55;
+}
+[data-theme="blue"] {
+  --af-body-bg: #101a2c;
+  --af-sidebar-bg: #0b1220;
+  --af-sidebar-text: #cbd5e1;
+  --af-sidebar-hover-bg: rgba(255,255,255,.06);
+  --af-sidebar-border: rgba(255,255,255,.08);
+  --af-sidebar-heading: #7d8ba3;
+  --af-topbar-bg: #101c33;
+  --af-topbar-border: rgba(255,255,255,.08);
+  --af-topbar-btn-bg: rgba(255,255,255,.08);
+  --af-topbar-btn-text: #e2e8f0;
+  --bs-primary: #3b82f6;
+  --bs-primary-rgb: 59, 130, 246;
+  --bs-link-color: #60a5fa;
+  --bs-link-color-rgb: 96, 165, 250;
+  --bs-link-hover-color: #93c5fd;
+  --bs-link-hover-color-rgb: 147, 197, 253;
+}
+
+body { background: var(--af-body-bg); color: #1f2937; }
+[data-theme="blue"] .af-topbar,
+[data-theme="blue"] .af-content { color: #e2e8f0; }
+[data-theme="blue"] .af-topbar .text-muted { color: #94a3b8 !important; }
 
 .bg-orange { background-color: var(--af-unplanned) !important; color: #402400; }
 
@@ -17,22 +85,22 @@ body { background: #f4f6fb; color: #1f2937; }
 
 .af-sidebar {
   width: var(--af-sidebar-w);
-  background: #111827;
-  color: #e5e7eb;
+  background: var(--af-sidebar-bg);
+  color: var(--af-sidebar-text);
   position: fixed;
   top: 0; bottom: 0; left: 0;
   display: flex;
   flex-direction: column;
   z-index: 1040;
   transform: translateX(0);
-  transition: transform .2s ease;
+  transition: transform .2s ease, background .15s ease, color .15s ease;
 }
-.af-brand { display:flex; align-items:center; gap:.5rem; padding: 1rem; font-weight:700; font-size:1.1rem; border-bottom: 1px solid rgba(255,255,255,.08); }
+.af-brand { display:flex; align-items:center; gap:.5rem; padding: 1rem; font-weight:700; font-size:1.1rem; border-bottom: 1px solid var(--af-sidebar-border); color: var(--af-sidebar-text); }
 .af-nav { padding: .5rem; overflow-y:auto; }
-.af-nav-heading { font-size:.7rem; text-transform:uppercase; letter-spacing:.06em; color:#9ca3af; padding: 1rem .75rem .25rem; }
-.af-nav-link { display:flex; align-items:center; gap:.65rem; padding:.55rem .75rem; border-radius:.5rem; color:#cbd5e1; text-decoration:none; font-size:.92rem; margin-bottom:2px; }
-.af-nav-link:hover { background: rgba(255,255,255,.06); color:#fff; }
-.af-nav-link.active { background: var(--af-planned); color:#fff; }
+.af-nav-heading { font-size:.7rem; text-transform:uppercase; letter-spacing:.06em; color: var(--af-sidebar-heading); padding: 1rem .75rem .25rem; }
+.af-nav-link { display:flex; align-items:center; gap:.65rem; padding:.55rem .75rem; border-radius:.5rem; color: var(--af-sidebar-text); text-decoration:none; font-size:.92rem; margin-bottom:2px; }
+.af-nav-link:hover { background: var(--af-sidebar-hover-bg); }
+.af-nav-link.active { background: var(--bs-primary); color:#fff; }
 
 .af-backdrop { display:none; }
 
@@ -40,17 +108,23 @@ body { background: #f4f6fb; color: #1f2937; }
 
 .af-topbar {
   height: var(--af-topbar-h);
-  background:#fff;
-  border-bottom:1px solid #e5e7eb;
+  background: var(--af-topbar-bg);
+  border-bottom:1px solid var(--af-topbar-border);
   display:flex; align-items:center; gap:1rem;
   padding: 0 1.25rem;
   position: sticky; top:0; z-index:1020;
+  transition: background .15s ease, color .15s ease;
 }
 .af-search { position:relative; flex:1; max-width:420px; }
 .af-search i { position:absolute; left:.75rem; top:50%; transform:translateY(-50%); color:#9ca3af; }
 .af-search input { width:100%; border:1px solid #e5e7eb; border-radius:2rem; padding:.45rem .75rem .45rem 2.2rem; background:#f9fafb; }
 .af-topbar-actions { margin-left:auto; display:flex; align-items:center; gap:.5rem; }
-.af-avatar { width:28px; height:28px; border-radius:50%; background:var(--af-planned); color:#fff; display:inline-flex; align-items:center; justify-content:center; font-weight:600; font-size:.85rem; }
+.af-topbar .btn-light { background: var(--af-topbar-btn-bg); color: var(--af-topbar-btn-text); border-color: transparent; }
+.af-avatar { width:28px; height:28px; border-radius:50%; background:var(--bs-primary); color:#fff; display:inline-flex; align-items:center; justify-content:center; font-weight:600; font-size:.85rem; }
+.af-theme-swatch { width:18px; height:18px; border-radius:50%; display:inline-block; border:1px solid rgba(0,0,0,.15); vertical-align:middle; }
+.af-theme-swatch.af-theme-golden { background: linear-gradient(135deg, #fff 50%, #b8860b 50%); }
+.af-theme-swatch.af-theme-green { background: linear-gradient(135deg, #fff 50%, #2e8b57 50%); }
+.af-theme-swatch.af-theme-blue { background: linear-gradient(135deg, #0b1220 50%, #3b82f6 50%); }
 .af-notif-badge { position:absolute; top:2px; right:2px; font-size:.6rem; }
 .af-notif-menu { width: 340px; max-height: 420px; overflow-y:auto; padding:0; }
 .af-notif-list .notif-item { padding:.6rem .9rem; border-bottom:1px solid #f1f5f9; font-size:.85rem; }
@@ -84,7 +158,7 @@ body { background: #f4f6fb; color: #1f2937; }
 .af-activity-item.dragging { opacity:.5; }
 
 .af-dropzone { min-height: 60px; border:2px dashed transparent; border-radius:.5rem; transition: background .15s; }
-.af-dropzone.dragover { background:#eef2ff; border-color:var(--af-planned); }
+.af-dropzone.dragover { background:#eef2ff; border-color:var(--bs-primary); }
 
 /* ---------- Timeline ---------- */
 .af-timeline-track { position:relative; height:70px; background:#f1f5f9; border-radius:.5rem; margin-bottom:.5rem; }

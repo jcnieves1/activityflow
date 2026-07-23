@@ -50,11 +50,12 @@ function captcha_question(): string
 /** Bootstrap-styled form field markup, matching the other auth form fields. */
 function captcha_field(): string
 {
-    $question = e(captcha_question());
+    $label = e(t('captcha.label', ['question' => captcha_question()]));
+    $help = e(t('captcha.help'));
     return '<div class="mb-3">'
-        . '<label class="form-label" for="captcha_answer">Security check: what is ' . $question . '?</label>'
+        . '<label class="form-label" for="captcha_answer">' . $label . '</label>'
         . '<input type="text" inputmode="numeric" autocomplete="off" class="form-control" id="captcha_answer" name="captcha_answer" required>'
-        . '<div class="form-text">This helps us block automated sign-ins and account creation.</div>'
+        . '<div class="form-text">' . $help . '</div>'
         . '</div>';
 }
 
