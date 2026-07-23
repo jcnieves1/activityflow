@@ -32,6 +32,16 @@
       .catch((err) => afToast(err.message, 'danger'));
   });
 
+  const editProjectForm = document.getElementById('editProjectForm');
+  editProjectForm && editProjectForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(editProjectForm).entries());
+    data.is_archived = editProjectForm.querySelector('[name=is_archived]').checked ? 1 : 0;
+    afFetch(window.AF_BASE_URL + 'api/projects.php', { method: 'POST', body: Object.assign({ action: 'update' }, data) })
+      .then(() => { afToast('Project updated.'); location.reload(); })
+      .catch((err) => afToast(err.message, 'danger'));
+  });
+
   window.afProjectDetail = {
     removeMember(personId) {
       if (!afConfirm('Remove this member from the project?')) return;

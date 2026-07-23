@@ -47,6 +47,14 @@ if ($method === 'POST') {
         $project = get_project((int)($data['id'] ?? 0));
         if (!$project) json_error('Project not found.', 404);
         if (!can_manage_project($project)) deny('Only the project owner or an administrator can edit this project.');
+        $missing = missing_fields($data, ['name', 'code', 'owner_id']);
+        if ($missing) json_error('Name, code, and owner are required.');
+        if (strcasecmp($data['code'], $project['code']) !== 0) {
+            $codeOwner = get_project_by_code($data['code']);
+            if ($codeOwner && (int)$codeOwner['id'] !== (int)$project['id']) {
+                json_error('Another project already uses that code.');
+            }
+        }
         update_project((int)$project['id'], $data);
         json_response(['ok' => true, 'project' => get_project((int)$project['id'])]);
     }

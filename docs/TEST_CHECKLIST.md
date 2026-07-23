@@ -62,6 +62,17 @@ Mapped to the acceptance criteria. Run through this after installation
       confirm the percentage and label change accordingly.
 - [ ] Mark a task cancelled and confirm it drops out of the progress
       denominator.
+- [ ] As an administrator (or the owning Project Manager), open an existing
+      project's detail page and click "Edit project" — confirm every field
+      (name, code, description, owner, department, dates, priority, status,
+      planned hours, color, archived flag, notes) loads with its current
+      value and saves correctly. Confirm the button is not shown, and a
+      direct API call is rejected, for an Employee or a Project Manager who
+      doesn't own the project.
+- [ ] Edit a project's code to one already used by another project — confirm
+      it's rejected instead of failing with a database error.
+- [ ] Edit a project to change its owner — confirm the new owner appears in
+      the Members list as project manager.
 
 ## Time tracking
 

@@ -20,7 +20,9 @@ $progress = calculate_project_progress($projectId, $method);
 $stats = project_task_stats($projectId);
 $members = list_project_members($projectId);
 $people = list_people(['is_active' => 1]);
+$departments = department_list();
 $recent = array_slice(audit_history('project', $projectId), 0, 8);
+$projectStatuses = ['draft', 'not_started', 'active', 'on_hold', 'completed', 'cancelled', 'archived'];
 
 $effort = $stats['effort'];
 $plannedHours = round(((int)$effort['planned_minutes']) / 60, 1);
@@ -47,7 +49,10 @@ require __DIR__ . '/includes/layout_header.php';
   </div>
   <div class="d-flex gap-2">
     <a href="<?= e(base_url('project_board.php?id=' . $projectId)) ?>" class="btn btn-outline-primary"><i class="bi bi-kanban"></i> Task board</a>
-    <?php if ($canManage): ?><button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#memberModal"><i class="bi bi-person-plus"></i> Add member</button><?php endif; ?>
+    <?php if ($canManage): ?>
+      <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editProjectModal"><i class="bi bi-pencil-square"></i> Edit project</button>
+      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#memberModal"><i class="bi bi-person-plus"></i> Add member</button>
+    <?php endif; ?>
   </div>
 </div>
 
@@ -162,6 +167,98 @@ require __DIR__ . '/includes/layout_header.php';
 </div>
 
 <?php if ($canManage): ?>
+<div class="modal fade" id="editProjectModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form id="editProjectForm">
+        <input type="hidden" name="id" value="<?= $projectId ?>">
+        <div class="modal-header">
+          <h5 class="modal-title">Edit project</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-8 mb-2"><label class="form-label">Project name *</label>
+              <input class="form-control" name="name" required value="<?= e($project['name']) ?>">
+            </div>
+            <div class="col-md-4 mb-2"><label class="form-label">Code *</label>
+              <input class="form-control" name="code" required value="<?= e($project['code']) ?>">
+            </div>
+          </div>
+          <div class="mb-2"><label class="form-label">Description</label>
+            <textarea class="form-control" name="description" rows="2"><?= e($project['description'] ?? '') ?></textarea>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-2"><label class="form-label">Owner / Project Manager *</label>
+              <select class="form-select" name="owner_id" required>
+                <?php foreach ($people as $p): ?>
+                  <option value="<?= (int)$p['id'] ?>" <?= (int)$p['id'] === (int)$project['owner_id'] ? 'selected' : '' ?>><?= e($p['full_name']) ?></option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+            <div class="col-md-6 mb-2"><label class="form-label">Department</label>
+              <select class="form-select" name="department_id">
+                <option value="">—</option>
+                <?php foreach ($departments as $d): ?>
+                  <option value="<?= (int)$d['id'] ?>" <?= (int)$d['id'] === (int)($project['department_id'] ?? 0) ? 'selected' : '' ?>><?= e($d['name']) ?></option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4 mb-2"><label class="form-label">Start date</label>
+              <input type="date" class="form-control" name="start_date" value="<?= e($project['start_date'] ?? '') ?>">
+            </div>
+            <div class="col-md-4 mb-2"><label class="form-label">Target completion</label>
+              <input type="date" class="form-control" name="target_completion_date" value="<?= e($project['target_completion_date'] ?? '') ?>">
+            </div>
+            <div class="col-md-4 mb-2"><label class="form-label">Actual completion</label>
+              <input type="date" class="form-control" name="actual_completion_date" value="<?= e($project['actual_completion_date'] ?? '') ?>">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4 mb-2"><label class="form-label">Priority</label>
+              <select class="form-select" name="priority">
+                <?php foreach (ACTIVITY_PRIORITIES as $p): ?>
+                  <option value="<?= $p ?>" <?= $p === $project['priority'] ? 'selected' : '' ?>><?= e(status_label($p)) ?></option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+            <div class="col-md-4 mb-2"><label class="form-label">Status</label>
+              <select class="form-select" name="status">
+                <?php foreach ($projectStatuses as $s): ?>
+                  <option value="<?= $s ?>" <?= $s === $project['status'] ? 'selected' : '' ?>><?= e(status_label($s)) ?></option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+            <div class="col-md-4 mb-2"><label class="form-label">Planned effort (hours)</label>
+              <input type="number" step="0.5" min="0" class="form-control" name="planned_effort_hours" value="<?= e($project['planned_effort_hours'] ?? '') ?>">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4 mb-2"><label class="form-label">Calendar color</label>
+              <input type="color" class="form-control form-control-color" name="color" value="<?= e($project['color']) ?>">
+            </div>
+            <div class="col-md-8 mb-2 d-flex align-items-end">
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" name="is_archived" id="editProjectArchived" value="1" <?= !empty($project['is_archived']) ? 'checked' : '' ?>>
+                <label class="form-check-label" for="editProjectArchived">Archived — hide from active project lists (still available in historical reports)</label>
+              </div>
+            </div>
+          </div>
+          <div class="mb-2"><label class="form-label">Notes</label>
+            <textarea class="form-control" name="notes" rows="2"><?= e($project['notes'] ?? '') ?></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <div class="modal fade" id="memberModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">

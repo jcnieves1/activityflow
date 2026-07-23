@@ -92,6 +92,11 @@ function update_project(int $id, array $data): void
     ]);
     [$old, $new] = diff_fields($before, $data);
     audit_log('project', $id, 'updated', $old, $new);
+
+    // If ownership changed, make sure the new owner is (still) a project_manager member.
+    if ((int)$before['owner_id'] !== (int)$data['owner_id']) {
+        add_project_member($id, (int)$data['owner_id'], 'project_manager');
+    }
 }
 
 function list_project_members(int $projectId): array
