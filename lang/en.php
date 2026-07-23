@@ -486,6 +486,7 @@ return [
     'people.deactivate' => 'Deactivate',
     'people.reactivate' => 'Reactivate',
     'people.empty' => 'No people match these filters.',
+    'people.full_name' => 'Full name *',
     'people.job_title' => 'Job title',
     'people.organization' => 'Organization',
     'people.role' => 'Role',

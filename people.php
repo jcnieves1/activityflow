@@ -95,7 +95,7 @@ require __DIR__ . '/includes/layout_header.php';
         <div class="modal-body">
           <input type="hidden" name="id" id="pf_id">
           <div id="personDuplicateWarning" class="alert alert-warning d-none"></div>
-          <div class="mb-2"><label class="form-label"><?= e(t('projects.field_name')) ?></label><input class="form-control" name="full_name" id="pf_full_name" required></div>
+          <div class="mb-2"><label class="form-label"><?= e(t('people.full_name')) ?></label><input class="form-control" name="full_name" id="pf_full_name" required></div>
           <div class="row">
             <div class="col-6 mb-2"><label class="form-label"><?= e(t('people.job_title')) ?></label><input class="form-control" name="job_title" id="pf_job_title"></div>
             <div class="col-6 mb-2"><label class="form-label"><?= e(t('pd.department')) ?></label>
