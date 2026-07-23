@@ -40,6 +40,15 @@ if ($method === 'POST') {
         if ($missing) json_error('Name, code, and owner are required.');
         if (get_project_by_code($data['code'])) json_error('A project with that code already exists.');
         $id = create_project($data, current_user()['id']);
+        // Owner is already a project_manager member (added inside create_project()).
+        // Any additionally-selected people from the New Project dialog's member
+        // picker are added as plain contributors.
+        $memberIds = array_map('intval', (array)($data['member_ids'] ?? []));
+        foreach (array_unique($memberIds) as $personId) {
+            if ($personId !== (int)$data['owner_id']) {
+                add_project_member($id, $personId, 'contributor');
+            }
+        }
         json_response(['ok' => true, 'project' => get_project($id)]);
     }
 
@@ -56,6 +65,13 @@ if ($method === 'POST') {
             }
         }
         update_project((int)$project['id'], $data);
+        // Reconcile membership against the Edit Project dialog's member picker, if
+        // submitted (it always is from the UI; array_key_exists guards direct API
+        // callers that omit it entirely from touching membership at all).
+        if (array_key_exists('member_ids', $data)) {
+            $memberIds = array_map('intval', (array)$data['member_ids']);
+            sync_project_members((int)$project['id'], $memberIds, (int)$data['owner_id']);
+        }
         json_response(['ok' => true, 'project' => get_project((int)$project['id'])]);
     }
 

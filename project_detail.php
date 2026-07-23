@@ -19,6 +19,7 @@ $method = $_GET['method'] ?? 'duration_weighted';
 $progress = calculate_project_progress($projectId, $method);
 $stats = project_task_stats($projectId);
 $members = list_project_members($projectId);
+$currentMemberIds = array_map(fn($m) => (int)$m['person_id'], $members);
 $people = list_people(['is_active' => 1]);
 $departments = department_list();
 $recent = array_slice(audit_history('project', $projectId), 0, 8);
@@ -255,6 +256,18 @@ require __DIR__ . '/includes/layout_header.php';
           </div>
           <div class="mb-2"><label class="form-label"><?= e(t('projects.field_notes')) ?></label>
             <textarea class="form-control" name="notes" rows="2"><?= e($project['notes'] ?? '') ?></textarea>
+          </div>
+          <div class="mb-2">
+            <label class="form-label"><?= e(t('projects.field_members')) ?></label>
+            <div class="border rounded p-2" style="max-height:180px; overflow-y:auto;">
+              <?php foreach ($people as $p): ?>
+                <div class="form-check">
+                  <input class="form-check-input project-member-checkbox" type="checkbox" value="<?= (int)$p['id'] ?>" id="epm_<?= (int)$p['id'] ?>" <?= in_array((int)$p['id'], $currentMemberIds, true) ? 'checked' : '' ?>>
+                  <label class="form-check-label" for="epm_<?= (int)$p['id'] ?>"><?= e($p['full_name']) ?></label>
+                </div>
+              <?php endforeach; ?>
+            </div>
+            <div class="form-text"><?= e(t('projects.members_hint')) ?></div>
           </div>
         </div>
         <div class="modal-footer">

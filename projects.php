@@ -105,6 +105,18 @@ require __DIR__ . '/includes/layout_header.php';
             <div class="col-md-6 mb-2"><label class="form-label"><?= e(t('projects.field_color')) ?></label><input type="color" class="form-control form-control-color" name="color" value="#4361ee"></div>
           </div>
           <div class="mb-2"><label class="form-label"><?= e(t('projects.field_notes')) ?></label><textarea class="form-control" name="notes" rows="2"></textarea></div>
+          <div class="mb-2">
+            <label class="form-label"><?= e(t('projects.field_members')) ?></label>
+            <div class="border rounded p-2" style="max-height:180px; overflow-y:auto;">
+              <?php foreach ($people as $p): ?>
+                <div class="form-check">
+                  <input class="form-check-input project-member-checkbox" type="checkbox" value="<?= (int)$p['id'] ?>" id="npm_<?= (int)$p['id'] ?>">
+                  <label class="form-check-label" for="npm_<?= (int)$p['id'] ?>"><?= e($p['full_name']) ?></label>
+                </div>
+              <?php endforeach; ?>
+            </div>
+            <div class="form-text"><?= e(t('projects.members_hint')) ?></div>
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><?= e(t('common.cancel')) ?></button>

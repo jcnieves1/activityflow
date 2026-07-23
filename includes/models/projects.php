@@ -178,6 +178,76 @@ function remove_project_member(int $projectId, int $personId): void
 }
 
 /**
+ * Returns every non-archived project a given person belongs to (via project_members),
+ * along with their role on each one — powers the "My Projects" page.
+ */
+function list_projects_for_person(int $personId): array
+{
+    $stmt = db()->prepare(
+        'SELECT pr.*, p.full_name AS owner_name, pm.project_role
+         FROM project_members pm
+         JOIN projects pr ON pr.id = pm.project_id
+         LEFT JOIN people p ON p.id = pr.owner_id
+         WHERE pm.person_id = ?
+         ORDER BY pr.is_archived, pr.created_at DESC'
+    );
+    $stmt->execute([$personId]);
+    return $stmt->fetchAll();
+}
+
+/**
+ * Bulk-fetches member person_ids for a set of projects in one query, keyed by project_id.
+ * Used to feed the client-side "filter assignees by selected project" behavior in the
+ * shared activity modal without an N+1 query per project.
+ */
+function list_project_members_map(array $projectIds): array
+{
+    $projectIds = array_values(array_unique(array_map('intval', $projectIds)));
+    if (!$projectIds) {
+        return [];
+    }
+    $placeholders = implode(',', array_fill(0, count($projectIds), '?'));
+    $stmt = db()->prepare("SELECT project_id, person_id FROM project_members WHERE project_id IN ($placeholders)");
+    $stmt->execute($projectIds);
+    $map = [];
+    foreach ($stmt->fetchAll() as $row) {
+        $map[(int)$row['project_id']][] = (int)$row['person_id'];
+    }
+    return $map;
+}
+
+/**
+ * Reconciles a project's membership list to match a submitted set of person IDs
+ * (from the checkbox picker in the New/Edit Project dialogs): adds anyone newly
+ * checked (as $defaultRole, without touching the role of anyone already a member —
+ * add_project_member()'s upsert would otherwise silently downgrade an existing
+ * project_manager/reviewer/etc. back to $defaultRole), and removes anyone unchecked.
+ * The project owner is always kept as a member regardless of the submitted set, so
+ * this can never accidentally strip the one role (project_manager) that ownership
+ * depends on.
+ */
+function sync_project_members(int $projectId, array $personIds, int $ownerId, string $defaultRole = 'contributor'): void
+{
+    $personIds = array_values(array_unique(array_map('intval', $personIds)));
+    if (!in_array($ownerId, $personIds, true)) {
+        $personIds[] = $ownerId;
+    }
+
+    $existingIds = array_map(fn($m) => (int)$m['person_id'], list_project_members($projectId));
+
+    foreach ($personIds as $personId) {
+        if (!in_array($personId, $existingIds, true)) {
+            add_project_member($projectId, $personId, $personId === $ownerId ? 'project_manager' : $defaultRole);
+        }
+    }
+    foreach ($existingIds as $personId) {
+        if (!in_array($personId, $personIds, true)) {
+            remove_project_member($projectId, $personId);
+        }
+    }
+}
+
+/**
  * Duration-weighted (default) or simple task-count progress.
  * Cancelled tasks are excluded from both. Tasks without an estimate are
  * excluded from the duration-weighted denominator and flagged via 'warning'.

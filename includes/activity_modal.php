@@ -9,6 +9,20 @@ $amCategories = db()->query('SELECT * FROM activity_categories WHERE is_active =
 // (used for the task's own Project field) so the destination dropdown never
 // offers a choice the server would just reject.
 $amTargetProjects = array_values(array_filter($amProjects, fn($p) => can_add_task_to_project($p)));
+
+// Powers the "filter assignee list to this project's members" behavior in
+// assets/js/activities.js: each assignee <option> below gets a data-projects
+// attribute listing every project (by id) that person belongs to, so the
+// script can show/hide options client-side with no extra round trip. A person
+// with no project memberships at all gets an empty attribute, which reads as
+// "not a member of anything" rather than "member of everything".
+$amProjectMemberIds = list_project_members_map(array_column($amProjects, 'id'));
+$amPersonProjectIds = [];
+foreach ($amProjectMemberIds as $projId => $memberIds) {
+    foreach ($memberIds as $personId) {
+        $amPersonProjectIds[$personId][] = $projId;
+    }
+}
 ?>
 <div class="modal fade" id="activityModal" tabindex="-1">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
@@ -46,8 +60,9 @@ $amTargetProjects = array_values(array_filter($amProjects, fn($p) => can_add_tas
             <div class="row">
               <div class="col-md-6 mb-2"><label class="form-label"><?= e(t('activity.field_assignee')) ?></label>
                 <select class="form-select" name="assignee_id" id="am_assignee_id" required>
-                  <?php foreach ($amPeople as $p): ?><option value="<?= (int)$p['id'] ?>"><?= e($p['full_name']) ?></option><?php endforeach; ?>
+                  <?php foreach ($amPeople as $p): ?><option value="<?= (int)$p['id'] ?>" data-projects="<?= e(implode(',', $amPersonProjectIds[(int)$p['id']] ?? [])) ?>"><?= e($p['full_name']) ?></option><?php endforeach; ?>
                 </select>
+                <div class="form-text" id="am_assignee_filter_hint" style="display:none"><?= e(t('activity.assignee_filtered_hint')) ?></div>
               </div>
               <div class="col-md-6 mb-2"><label class="form-label"><?= e(t('activity.field_requester')) ?></label>
                 <div class="input-group">

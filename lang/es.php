@@ -16,6 +16,7 @@ return [
     'nav.calendar' => 'Calendario',
     'nav.timeline' => 'Línea de Tiempo',
     'nav.projects' => 'Proyectos',
+    'nav.my_projects' => 'Mis Proyectos',
     'nav.people' => 'Directorio de Personas',
     'nav.reports' => 'Informes',
     'nav.requesters' => 'Análisis de Solicitantes',
@@ -192,6 +193,7 @@ return [
     'activity.no_project' => 'Sin proyecto',
     'activity.field_category' => 'Categoría',
     'activity.field_assignee' => 'Asignado a *',
+    'activity.assignee_filtered_hint' => 'Mostrando solo a las personas asignadas a este proyecto.',
     'activity.field_requester' => 'Solicitante *',
     'activity.field_planned_start' => 'Inicio planificado',
     'activity.field_target_completion' => 'Finalización objetivo',
@@ -316,7 +318,15 @@ return [
     'projects.field_status' => 'Estado',
     'projects.field_color' => 'Color de calendario',
     'projects.field_notes' => 'Notas',
+    'projects.field_members' => 'Asignar personas a este proyecto',
+    'projects.members_hint' => 'Las personas seleccionadas se añaden como colaboradoras del proyecto y quedan disponibles para la asignación de tareas en este proyecto.',
     'projects.create' => 'Crear proyecto',
+
+    // ---- Mis Proyectos ----
+    'myprojects.subtitle' => 'Proyectos a los que estás asignado.',
+    'myprojects.no_person' => 'Tu cuenta no está vinculada a una entrada del Directorio de Personas, por lo que no se pueden mostrar proyectos aquí.',
+    'myprojects.empty' => 'Aún no estás asignado a ningún proyecto.',
+    'myprojects.archived' => 'Archivado',
 
     // ---- Project detail ----
     'pd.no_access' => 'No tienes acceso a este proyecto.',

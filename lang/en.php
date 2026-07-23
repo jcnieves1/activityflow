@@ -17,6 +17,7 @@ return [
     'nav.calendar' => 'Calendar',
     'nav.timeline' => 'Timeline',
     'nav.projects' => 'Projects',
+    'nav.my_projects' => 'My Projects',
     'nav.people' => 'People Directory',
     'nav.reports' => 'Reports',
     'nav.requesters' => 'Requester Analytics',
@@ -193,6 +194,7 @@ return [
     'activity.no_project' => 'No project',
     'activity.field_category' => 'Category',
     'activity.field_assignee' => 'Assignee *',
+    'activity.assignee_filtered_hint' => 'Showing only people assigned to this project.',
     'activity.field_requester' => 'Requester *',
     'activity.field_planned_start' => 'Planned start',
     'activity.field_target_completion' => 'Target completion',
@@ -317,7 +319,15 @@ return [
     'projects.field_status' => 'Status',
     'projects.field_color' => 'Calendar color',
     'projects.field_notes' => 'Notes',
+    'projects.field_members' => 'Assign people to this project',
+    'projects.members_hint' => 'Selected people are added as project contributors and become available for task assignment on this project.',
     'projects.create' => 'Create project',
+
+    // ---- My Projects ----
+    'myprojects.subtitle' => 'Projects you are assigned to.',
+    'myprojects.no_person' => 'Your account is not linked to a People Directory entry, so no projects can be shown here.',
+    'myprojects.empty' => 'You are not assigned to any projects yet.',
+    'myprojects.archived' => 'Archived',
 
     // ---- Project detail ----
     'pd.no_access' => 'You do not have access to this project.',

@@ -37,6 +37,53 @@ window.afActivities = (function () {
   initDefaultTimeOnDateChange('am_planned_start_at', '09:00');
   initDefaultTimeOnDateChange('am_target_completion_at', '17:00');
 
+  // Filters the Assignee dropdown down to people assigned to the selected
+  // Project (via each <option>'s data-projects attribute, set server-side in
+  // includes/activity_modal.php from project_members) so picking a project
+  // narrows a potentially long people list to just that project's team.
+  // Picking "no project" (blank) shows everyone again — ad-hoc/unassigned
+  // tasks aren't tied to any project's membership.
+  //
+  // `preserveCurrent` keeps whatever assignee is already selected visible even
+  // if they're not a member of the newly-selected project, rather than hiding
+  // it out from under them: used when fillForm() populates an existing task
+  // (its saved assignee may predate a membership change, or the task may have
+  // no project at all) so opening it for edit never looks like data went
+  // missing. Live changes from the dropdown itself (and a fresh create) pass
+  // `false` instead, so the filter is strict and an assignee left invalid by
+  // the new project choice is swapped for the first valid one automatically.
+  function filterAssigneesByProject(preserveCurrent) {
+    const projectSelect = document.getElementById('am_project_id');
+    const assigneeSelect = document.getElementById('am_assignee_id');
+    if (!projectSelect || !assigneeSelect) return;
+    const projectId = projectSelect.value;
+    const currentValue = assigneeSelect.value;
+    const hint = document.getElementById('am_assignee_filter_hint');
+    let anyHidden = false;
+    Array.from(assigneeSelect.options).forEach((opt) => {
+      if (!projectId || (preserveCurrent && opt.value === currentValue)) {
+        opt.hidden = false;
+        opt.disabled = false;
+        return;
+      }
+      const projects = (opt.dataset.projects || '').split(',').filter(Boolean);
+      const isMember = projects.indexOf(String(projectId)) !== -1;
+      opt.hidden = !isMember;
+      opt.disabled = !isMember;
+      if (!isMember) anyHidden = true;
+    });
+    if (hint) hint.style.display = projectId && anyHidden ? '' : 'none';
+    if (projectId) {
+      const selectedOpt = assigneeSelect.options[assigneeSelect.selectedIndex];
+      if (selectedOpt && selectedOpt.hidden) {
+        const firstVisible = Array.from(assigneeSelect.options).find((o) => !o.hidden);
+        if (firstVisible) assigneeSelect.value = firstVisible.value;
+      }
+    }
+  }
+  const amProjectSelectEl = document.getElementById('am_project_id');
+  amProjectSelectEl && amProjectSelectEl.addEventListener('change', function () { filterAssigneesByProject(false); });
+
   function syncDatetimeTracking() {
     ['am_planned_start_at', 'am_target_completion_at'].forEach((id) => {
       const input = document.getElementById(id);
@@ -85,6 +132,7 @@ window.afActivities = (function () {
     if (defaults.planned_start_at) document.getElementById('am_planned_start_at').value = defaults.planned_start_at;
     if (window.AF_PERSON_ID) document.getElementById('am_requester_id').value = window.AF_PERSON_ID;
     syncDatetimeTracking();
+    filterAssigneesByProject(false);
     loadParentOptions(null);
     modal && modal.show();
   }
@@ -96,6 +144,7 @@ window.afActivities = (function () {
     document.getElementById('am_project_id').value = a.project_id || '';
     document.getElementById('am_category_id').value = a.category_id || '';
     document.getElementById('am_assignee_id').value = a.assignee_id || '';
+    filterAssigneesByProject(true);
     document.getElementById('am_requester_id').value = a.requester_id || '';
     document.getElementById('am_planned_start_at').value = (a.planned_start_at || '').replace(' ', 'T').slice(0, 16);
     document.getElementById('am_target_completion_at').value = (a.target_completion_at || '').replace(' ', 'T').slice(0, 16);

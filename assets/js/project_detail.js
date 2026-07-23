@@ -30,6 +30,7 @@
       // no need to re-query the DOM for it, which is one less thing that can fail.
       const data = Object.fromEntries(new FormData(editProjectForm).entries());
       data.is_archived = data.is_archived ? 1 : 0;
+      data.member_ids = Array.from(editProjectForm.querySelectorAll('.project-member-checkbox:checked')).map((cb) => cb.value);
       afFetch(window.AF_BASE_URL + 'api/projects.php', { method: 'POST', body: Object.assign({ action: 'update' }, data) })
         .then(() => { afToast('Project updated.'); location.reload(); })
         .catch((err) => afToast(err.message, 'danger'));

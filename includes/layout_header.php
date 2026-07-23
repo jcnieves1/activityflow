@@ -19,6 +19,7 @@ $navItems = [
     ['key' => 'calendar', 'label' => t('nav.calendar'), 'icon' => 'calendar3', 'url' => 'calendar.php'],
     ['key' => 'timeline', 'label' => t('nav.timeline'), 'icon' => 'clock-history', 'url' => 'timeline.php'],
     ['key' => 'projects', 'label' => t('nav.projects'), 'icon' => 'kanban', 'url' => 'projects.php'],
+    ['key' => 'my_projects', 'label' => t('nav.my_projects'), 'icon' => 'person-workspace', 'url' => 'my_projects.php'],
     ['key' => 'people', 'label' => t('nav.people'), 'icon' => 'person-lines-fill', 'url' => 'people.php'],
     ['key' => 'reports', 'label' => t('nav.reports'), 'icon' => 'bar-chart-line', 'url' => 'reports.php'],
     ['key' => 'requesters', 'label' => t('nav.requesters'), 'icon' => 'graph-up-arrow', 'url' => 'requester_analytics.php'],

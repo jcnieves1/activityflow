@@ -156,6 +156,34 @@ Mapped to the acceptance criteria. Run through this after installation
       call to edit someone else's comment is rejected server-side, and that
       saving an empty comment is blocked.
 
+- [ ] In "New project", check a few people in the "Assign people to this
+      project" list and create the project — confirm the Members table on
+      the resulting project detail page shows the owner as Project Manager
+      plus everyone you checked as Contributor.
+- [ ] In "Edit project" on an existing project, confirm the member checkbox
+      list is pre-checked for every current member. Uncheck one existing
+      member and check one new person, then save — confirm the unchecked
+      person is removed from Members and the newly-checked person appears as
+      Contributor, and that no one else's existing role (e.g. a Reviewer
+      added via the separate "Add Member" button) was changed. Confirm the
+      project owner can never be removed this way even if you uncheck them.
+- [ ] As a person assigned to at least one project (not necessarily its
+      owner), log in and open "My Projects" from the sidebar — confirm only
+      projects you're a member of appear, each showing your role on that
+      project. Confirm a person with no project memberships sees an empty
+      state, and a logged-in user whose account isn't linked to a People
+      Directory entry sees the "not linked" message instead of an error.
+- [ ] In the New/Edit Activity dialog, select a Project — confirm the
+      Assignee dropdown narrows to just that project's members (with a small
+      hint text explaining the list is filtered) and, if the previously
+      selected assignee isn't one of them, the field jumps to a valid member
+      automatically. Switch the Project field back to "No project" and
+      confirm the full people list returns. Open an existing task whose
+      assignee somehow isn't a current member of its project (e.g. they were
+      later removed) — confirm that assignee still shows up (not silently
+      dropped) when the dialog opens, so editing the task doesn't look like
+      data went missing.
+
 ## Time tracking
 
 - [ ] Start a timer on a task, then try to start a second timer on another
