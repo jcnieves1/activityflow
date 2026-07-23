@@ -1,0 +1,103 @@
+# Manual test checklist
+
+Mapped to the acceptance criteria. Run through this after installation
+(`docs/INSTALL.md`) using the seeded demo accounts.
+
+## Authentication & accounts
+
+- [ ] Register a new account with full name, email, password, secret
+      question/answer — no email verification step, can log in immediately.
+- [ ] Log in with a valid demo account (e.g. `carla.diaz@activityflow.test` /
+      `Password123!`).
+- [ ] Log in with a wrong password 6 times in under 15 minutes — confirm the
+      6th attempt is rejected with a generic "too many attempts" message.
+- [ ] Forgot password: enter a real email, answer the shown question
+      correctly, set a new password, log in with it.
+- [ ] Forgot password with an email that doesn't exist — confirm a question
+      is still shown (not an "account not found" message) and the answer
+      step fails generically.
+- [ ] Change password and recovery question from Profile & Settings.
+- [ ] Log out, confirm the session is cleared and protected pages redirect to
+      login.
+
+## People & roles
+
+- [ ] As `alicia.moreno@activityflow.test` (administrator), open Admin →
+      Users & Roles, change a user's roles and account status.
+- [ ] Add a new person from the People Directory; add one with a name/email
+      similar to an existing person and confirm the duplicate warning
+      appears.
+- [ ] Add a new requester inline from the quick-add task form without
+      leaving the page.
+
+## Planned & unplanned work
+
+- [ ] From My Day, create a planned activity with a scheduled time; confirm
+      it appears in the Planned column and on the Calendar.
+- [ ] Use the floating quick-add button to log an unplanned task in under
+      10 seconds; confirm it's tagged "Unplanned" everywhere it appears.
+- [ ] Quick-add a task that interrupts an in-progress task; confirm the
+      interruption is recorded (visible on the Timeline detail panel).
+- [ ] Try to reclassify a task's planned/unplanned status as a Project
+      Manager or Administrator — confirm a reason is required and the
+      original classification remains visible in its audit history.
+- [ ] Confirm an Employee account cannot reclassify a task (button/permission
+      absent, and a direct API call is rejected server-side).
+
+## Projects & collaboration
+
+- [ ] Create a project as a Project Manager, add two members with different
+      project roles.
+- [ ] Add both planned and unplanned tasks to the project; open Project
+      Details and confirm progress, unplanned effort, and "requesters
+      generating work for this project" all update.
+- [ ] Switch the progress method (duration-weighted vs. simple count) and
+      confirm the percentage and label change accordingly.
+- [ ] Mark a task cancelled and confirm it drops out of the progress
+      denominator.
+
+## Time tracking
+
+- [ ] Start a timer on a task, then try to start a second timer on another
+      task for the same user — confirm it's blocked.
+- [ ] Pause/stop the timer and confirm a time entry with a duration is
+      recorded.
+- [ ] Add a manual time entry; try a negative duration and confirm it's
+      rejected.
+
+## Calendar & timeline
+
+- [ ] On the Calendar page, drag a task to a new day/time and confirm it
+      saves (reload the page to verify persistence).
+- [ ] On the Timeline page, select a date with both planned and unplanned
+      activity, press Play, and watch unplanned insertions appear at their
+      actual requested time relative to the plan.
+- [ ] Click a timeline block and confirm the detail panel shows requester,
+      timing, classification, and interruption impact where applicable.
+
+## Dashboards & reports
+
+- [ ] Personal dashboard shows today's planned/unplanned split, overdue
+      tasks, and top requesters.
+- [ ] Manager dashboard (PM/Admin only) shows workload by employee and
+      unplanned work by requester/department, and respects the filters.
+- [ ] Reports Center: run "Unplanned tasks by requester" and "Overdue tasks",
+      export one as CSV, and use Print/PDF.
+- [ ] Requester Analytics page shows the date range and sample size, and the
+      ranking panels populate.
+
+## Authorization boundaries
+
+- [ ] As an Employee, confirm Admin pages (`admin/*.php`, `audit_log.php`)
+      return an access-denied page.
+- [ ] As an Employee not on a given project, confirm that project's detail
+      page is denied and its tasks are hidden from Team Activities.
+- [ ] Directly call an `api/*.php` write endpoint without a valid CSRF token
+      (e.g. via browser dev tools) and confirm it's rejected.
+
+## General
+
+- [ ] Resize the browser to a mobile width and confirm the sidebar collapses
+      into the offcanvas menu and pages remain usable.
+- [ ] Confirm no page displays a raw SQL error, PHP stack trace, or password
+      hash under normal use.
