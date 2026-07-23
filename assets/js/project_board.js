@@ -28,26 +28,36 @@
 
   window.afOnActivityCreated = function () { location.reload(); };
 
-  const allCb = document.getElementById('boardFilterAll');
-  const memberCbs = Array.from(document.querySelectorAll('.board-member-checkbox'));
-  function updateBoardFilterLabel() {
-    const label = document.getElementById('boardMemberFilterLabel');
-    if (!label) return;
-    const checked = memberCbs.filter((cb) => cb.checked);
-    if (!checked.length) { label.textContent = 'All team members'; return; }
-    label.textContent = checked.length + ' member' + (checked.length === 1 ? '' : 's') + ' selected';
-  }
-  if (allCb) {
-    allCb.addEventListener('change', function () {
-      if (allCb.checked) memberCbs.forEach((cb) => { cb.checked = false; });
-      updateBoardFilterLabel();
+  // Shared wiring for the "All X" / multi-select checkbox groups in the
+  // board filter dropdowns (team members, statuses): checking "All" clears
+  // individual picks, checking any individual pick clears "All", and
+  // unchecking the last individual pick reverts to "All" so the filter can
+  // never end up in an ambiguous nothing-selected state.
+  function wireFilterGroup(allId, itemSelector, labelId, allText, singular, plural) {
+    const allCb = document.getElementById(allId);
+    const itemCbs = Array.from(document.querySelectorAll(itemSelector));
+    function updateLabel() {
+      const label = document.getElementById(labelId);
+      if (!label) return;
+      const checked = itemCbs.filter((cb) => cb.checked);
+      if (!checked.length) { label.textContent = allText; return; }
+      label.textContent = checked.length + ' ' + (checked.length === 1 ? singular : plural) + ' selected';
+    }
+    if (allCb) {
+      allCb.addEventListener('change', function () {
+        if (allCb.checked) itemCbs.forEach((cb) => { cb.checked = false; });
+        updateLabel();
+      });
+    }
+    itemCbs.forEach((cb) => {
+      cb.addEventListener('change', function () {
+        if (cb.checked && allCb) allCb.checked = false;
+        if (allCb && !itemCbs.some((c) => c.checked)) allCb.checked = true;
+        updateLabel();
+      });
     });
   }
-  memberCbs.forEach((cb) => {
-    cb.addEventListener('change', function () {
-      if (cb.checked && allCb) allCb.checked = false;
-      if (allCb && !memberCbs.some((c) => c.checked)) allCb.checked = true;
-      updateBoardFilterLabel();
-    });
-  });
+
+  wireFilterGroup('boardFilterAll', '.board-member-checkbox', 'boardMemberFilterLabel', 'All team members', 'member', 'members');
+  wireFilterGroup('boardStatusFilterAll', '.board-status-checkbox', 'boardStatusFilterLabel', 'All statuses', 'status', 'statuses');
 })();

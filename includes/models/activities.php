@@ -57,6 +57,14 @@ function list_activities(array $filters = []): array
             array_push($params, ...$ids);
         }
     }
+    if (!empty($filters['status_in']) && is_array($filters['status_in'])) {
+        $statuses = array_values(array_intersect(ACTIVITY_STATUSES, $filters['status_in']));
+        if ($statuses) {
+            $placeholders = implode(',', array_fill(0, count($statuses), '?'));
+            $sql .= " AND a.status IN ($placeholders)";
+            array_push($params, ...$statuses);
+        }
+    }
     if (isset($filters['is_adhoc']) && $filters['is_adhoc'] !== '') {
         $sql .= ' AND a.is_adhoc = ?';
         $params[] = (int)$filters['is_adhoc'];

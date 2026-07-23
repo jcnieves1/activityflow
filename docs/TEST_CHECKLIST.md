@@ -81,6 +81,13 @@ Mapped to the acceptance criteria. Run through this after installation
       selection persists after a drag-and-drop status change (which
       reloads the page). Re-check "All team members" and confirm it
       clears the individual selections and shows every task again.
+- [ ] On the same Task Board, use the status filter dropdown to select one
+      or more statuses (e.g. just "In progress" and "Blocked") — confirm
+      only those columns appear, the counts still match, and the button
+      label updates. Confirm the member and status filters combine
+      correctly (e.g. one member + two statuses shows only that member's
+      tasks in those two columns) and both survive a drag-and-drop reload.
+      Re-check "All statuses" and confirm every column reappears.
 - [ ] On My Tasks and Team Activities, select several tasks via the row
       checkboxes (and the header "select all"), then use "Clone selected" /
       "Move selected" from the bulk bar — confirm all selected tasks are
