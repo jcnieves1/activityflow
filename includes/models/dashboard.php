@@ -124,7 +124,7 @@ function manager_dashboard_data(array $filters = []): array
     $actualStmt = $pdo->prepare(
         "SELECT COALESCE(SUM(te.duration_minutes),0) AS actual
          FROM time_entries te JOIN activities a ON a.id = te.activity_id JOIN people asg ON asg.id = a.assignee_id
-         WHERE $where"
+         $where"
     );
     $actualStmt->execute($params);
     $estVsActual['actual'] = (int)$actualStmt->fetchColumn();
