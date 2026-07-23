@@ -18,6 +18,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($password !== $confirm) {
         $error = 'Passwords do not match.';
+    } elseif (!captcha_verify($_POST['captcha_answer'] ?? null)) {
+        $error = 'Incorrect answer to the security check. Please try again.';
     } else {
         $result = register_user($fullName, $email, $password, $question, $answer);
         if ($result['ok']) {
@@ -67,6 +69,7 @@ require __DIR__ . '/includes/auth_layout_header.php';
     <input type="text" class="form-control" id="secret_answer" name="secret_answer" required minlength="3">
     <div class="form-text">Used only to verify your identity if you forget your password.</div>
   </div>
+  <?= captcha_field() ?>
   <button type="submit" class="btn btn-primary w-100">Create account</button>
 </form>
 <div class="text-center mt-3 small">

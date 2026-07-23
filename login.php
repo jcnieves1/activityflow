@@ -14,6 +14,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($email === '' || $password === '') {
         $error = 'Please enter your email and password.';
+    } elseif (!captcha_verify($_POST['captcha_answer'] ?? null)) {
+        $error = 'Incorrect answer to the security check. Please try again.';
     } else {
         $result = attempt_login($email, $password);
         if ($result['ok']) {
@@ -38,6 +40,7 @@ require __DIR__ . '/includes/auth_layout_header.php';
     <label class="form-label" for="password">Password</label>
     <input type="password" class="form-control" id="password" name="password" required>
   </div>
+  <?= captcha_field() ?>
   <button type="submit" class="btn btn-primary w-100">Log in</button>
 </form>
 <div class="d-flex justify-content-between mt-3 small">

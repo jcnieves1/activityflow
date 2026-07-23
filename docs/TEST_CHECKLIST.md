@@ -9,6 +9,18 @@ Mapped to the acceptance criteria. Run through this after installation
       question/answer — no email verification step, can log in immediately.
 - [ ] Log in with a valid demo account (e.g. `carla.diaz@activityflow.test` /
       `Password123!`).
+- [ ] On the Log in page, submit the form with a wrong answer to the "what
+      is N + N?" security check — confirm you're bounced back with an
+      "Incorrect answer" error and your login attempt was *not* consumed
+      (i.e. it doesn't count toward the lockout below). Confirm the
+      security question changes to a new one after any failed submission
+      (correct or incorrect credentials), so the same answer can't be
+      replayed. Confirm a correct answer plus correct credentials logs you
+      in normally.
+- [ ] On the Create account page, submit the form with a wrong answer to
+      the security check — confirm the account is not created and the
+      form is redisplayed with a fresh question. Confirm a correct answer
+      lets registration proceed as before.
 - [ ] Log in with a wrong password 6 times in under 15 minutes — confirm the
       6th attempt is rejected with a generic "too many attempts" message.
 - [ ] Forgot password: enter a real email, answer the shown question
