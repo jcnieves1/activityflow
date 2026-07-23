@@ -21,7 +21,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $result = register_user($fullName, $email, $password, $question, $answer);
         if ($result['ok']) {
-            flash_set('success', 'Account created. You can log in now.');
+            $message = $result['linked_existing']
+                ? 'Account created. This matched an existing entry in the people directory, so it was linked to your new login instead of creating a duplicate. You can log in now.'
+                : 'Account created. You can log in now.';
+            flash_set('success', $message);
             redirect('login.php');
         }
         $error = $result['error'];

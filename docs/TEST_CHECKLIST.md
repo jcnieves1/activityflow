@@ -17,6 +17,13 @@ Mapped to the acceptance criteria. Run through this after installation
       is still shown (not an "account not found" message) and the answer
       step fails generically.
 - [ ] Change password and recovery question from Profile & Settings.
+- [ ] As an administrator, add a person to the People Directory with no
+      system account (e.g. email `newhire@activityflow.test`), assign them as
+      a requester/assignee on a task, then register a new account using that
+      same email — confirm the flash message says the existing directory
+      entry was linked, and check the People Directory afterward to confirm
+      there is still only **one** person row (not a duplicate) and the task
+      it was assigned to still shows the same person.
 - [ ] Log out, confirm the session is cleared and protected pages redirect to
       login.
 

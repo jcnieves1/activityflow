@@ -178,12 +178,40 @@ function register_user(string $fullName, string $email, string $password, string
         }
 
         // A person record represents this user in the requester/employee directory.
-        $pdo->prepare(
-            'INSERT INTO people (full_name, email, is_active, user_id) VALUES (?, ?, 1, ?)'
-        )->execute([trim($fullName), $email, $userId]);
+        // If someone (an admin, a project manager, or a task form) already added a
+        // person with this email before they ever had a login — a "placeholder"
+        // directory entry — claim that existing record instead of creating a second,
+        // duplicate person for the same human. Keeping the original person.id means
+        // every activity/project/time-entry reference already pointing at them keeps
+        // working with no migration needed; only the directory info is refreshed with
+        // what they just entered, and it's now linked to their new account.
+        $existingPerson = find_unclaimed_person_by_email($email);
+        if ($existingPerson) {
+            $personId = (int)$existingPerson['id'];
+            $pdo->prepare(
+                'UPDATE people SET full_name = ?, email = ?, is_active = 1, user_id = ? WHERE id = ?'
+            )->execute([trim($fullName), $email, $userId, $personId]);
+
+            audit_log(
+                'person',
+                $personId,
+                'claimed_by_registration',
+                ['full_name' => $existingPerson['full_name'], 'user_id' => null],
+                ['full_name' => trim($fullName), 'user_id' => $userId]
+            );
+        } else {
+            $pdo->prepare(
+                'INSERT INTO people (full_name, email, is_active, user_id) VALUES (?, ?, 1, ?)'
+            )->execute([trim($fullName), $email, $userId]);
+            $personId = (int)$pdo->lastInsertId();
+
+            audit_log('person', $personId, 'created_by_registration', null, [
+                'full_name' => trim($fullName), 'email' => $email,
+            ]);
+        }
 
         $pdo->commit();
-        return ['ok' => true, 'user_id' => $userId];
+        return ['ok' => true, 'user_id' => $userId, 'person_id' => $personId, 'linked_existing' => (bool)$existingPerson];
     } catch (Throwable $e) {
         $pdo->rollBack();
         error_log('[activityflow] registration failed: ' . $e->getMessage());

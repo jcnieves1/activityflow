@@ -19,7 +19,11 @@ shared hosting).
 - Registration with a secret question/answer recovery flow (no email
   verification required), rate-limited and audit-logged.
 - People/requester directory independent of login accounts, with
-  duplicate-warning on creation.
+  duplicate-warning on manual creation. If someone registers an account using
+  the same email as an existing, not-yet-linked directory entry, that entry is
+  claimed by the new account (same `people.id`, refreshed name) instead of a
+  second duplicate person being created — every existing activity/project/
+  time-entry reference to them keeps working unchanged.
 - Projects with members, roles, duration-weighted (default) or simple-count
   progress calculation.
 - A single central `activities` table modeling planned work, unplanned

@@ -30,6 +30,23 @@ function list_people(array $filters = []): array
     return $stmt->fetchAll();
 }
 
+/**
+ * Finds a person record with this email that has no login account linked yet
+ * (user_id IS NULL). Used at registration time so someone who was already
+ * added to the directory as a requester/employee (before they ever logged in)
+ * gets their existing person record claimed by their new account instead of
+ * getting a second, duplicate person row for the same human being.
+ */
+function find_unclaimed_person_by_email(string $email): ?array
+{
+    $stmt = db()->prepare(
+        'SELECT * FROM people WHERE user_id IS NULL AND LOWER(email) = LOWER(?) ORDER BY id ASC LIMIT 1'
+    );
+    $stmt->execute([trim($email)]);
+    $row = $stmt->fetch();
+    return $row ?: null;
+}
+
 function get_person(int $id): ?array
 {
     $stmt = db()->prepare('SELECT * FROM people WHERE id = ?');
