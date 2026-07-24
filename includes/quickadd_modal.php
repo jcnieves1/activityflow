@@ -40,7 +40,7 @@ $qaCategories = db()->query('SELECT * FROM activity_categories WHERE is_active =
           <div class="row">
             <div class="col-6 mb-2">
               <label class="form-label"><?= e(t('quickadd.project')) ?></label>
-              <select class="form-select" name="project_id">
+              <select class="form-select" name="project_id" id="qa_project_id">
                 <option value=""><?= e(t('quickadd.no_project')) ?></option>
                 <?php foreach ($qaProjects as $p): ?><option value="<?= (int)$p['id'] ?>"><?= e($p['name']) ?></option><?php endforeach; ?>
               </select>
