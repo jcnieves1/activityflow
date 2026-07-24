@@ -97,6 +97,22 @@ window.afActivities = (function () {
     document.getElementById('am_id').value = '';
     document.getElementById('activityModalTitle').textContent = 'New planned activity';
     document.getElementById('activityTabs').style.display = 'none';
+    // Editing a task can leave a DIFFERENT tab (Time & Progress / Comments /
+    // History) marked active if the user clicked through it while looking at
+    // the task — Bootstrap's tab plugin only tracks that via .active/.show
+    // classes on the nav-link and tab-pane, independent of the nav bar's own
+    // display style above. The Details pane holds almost the entire create
+    // form (title, project, assignee, dates, priority, tags, notes, etc.), so
+    // if it's left inactive here, and the nav bar is hidden (as it is for a
+    // brand-new task, with no way to click back to Details), the dialog
+    // visibly shows just whatever few controls happened to live in that
+    // other pane instead. Always force the tab state back to Details on reset.
+    modalEl && modalEl.querySelectorAll('#activityTabs .nav-link').forEach((btn, i) => btn.classList.toggle('active', i === 0));
+    modalEl && modalEl.querySelectorAll('.tab-pane').forEach((pane) => {
+      const isDetails = pane.id === 'am_tab_details';
+      pane.classList.toggle('active', isDetails);
+      pane.classList.toggle('show', isDetails);
+    });
     document.getElementById('am_reclassify_block').classList.add('d-none');
     document.getElementById('am_repeat_block').style.display = '';
     // Re-shown by fillForm() only when editing a task the user is allowed to delete/edit.

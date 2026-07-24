@@ -159,6 +159,12 @@ Mapped to the acceptance criteria. Run through this after installation
       comments (not on comments posted by other users). Confirm a direct API
       call to edit someone else's comment is rejected server-side, and that
       saving an empty comment is blocked.
+- [ ] On the Task Board, open an existing task and click through to the
+      "Time & Progress" (or Comments/History) tab, then close the dialog
+      without saving. Click "Add task" to open a fresh New Task dialog —
+      confirm it shows the full Details tab (title, project, assignee,
+      dates, priority, tags, notes, etc.), not just the few fields from
+      whichever tab was left open on the previous task.
 
 - [ ] In "New project", check a few people in the "Assign people to this
       project" list and create the project — confirm the Members table on
