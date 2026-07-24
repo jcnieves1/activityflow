@@ -166,6 +166,20 @@ Mapped to the acceptance criteria. Run through this after installation
       dates, priority, tags, notes, etc.), not just the few fields from
       whichever tab was left open on the previous task.
 
+- [ ] On the Task Board, confirm each task card shows a thin progress bar
+      and a "X%" label reflecting its Completion % value.
+
+- [ ] On the Task Board, open the status filter dropdown, check one or two
+      statuses, and click Apply — confirm the board filters as expected.
+      Reload the page (or navigate away and back to this project's board)
+      without any filter query in the URL — confirm the same statuses are
+      still checked and the board is still filtered the same way.
+      Re-open the dropdown, check "All statuses", and Apply — confirm that
+      after this, reloading the board plainly shows all statuses again
+      (the "All" preference sticks too, it doesn't fall back to the last
+      non-empty selection). Confirm this preference is local to this
+      browser/PC (per project) and doesn't affect other projects' boards.
+
 - [ ] In "New project", check a few people in the "Assign people to this
       project" list and create the project — confirm the Members table on
       the resulting project detail page shows the owner as Project Manager

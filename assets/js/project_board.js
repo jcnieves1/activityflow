@@ -1,4 +1,50 @@
 (function () {
+  // Persist the status filter locally (per project, per browser/PC) so it's
+  // still applied the next time this board is opened, without needing a
+  // server-side "saved view" concept. We piggyback on the existing GET-based
+  // filter form/query-string mechanism (project_board.php already reads
+  // $_GET['statuses'] and pre-checks the boxes) rather than duplicating the
+  // filtering logic in JS:
+  //   1. On every filter form submit, save the checked statuses (or [] for
+  //      "All statuses") to localStorage, keyed by project id.
+  //   2. On page load, if the URL has no `statuses[]` param at all (i.e. the
+  //      user just navigated here plainly, not via an explicit filtered
+  //      link), and a non-empty saved preference exists, redirect once to
+  //      the same URL with those statuses appended — the server then
+  //      renders the filtered board and pre-checks the right boxes.
+  // An explicit "statuses[]" in the URL always wins over the saved value, and
+  // an explicitly-saved "All statuses" (empty array) never triggers a
+  // redirect, so there's no possibility of a redirect loop.
+  (function persistStatusFilter() {
+    const params = new URLSearchParams(window.location.search);
+    const projectId = params.get('id');
+    if (!projectId) return;
+    const storageKey = 'af_board_statuses_' + projectId;
+
+    if (!params.has('statuses[]')) {
+      let saved = null;
+      try { saved = localStorage.getItem(storageKey); } catch (e) { /* storage unavailable (private mode, etc.) */ }
+      if (saved !== null) {
+        try {
+          const list = JSON.parse(saved);
+          if (Array.isArray(list) && list.length) {
+            list.forEach((s) => params.append('statuses[]', s));
+            window.location.search = params.toString();
+            return; // navigation is about to happen; skip the rest of setup
+          }
+        } catch (e) { /* malformed value from an older version — ignore */ }
+      }
+    }
+
+    const filterForm = document.getElementById('boardFilterForm');
+    if (filterForm) {
+      filterForm.addEventListener('submit', function () {
+        const checked = Array.from(document.querySelectorAll('.board-status-checkbox:checked')).map((cb) => cb.value);
+        try { localStorage.setItem(storageKey, JSON.stringify(checked)); } catch (e) { /* storage unavailable */ }
+      });
+    }
+  })();
+
   let draggedId = null;
 
   document.addEventListener('dragstart', function (e) {
