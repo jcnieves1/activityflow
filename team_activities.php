@@ -55,7 +55,7 @@ require __DIR__ . '/includes/activity_modal.php';
     <option value="unplanned" <?= ($_GET['activity_type'] ?? '') === 'unplanned' ? 'selected' : '' ?>><?= e(t('tasks.unplanned')) ?></option>
   </select></div>
   <div class="col-md-2"><select class="form-select" name="status"><option value=""><?= e(t('common.status')) ?></option>
-    <?php foreach (ACTIVITY_STATUSES as $s): ?><option value="<?= $s ?>" <?= ($_GET['status'] ?? '') === $s ? 'selected' : '' ?>><?= e(status_label($s)) ?></option><?php endforeach; ?>
+    <?php foreach (list_task_statuses() as $st): ?><option value="<?= e($st['slug']) ?>" <?= ($_GET['status'] ?? '') === $st['slug'] ? 'selected' : '' ?>><?= e($st['label']) ?></option><?php endforeach; ?>
   </select></div>
   <div class="col-md-2"><input type="date" class="form-control" name="date_from" value="<?= e($_GET['date_from'] ?? '') ?>"></div>
   <div class="col-md-2"><input type="date" class="form-control" name="date_to" value="<?= e($_GET['date_to'] ?? '') ?>"></div>
@@ -81,7 +81,7 @@ require __DIR__ . '/includes/activity_modal.php';
           <td><?= e($a['assignee_name']) ?></td>
           <td><?= e($a['requester_name']) ?></td>
           <td><?= $a['project_name'] ? e($a['project_name']) : '<span class="text-muted">—</span>' ?></td>
-          <td><span class="badge <?= status_badge_class($a['status']) ?>"><?= e(status_label($a['status'])) ?></span></td>
+          <td><span class="badge <?= status_badge_class($a['status']) ?>"><?= e(task_status_label($a['status'])) ?></span></td>
           <td class="small"><?= e(format_datetime($a['requested_at'])) ?></td>
           <td class="text-end"><button class="btn btn-sm btn-outline-secondary" onclick="afActivities.openEdit(<?= (int)$a['id'] ?>)"><?= e(t('common.open')) ?></button></td>
         </tr>

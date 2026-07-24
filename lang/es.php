@@ -24,6 +24,7 @@ return [
     'nav.admin_users' => 'Usuarios y Roles',
     'nav.admin_categories' => 'Categorías',
     'nav.admin_departments' => 'Departamentos',
+    'nav.admin_statuses' => 'Estados de Tareas',
     'nav.admin_settings' => 'Configuración del Sistema',
     'nav.audit_log' => 'Registro de Auditoría',
     'topbar.search_placeholder' => 'Buscar actividades…',
@@ -597,6 +598,25 @@ return [
     'admin.add_department' => 'Agregar departamento',
     'admin.col_department_name' => 'Nombre',
     'admin.col_department_head' => 'Jefe',
+
+    // ---- Admin: Estados de Tareas ----
+    'admin.statuses_title' => 'Estados de Tareas',
+    'admin.statuses_subtitle' => 'Administra los valores de estado usados en las tareas de toda la aplicación. El texto es editable libremente; se permite agregar y eliminar estados, con los estados del sistema requeridos protegidos contra su eliminación.',
+    'admin.add_status' => 'Agregar estado',
+    'admin.col_status_text' => 'Texto del estado',
+    'admin.col_slug' => 'Clave interna',
+    'admin.col_tasks_using' => 'Tareas que lo usan',
+    'admin.system_status' => 'Sistema',
+    'admin.system_status_hint' => 'Requerido por el sistema (valores predeterminados de creación de tareas, temporizadores, seguimiento de progreso) — el texto se puede renombrar, pero este estado no se puede eliminar.',
+    'admin.new_status' => 'Nuevo estado',
+    'admin.edit_status' => 'Editar estado',
+    'admin.status_text_label' => 'Texto del estado *',
+    'admin.status_text_hint' => 'Este es el texto que se muestra en toda la aplicación. Se puede cambiar en cualquier momento sin afectar las tareas existentes.',
+    'admin.delete_status_title' => 'Eliminar estado',
+    'admin.delete_status_simple_confirm' => '¿Eliminar el estado "{label}"? Esta acción no se puede deshacer.',
+    'admin.delete_status_in_use_warning' => '{count} tarea(s) usan actualmente el estado "{label}". Elige un estado de reemplazo abajo — esas tareas se actualizarán a ese estado antes de eliminar "{label}".',
+    'admin.replacement_status' => 'Estado de reemplazo',
+    'admin.reassign_and_delete' => 'Reasignar y eliminar',
 
     // ---- Admin: System Settings ----
     'admin.settings_title' => 'Configuración del Sistema',

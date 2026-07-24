@@ -85,7 +85,7 @@ require __DIR__ . '/includes/activity_modal.php';
           <div class="af-activity-item <?= $a['status'] === 'completed' ? 'completed' : ($a['status'] === 'blocked' ? 'blocked' : '') ?>" draggable="true" data-id="<?= (int)$a['id'] ?>">
             <div class="d-flex justify-content-between">
               <span class="title" role="button" onclick="afActivities.openEdit(<?= (int)$a['id'] ?>)"><?= e($a['title']) ?></span>
-              <span class="badge <?= status_badge_class($a['status']) ?>"><?= e(status_label($a['status'])) ?></span>
+              <span class="badge <?= status_badge_class($a['status']) ?>"><?= e(task_status_label($a['status'])) ?></span>
             </div>
             <div class="small text-muted"><?= $a['planned_start_at'] ? e(format_datetime($a['planned_start_at'], 'g:i A')) : e(t('myday.unscheduled')) ?> · <?= format_minutes((int)$a['estimated_minutes']) ?><?= $a['project_name'] ? ' · ' . e($a['project_name']) : '' ?></div>
           </div>
@@ -102,7 +102,7 @@ require __DIR__ . '/includes/activity_modal.php';
         <div class="af-activity-item <?= $a['priority'] === 'urgent' ? 'urgent' : 'unplanned' ?>" onclick="afActivities.openEdit(<?= (int)$a['id'] ?>)" role="button">
           <div class="d-flex justify-content-between">
             <span class="title"><?= e($a['title']) ?></span>
-            <span class="badge <?= status_badge_class($a['status']) ?>"><?= e(status_label($a['status'])) ?></span>
+            <span class="badge <?= status_badge_class($a['status']) ?>"><?= e(task_status_label($a['status'])) ?></span>
           </div>
           <div class="small text-muted"><?= e(t('myday.requested_by_at', ['name' => $a['requester_name'], 'time' => format_datetime($a['requested_at'], 'g:i A')])) ?></div>
         </div>

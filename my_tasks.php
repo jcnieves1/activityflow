@@ -36,7 +36,7 @@ require __DIR__ . '/includes/activity_modal.php';
   <div class="col-md-3"><input type="text" class="form-control" name="search" placeholder="<?= e(t('tasks.search')) ?>" value="<?= e($_GET['search'] ?? '') ?>"></div>
   <div class="col-md-2">
     <select class="form-select" name="status"><option value=""><?= e(t('tasks.all_statuses')) ?></option>
-      <?php foreach (ACTIVITY_STATUSES as $s): ?><option value="<?= $s ?>" <?= ($_GET['status'] ?? '') === $s ? 'selected' : '' ?>><?= e(status_label($s)) ?></option><?php endforeach; ?>
+      <?php foreach (list_task_statuses() as $st): ?><option value="<?= e($st['slug']) ?>" <?= ($_GET['status'] ?? '') === $st['slug'] ? 'selected' : '' ?>><?= e($st['label']) ?></option><?php endforeach; ?>
     </select>
   </div>
   <div class="col-md-2">
@@ -77,7 +77,7 @@ require __DIR__ . '/includes/activity_modal.php';
           <td><?= $a['project_name'] ? e($a['project_name']) : '<span class="text-muted">' . e(t('tasks.no_project')) . '</span>' ?></td>
           <td><?= e($a['requester_name']) ?></td>
           <td><span class="badge <?= priority_badge_class($a['priority']) ?>"><?= e(status_label($a['priority'])) ?></span></td>
-          <td><span class="badge <?= status_badge_class($a['status']) ?>"><?= e(status_label($a['status'])) ?></span></td>
+          <td><span class="badge <?= status_badge_class($a['status']) ?>"><?= e(task_status_label($a['status'])) ?></span></td>
           <td class="small"><?= e(format_datetime($a['target_completion_at'])) ?></td>
           <td class="text-end"><button class="btn btn-sm btn-outline-secondary" onclick="afActivities.openEdit(<?= (int)$a['id'] ?>)"><?= e(t('common.open')) ?></button></td>
         </tr>

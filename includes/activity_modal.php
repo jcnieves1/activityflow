@@ -132,7 +132,7 @@ foreach ($amProjectMemberIds as $projId => $memberIds) {
           <div class="row mb-2">
             <div class="col-6"><label class="form-label"><?= e(t('activity.field_status')) ?></label>
               <select class="form-select form-select-sm" id="am_status" onchange="afActivities.updateStatus()">
-                <?php foreach (ACTIVITY_STATUSES as $s): ?><option value="<?= $s ?>"><?= e(status_label($s)) ?></option><?php endforeach; ?>
+                <?php foreach (list_task_statuses() as $st): ?><option value="<?= e($st['slug']) ?>"><?= e($st['label']) ?></option><?php endforeach; ?>
               </select>
             </div>
             <div class="col-6"><label class="form-label"><?= e(t('activity.field_completion_pct')) ?></label>

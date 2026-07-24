@@ -132,6 +132,24 @@ CREATE TABLE activity_categories (
     UNIQUE KEY uq_category_name (name)
 ) ENGINE=InnoDB;
 
+-- Admin-manageable task/activity statuses. `slug` is the stable internal key
+-- stored on activities.status and referenced by business logic (see
+-- includes/models/task_statuses.php); `label` is the admin-editable display
+-- text. `is_system` marks the 4 statuses (planned, in_progress, completed,
+-- cancelled) that create/update/progress logic structurally depends on —
+-- their label can be renamed but the row itself cannot be deleted. The other
+-- defaults (backlog, ready, blocked, waiting) and any admin-added statuses
+-- can be freely deleted, reassigning any activities that use them first.
+CREATE TABLE task_statuses (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    slug VARCHAR(40) NOT NULL,
+    label VARCHAR(80) NOT NULL,
+    sort_order INT NOT NULL DEFAULT 0,
+    is_system TINYINT(1) NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_task_status_slug (slug)
+) ENGINE=InnoDB;
+
 CREATE TABLE tags (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(60) NOT NULL,
@@ -160,7 +178,10 @@ CREATE TABLE activities (
     actual_completion_at DATETIME DEFAULT NULL,
     estimated_minutes INT UNSIGNED DEFAULT NULL,
     priority ENUM('low','normal','high','urgent') NOT NULL DEFAULT 'normal',
-    status ENUM('backlog','planned','ready','in_progress','blocked','waiting','completed','cancelled') NOT NULL DEFAULT 'backlog',
+    -- Free-text key into task_statuses.slug rather than an ENUM, so
+    -- administrators can add/rename/remove statuses at runtime (see
+    -- admin/statuses.php) without a schema migration for every change.
+    status VARCHAR(40) NOT NULL DEFAULT 'backlog',
     completion_pct TINYINT UNSIGNED NOT NULL DEFAULT 0,
     category_id INT UNSIGNED DEFAULT NULL,
     interruption_reason VARCHAR(255) DEFAULT NULL,

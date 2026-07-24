@@ -28,6 +28,20 @@ INSERT INTO activity_categories (name, description) VALUES
 -- Tags -----------------------------------------------------------------
 INSERT INTO tags (name) VALUES ('billing'),('bug'),('urgent-fix'),('followup'),('research'),('release');
 
+-- Task statuses ----------------------------------------------------------
+-- is_system=1 (planned, in_progress, completed, cancelled) protects the 4
+-- statuses create/update/progress logic depends on from deletion; see
+-- includes/models/task_statuses.php.
+INSERT INTO task_statuses (slug, label, sort_order, is_system) VALUES
+ ('backlog', 'Backlog', 10, 0),
+ ('planned', 'Planned', 20, 1),
+ ('ready', 'Ready', 30, 0),
+ ('in_progress', 'In Progress', 40, 1),
+ ('blocked', 'Blocked', 50, 0),
+ ('waiting', 'Waiting', 60, 0),
+ ('completed', 'Completed', 70, 1),
+ ('cancelled', 'Cancelled', 80, 1);
+
 -- People (requesters / employees / stakeholders) ------------------------
 -- department_id: 1 Engineering, 2 Support, 3 Product, 4 Sales, 5 Operations
 INSERT INTO people (id, full_name, job_title, department_id, organization, org_role, email, phone, manager_id, is_active, notes) VALUES

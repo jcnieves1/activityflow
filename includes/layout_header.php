@@ -56,6 +56,7 @@ $navItems = [
         <a href="<?= e(base_url('admin/users.php')) ?>" class="af-nav-link <?= $activeNav === 'admin_users' ? 'active' : '' ?>"><i class="bi bi-people-fill"></i> <span><?= e(t('nav.admin_users')) ?></span></a>
         <a href="<?= e(base_url('admin/categories.php')) ?>" class="af-nav-link <?= $activeNav === 'admin_categories' ? 'active' : '' ?>"><i class="bi bi-tags"></i> <span><?= e(t('nav.admin_categories')) ?></span></a>
         <a href="<?= e(base_url('admin/departments.php')) ?>" class="af-nav-link <?= $activeNav === 'admin_departments' ? 'active' : '' ?>"><i class="bi bi-diagram-3"></i> <span><?= e(t('nav.admin_departments')) ?></span></a>
+        <a href="<?= e(base_url('admin/statuses.php')) ?>" class="af-nav-link <?= $activeNav === 'admin_statuses' ? 'active' : '' ?>"><i class="bi bi-flag"></i> <span><?= e(t('nav.admin_statuses')) ?></span></a>
         <a href="<?= e(base_url('admin/settings.php')) ?>" class="af-nav-link <?= $activeNav === 'admin_settings' ? 'active' : '' ?>"><i class="bi bi-gear"></i> <span><?= e(t('nav.admin_settings')) ?></span></a>
         <a href="<?= e(base_url('audit_log.php')) ?>" class="af-nav-link <?= $activeNav === 'audit_log' ? 'active' : '' ?>"><i class="bi bi-journal-text"></i> <span><?= e(t('nav.audit_log')) ?></span></a>
       <?php endif; ?>

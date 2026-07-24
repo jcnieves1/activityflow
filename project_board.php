@@ -10,7 +10,9 @@ if (!can_view_project($project)) deny(t('pd.no_access'));
 
 $members = list_project_members($projectId);
 $selectedMemberIds = array_values(array_unique(array_map('intval', array_filter((array)($_GET['members'] ?? []), fn($v) => $v !== ''))));
-$selectedStatuses = array_values(array_intersect(ACTIVITY_STATUSES, (array)($_GET['statuses'] ?? [])));
+$allStatuses = list_task_statuses();
+$allStatusSlugs = array_column($allStatuses, 'slug');
+$selectedStatuses = array_values(array_intersect($allStatusSlugs, (array)($_GET['statuses'] ?? [])));
 
 $activityFilters = ['project_id' => $projectId, 'limit' => 500];
 if ($selectedMemberIds) {
@@ -21,9 +23,9 @@ if ($selectedStatuses) {
 }
 $activities = list_activities($activityFilters);
 $byStatus = [];
-foreach (ACTIVITY_STATUSES as $s) { $byStatus[$s] = []; }
+foreach ($allStatusSlugs as $s) { $byStatus[$s] = []; }
 foreach ($activities as $a) { $byStatus[$a['status']][] = $a; }
-$displayStatuses = $selectedStatuses ?: ACTIVITY_STATUSES;
+$displayStatuses = $selectedStatuses ?: $allStatusSlugs;
 
 $pageTitle = t('board.title', ['name' => $project['name']]);
 $activeNav = 'projects';
@@ -69,10 +71,10 @@ require __DIR__ . '/includes/activity_modal.php';
             <input class="form-check-input" type="checkbox" id="boardStatusFilterAll" <?= !$selectedStatuses ? 'checked' : '' ?>>
             <label class="form-check-label fw-semibold" for="boardStatusFilterAll"><?= e(t('board.all_statuses')) ?></label>
           </div>
-          <?php foreach (ACTIVITY_STATUSES as $s): ?>
+          <?php foreach ($allStatuses as $st): $s = $st['slug']; ?>
             <div class="form-check">
-              <input class="form-check-input board-status-checkbox" type="checkbox" name="statuses[]" value="<?= $s ?>" id="boardStatus<?= $s ?>" <?= in_array($s, $selectedStatuses, true) ? 'checked' : '' ?>>
-              <label class="form-check-label" for="boardStatus<?= $s ?>"><?= e(status_label($s)) ?></label>
+              <input class="form-check-input board-status-checkbox" type="checkbox" name="statuses[]" value="<?= e($s) ?>" id="boardStatus<?= e($s) ?>" <?= in_array($s, $selectedStatuses, true) ? 'checked' : '' ?>>
+              <label class="form-check-label" for="boardStatus<?= e($s) ?>"><?= e($st['label']) ?></label>
             </div>
           <?php endforeach; ?>
           <button type="submit" class="btn btn-sm btn-primary w-100 mt-3"><?= e(t('common.apply')) ?></button>
@@ -84,14 +86,14 @@ require __DIR__ . '/includes/activity_modal.php';
   </div>
 </div>
 
-<?php if (count($displayStatuses) < count(ACTIVITY_STATUSES)): ?>
-  <p class="text-muted small mb-2"><?= e(t('board.showing_statuses', ['shown' => count($displayStatuses), 'total' => count(ACTIVITY_STATUSES)])) ?></p>
+<?php if (count($displayStatuses) < count($allStatusSlugs)): ?>
+  <p class="text-muted small mb-2"><?= e(t('board.showing_statuses', ['shown' => count($displayStatuses), 'total' => count($allStatusSlugs)])) ?></p>
 <?php endif; ?>
 <div class="af-board d-flex gap-3" style="overflow-x:auto;">
   <?php foreach ($displayStatuses as $status): ?>
     <div class="af-board-col" style="min-width:260px;flex:1;">
-      <div class="fw-semibold text-muted small text-uppercase mb-2"><?= e(status_label($status)) ?> <span class="badge bg-light text-dark"><?= count($byStatus[$status]) ?></span></div>
-      <div class="af-dropzone" data-status="<?= $status ?>" style="min-height:120px;">
+      <div class="fw-semibold text-muted small text-uppercase mb-2"><?= e(task_status_label($status)) ?> <span class="badge bg-light text-dark"><?= count($byStatus[$status]) ?></span></div>
+      <div class="af-dropzone" data-status="<?= e($status) ?>" style="min-height:120px;">
         <?php foreach ($byStatus[$status] as $a):
           $cls = $a['status'] === 'completed' ? 'completed' : ($a['status'] === 'blocked' ? 'blocked' : ($a['activity_type'] === 'unplanned' ? 'unplanned' : ''));
           if ($a['priority'] === 'urgent') $cls = 'urgent';

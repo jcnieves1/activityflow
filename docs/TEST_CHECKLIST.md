@@ -214,6 +214,42 @@ Mapped to the acceptance criteria. Run through this after installation
 - [ ] Requester Analytics page shows the date range and sample size, and the
       ranking panels populate.
 
+## Task status management (admin)
+
+- [ ] As an Administrator, open Administration → Task Statuses — confirm all
+      8 default statuses appear with their current text, internal key, and
+      a live count of tasks currently using each.
+- [ ] Rename a status's text (e.g. "Blocked" → "On Hold") and save — confirm
+      it now shows with the new text everywhere it appears (status filter
+      dropdowns, task board columns, task badges on My Tasks/Team
+      Activities/My Day, the Edit Activity dialog's Status field) without
+      any existing task losing its status or history.
+- [ ] Add a new custom status (e.g. "Needs Review") — confirm it appears in
+      all the same places, can be assigned to a task via the Edit Activity
+      dialog's Status field, and appears as its own column on the Task
+      Board.
+- [ ] Delete a custom/default non-system status that has zero tasks on it —
+      confirm a simple confirmation is enough and it disappears from every
+      list immediately.
+- [ ] Assign a handful of tasks to a status, then delete that status as an
+      admin — confirm the delete dialog shows the exact number of tasks
+      using it and requires you to pick a replacement status before
+      proceeding. Confirm that after confirming, every one of those tasks
+      now shows the replacement status (check My Tasks and the Task Board),
+      and the deleted status no longer appears anywhere.
+- [ ] Confirm the four required statuses (Planned, In Progress, Completed,
+      Cancelled) have no Delete button and that a direct API call to delete
+      one is rejected server-side, while their text can still be renamed
+      normally like any other status.
+- [ ] As a non-Administrator (Project Manager, Employee, Viewer), confirm
+      Administration → Task Statuses is not reachable (redirects/denies)
+      and a direct API call to save or delete a status is rejected.
+- [ ] Confirm a task's completion percentage, "completed" counts on
+      dashboards/reports, and project progress calculations still work
+      correctly after renaming "Completed"'s text — these depend on the
+      status's internal key, not its display text, so renaming should have
+      no effect on them.
+
 ## Authorization boundaries
 
 - [ ] As an Employee, confirm Admin pages (`admin/*.php`, `audit_log.php`)

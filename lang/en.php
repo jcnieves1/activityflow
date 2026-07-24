@@ -25,6 +25,7 @@ return [
     'nav.admin_users' => 'Users & Roles',
     'nav.admin_categories' => 'Categories',
     'nav.admin_departments' => 'Departments',
+    'nav.admin_statuses' => 'Task Statuses',
     'nav.admin_settings' => 'System Settings',
     'nav.audit_log' => 'Audit Log',
     'topbar.search_placeholder' => 'Search activities…',
@@ -601,6 +602,25 @@ return [
     'admin.add_department' => 'Add department',
     'admin.col_department_name' => 'Name',
     'admin.col_department_head' => 'Head',
+
+    // ---- Admin: Task Statuses ----
+    'admin.statuses_title' => 'Task Statuses',
+    'admin.statuses_subtitle' => 'Manage the status values used on tasks across the app. Text is freely editable; adding and removing statuses is supported, with required system statuses protected from removal.',
+    'admin.add_status' => 'Add status',
+    'admin.col_status_text' => 'Status text',
+    'admin.col_slug' => 'Internal key',
+    'admin.col_tasks_using' => 'Tasks using it',
+    'admin.system_status' => 'System',
+    'admin.system_status_hint' => 'Required by the system (task creation defaults, timers, progress tracking) — the text can be renamed but this status cannot be removed.',
+    'admin.new_status' => 'New status',
+    'admin.edit_status' => 'Edit status',
+    'admin.status_text_label' => 'Status text *',
+    'admin.status_text_hint' => 'This is the text shown throughout the app. It can be changed at any time without affecting existing tasks.',
+    'admin.delete_status_title' => 'Delete status',
+    'admin.delete_status_simple_confirm' => 'Delete the status "{label}"? This cannot be undone.',
+    'admin.delete_status_in_use_warning' => '{count} task(s) currently use the status "{label}". Choose a replacement status below — those tasks will be updated to it before "{label}" is removed.',
+    'admin.replacement_status' => 'Replacement status',
+    'admin.reassign_and_delete' => 'Reassign & delete',
 
     // ---- Admin: System Settings ----
     'admin.settings_title' => 'System Settings',

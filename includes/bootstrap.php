@@ -23,6 +23,7 @@ require_once __DIR__ . '/models/audit.php';
 require_once __DIR__ . '/models/notifications.php';
 require_once __DIR__ . '/models/people.php';
 require_once __DIR__ . '/models/projects.php';
+require_once __DIR__ . '/models/task_statuses.php';
 require_once __DIR__ . '/models/activities.php';
 require_once __DIR__ . '/models/time_entries.php';
 require_once __DIR__ . '/models/dashboard.php';

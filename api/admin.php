@@ -76,6 +76,33 @@ if ($method === 'POST') {
         audit_log('department', $id, 'saved');
         json_response(['ok' => true]);
     }
+
+    if ($action === 'status_save') {
+        $id = (int)($data['id'] ?? 0);
+        $label = trim((string)($data['label'] ?? ''));
+        try {
+            $status = $id ? update_task_status($id, $label) : create_task_status($label);
+        } catch (InvalidArgumentException $e) {
+            json_error($e->getMessage());
+        } catch (RuntimeException $e) {
+            json_error($e->getMessage(), 404);
+        }
+        json_response(['ok' => true, 'status' => $status]);
+    }
+
+    if ($action === 'status_delete') {
+        $id = (int)($data['id'] ?? 0);
+        $replacementSlug = isset($data['replacement_slug']) && $data['replacement_slug'] !== ''
+            ? (string)$data['replacement_slug'] : null;
+        try {
+            $result = delete_task_status($id, $replacementSlug);
+        } catch (InvalidArgumentException $e) {
+            json_error($e->getMessage());
+        } catch (RuntimeException $e) {
+            json_error($e->getMessage());
+        }
+        json_response(['ok' => true] + $result);
+    }
 }
 
 json_error('Unknown action.', 404);

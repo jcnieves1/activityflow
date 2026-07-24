@@ -341,7 +341,7 @@ require __DIR__ . '/includes/layout_header.php';
 window.AF_PROJECT = {
   id: <?= $projectId ?>,
   name: <?= json_encode($project['name']) ?>,
-  statusData: <?= json_encode(array_map(fn($r) => ['status' => status_label($r['status']), 'n' => (int)$r['n']], $stats['by_status'])) ?>,
+  statusData: <?= json_encode(array_map(fn($r) => ['status' => task_status_label($r['status']), 'n' => (int)$r['n']], $stats['by_status'])) ?>,
   assigneeData: <?= json_encode(array_map(fn($r) => ['name' => $r['full_name'], 'n' => (int)$r['n']], $stats['by_assignee'])) ?>
 };
 </script>

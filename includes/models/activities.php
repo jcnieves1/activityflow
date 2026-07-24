@@ -7,7 +7,10 @@ declare(strict_types=1);
  * activity_type / is_adhoc / project_id.
  */
 
-const ACTIVITY_STATUSES  = ['backlog', 'planned', 'ready', 'in_progress', 'blocked', 'waiting', 'completed', 'cancelled'];
+// Task statuses (backlog/planned/ready/in_progress/blocked/waiting/completed/
+// cancelled by default) are admin-manageable at runtime — see
+// includes/models/task_statuses.php's list_task_statuses()/task_status_slugs()
+// — rather than a fixed constant, so this list is no longer defined here.
 const ACTIVITY_PRIORITIES = ['low', 'normal', 'high', 'urgent'];
 const REQUEST_CHANNELS = [
     'manager_request', 'coworker_request', 'customer_request', 'meeting',
@@ -58,7 +61,7 @@ function list_activities(array $filters = []): array
         }
     }
     if (!empty($filters['status_in']) && is_array($filters['status_in'])) {
-        $statuses = array_values(array_intersect(ACTIVITY_STATUSES, $filters['status_in']));
+        $statuses = array_values(array_intersect(task_status_slugs(), $filters['status_in']));
         if ($statuses) {
             $placeholders = implode(',', array_fill(0, count($statuses), '?'));
             $sql .= " AND a.status IN ($placeholders)";
@@ -152,7 +155,7 @@ function validate_activity_input(array $data): array
     if (!empty($data['activity_type']) && !in_array($data['activity_type'], ['planned', 'unplanned'], true)) {
         $errors[] = 'Invalid activity type.';
     }
-    if (!empty($data['status']) && !in_array($data['status'], ACTIVITY_STATUSES, true)) {
+    if (!empty($data['status']) && !in_array($data['status'], task_status_slugs(), true)) {
         $errors[] = 'Invalid status.';
     }
     // Business rule: planned project tasks require a project.
@@ -321,7 +324,7 @@ function update_activity(int $id, array $data): void
 
 function update_activity_status(int $id, string $status, ?int $completionPct = null): void
 {
-    if (!in_array($status, ACTIVITY_STATUSES, true)) {
+    if (!in_array($status, task_status_slugs(), true)) {
         throw new InvalidArgumentException('Invalid status.');
     }
     $before = get_activity($id);
@@ -352,7 +355,7 @@ function update_activity_status(int $id, string $status, ?int $completionPct = n
     if ($status === 'blocked') {
         notify_person((int)$before['assignee_id'], 'task_blocked', 'Task blocked: ' . $before['title'], null, 'activity', $id);
     } else {
-        notify_person((int)$before['assignee_id'], 'status_changed', 'Task status updated: ' . $before['title'], status_label($status), 'activity', $id);
+        notify_person((int)$before['assignee_id'], 'status_changed', 'Task status updated: ' . $before['title'], task_status_label($status), 'activity', $id);
     }
 }
 
