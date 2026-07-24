@@ -24,6 +24,12 @@ window.AF_I18N = <?= json_encode([
     'board_status_singular' => t('board.status_singular'),
     'board_status_plural' => t('board.status_plural'),
     'board_selected_suffix' => t('board.selected_suffix'),
+    'calendar_all_employees' => t('tasks.all_employees'),
+    'calendar_employee_singular' => t('calendar.employee_singular'),
+    'calendar_employee_plural' => t('calendar.employee_plural'),
+    'calendar_all_projects' => t('tasks.all_projects'),
+    'calendar_project_singular' => t('calendar.project_singular'),
+    'calendar_project_plural' => t('calendar.project_plural'),
 ]) ?>;
 </script>
 <script src="<?= e(base_url('assets/js/app.js')) ?>"></script>

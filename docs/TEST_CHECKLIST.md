@@ -197,6 +197,18 @@ Mapped to the acceptance criteria. Run through this after installation
 
 - [ ] On the Calendar page, drag a task to a new day/time and confirm it
       saves (reload the page to verify persistence).
+- [ ] On the Calendar page, use the employee filter dropdown to check two or
+      more people — confirm the calendar shows both people's tasks together,
+      the button label updates ("All employees" / "1 employee selected" /
+      "N employees selected"), and re-checking "All employees" clears the
+      selection and shows everyone's tasks again. Confirm the calendar loads
+      by default showing just your own tasks (if your account is linked to
+      a person), matching the old single-select default.
+- [ ] Do the same for the project filter dropdown — select multiple
+      projects and confirm the calendar shows tasks from all of them at
+      once, with "All projects" behaving the same way. Confirm the employee
+      and project filters combine correctly (e.g. two employees + one
+      project shows only those employees' tasks within that project).
 - [ ] On the Timeline page, select a date with both planned and unplanned
       activity, press Play, and watch unplanned insertions appear at their
       actual requested time relative to the plan.

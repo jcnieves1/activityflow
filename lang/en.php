@@ -458,6 +458,10 @@ return [
     'calendar.legend_urgent' => 'Urgent',
     'calendar.legend_completed' => 'Completed',
     'calendar.legend_blocked' => 'Blocked',
+    'calendar.employee_singular' => 'employee',
+    'calendar.employee_plural' => 'employees',
+    'calendar.project_singular' => 'project',
+    'calendar.project_plural' => 'projects',
 
     // ---- Timeline ----
     'timeline.title' => 'Timeline & Time-lapse',

@@ -20,14 +20,40 @@ require __DIR__ . '/includes/activity_modal.php';
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
   <h4 class="mb-0"><?= e(t('nav.calendar')) ?></h4>
   <div class="d-flex gap-2">
-    <select class="form-select form-select-sm" id="calAssignee" style="width:auto">
-      <option value=""><?= e(t('tasks.all_employees')) ?></option>
-      <?php foreach ($people as $p): ?><option value="<?= (int)$p['id'] ?>" <?= $p['id'] == current_person_id() ? 'selected' : '' ?>><?= e($p['full_name']) ?></option><?php endforeach; ?>
-    </select>
-    <select class="form-select form-select-sm" id="calProject" style="width:auto">
-      <option value=""><?= e(t('tasks.all_projects')) ?></option>
-      <?php foreach ($projects as $p): ?><option value="<?= (int)$p['id'] ?>"><?= e($p['name']) ?></option><?php endforeach; ?>
-    </select>
+    <div class="dropdown">
+      <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" id="calAssigneeBtn" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+        <i class="bi bi-people"></i> <span id="calAssigneeLabel"><?= e(t('tasks.all_employees')) ?></span>
+      </button>
+      <div class="dropdown-menu p-3" style="min-width:240px;max-height:340px;overflow-y:auto;">
+        <div class="form-check mb-2 border-bottom pb-2">
+          <input class="form-check-input" type="checkbox" id="calAssigneeAll" <?= !current_person_id() ? 'checked' : '' ?>>
+          <label class="form-check-label fw-semibold" for="calAssigneeAll"><?= e(t('tasks.all_employees')) ?></label>
+        </div>
+        <?php foreach ($people as $p): ?>
+          <div class="form-check">
+            <input class="form-check-input cal-assignee-checkbox" type="checkbox" value="<?= (int)$p['id'] ?>" id="calAssignee<?= (int)$p['id'] ?>" <?= $p['id'] == current_person_id() ? 'checked' : '' ?>>
+            <label class="form-check-label" for="calAssignee<?= (int)$p['id'] ?>"><?= e($p['full_name']) ?></label>
+          </div>
+        <?php endforeach; ?>
+      </div>
+    </div>
+    <div class="dropdown">
+      <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" id="calProjectBtn" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+        <i class="bi bi-kanban"></i> <span id="calProjectLabel"><?= e(t('tasks.all_projects')) ?></span>
+      </button>
+      <div class="dropdown-menu p-3" style="min-width:240px;max-height:340px;overflow-y:auto;">
+        <div class="form-check mb-2 border-bottom pb-2">
+          <input class="form-check-input" type="checkbox" id="calProjectAll" checked>
+          <label class="form-check-label fw-semibold" for="calProjectAll"><?= e(t('tasks.all_projects')) ?></label>
+        </div>
+        <?php foreach ($projects as $p): ?>
+          <div class="form-check">
+            <input class="form-check-input cal-project-checkbox" type="checkbox" value="<?= (int)$p['id'] ?>" id="calProject<?= (int)$p['id'] ?>">
+            <label class="form-check-label" for="calProject<?= (int)$p['id'] ?>"><?= e($p['name']) ?></label>
+          </div>
+        <?php endforeach; ?>
+      </div>
+    </div>
     <button class="btn btn-primary btn-sm" onclick="afActivities.openCreate({})"><i class="bi bi-plus-lg"></i> <?= e(t('calendar.new')) ?></button>
   </div>
 </div>

@@ -60,6 +60,14 @@ function list_activities(array $filters = []): array
             array_push($params, ...$ids);
         }
     }
+    if (!empty($filters['project_id_in']) && is_array($filters['project_id_in'])) {
+        $ids = array_values(array_unique(array_map('intval', $filters['project_id_in'])));
+        if ($ids) {
+            $placeholders = implode(',', array_fill(0, count($ids), '?'));
+            $sql .= " AND a.project_id IN ($placeholders)";
+            array_push($params, ...$ids);
+        }
+    }
     if (!empty($filters['status_in']) && is_array($filters['status_in'])) {
         $statuses = array_values(array_intersect(task_status_slugs(), $filters['status_in']));
         if ($statuses) {

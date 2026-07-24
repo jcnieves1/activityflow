@@ -457,6 +457,10 @@ return [
     'calendar.legend_urgent' => 'Urgente',
     'calendar.legend_completed' => 'Completado',
     'calendar.legend_blocked' => 'Bloqueado',
+    'calendar.employee_singular' => 'empleado',
+    'calendar.employee_plural' => 'empleados',
+    'calendar.project_singular' => 'proyecto',
+    'calendar.project_plural' => 'proyectos',
 
     // ---- Timeline ----
     'timeline.title' => 'Línea de Tiempo y Time-lapse',

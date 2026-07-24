@@ -5,14 +5,25 @@ header('Content-Type: application/json; charset=utf-8');
 require_login();
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['action'] ?? 'events') === 'events') {
+    // assignee_id[]/project_id[] (repeated query params from the calendar's
+    // multi-select filters) take priority over the older single-value
+    // assignee_id/project_id, which are kept as a fallback for any direct
+    // API caller still passing one plain id.
+    $assigneeIds = array_filter((array)($_GET['assignee_id'] ?? []), fn($v) => $v !== '');
+    $projectIds = array_filter((array)($_GET['project_id'] ?? []), fn($v) => $v !== '');
+
     $filters = [
-        'assignee_id' => $_GET['assignee_id'] ?? '',
-        'project_id' => $_GET['project_id'] ?? '',
         'activity_type' => $_GET['activity_type'] ?? '',
         'date_from' => isset($_GET['start']) ? date('Y-m-d', strtotime($_GET['start'])) : '',
         'date_to' => isset($_GET['end']) ? date('Y-m-d', strtotime($_GET['end'])) : '',
         'limit' => 1000,
     ];
+    if ($assigneeIds) {
+        $filters['assignee_id_in'] = $assigneeIds;
+    }
+    if ($projectIds) {
+        $filters['project_id_in'] = $projectIds;
+    }
     $activities = list_activities($filters);
 
     $events = array_map(function ($a) {
