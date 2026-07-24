@@ -5,6 +5,22 @@ Mapped to the acceptance criteria. Run through this after installation
 
 ## Authentication & accounts
 
+- [ ] Visit login.php while logged out — confirm the full marketing landing
+      page renders: nav (Features/How it works/Reviews/Log in/Get started),
+      hero with mascot, stats strip, About, Benefits, Features grid,
+      "How it works" steps with mascot, mid-page CTA banner, Reviews with
+      star ratings and mascot, and finally the preserved login card.
+      Confirm the nav links and every "Get started"/"Log in" CTA scroll
+      down to the login card (id="auth") rather than navigating away.
+- [ ] On the landing page, confirm the login form, CAPTCHA question, error
+      handling, "Forgot password?" and "Create an account" links all work
+      exactly as before (this is the same form/logic, just restyled).
+- [ ] Switch language via the landing page's nav language dropdown —
+      confirm all landing page copy (hero, features, reviews, etc.) switches
+      to Spanish, and the choice persists into the login card and beyond.
+- [ ] Switch the color theme (from within the app, then log out) and revisit
+      the landing page — confirm the hero, cards, mascot color, and stats
+      band all re-theme correctly, including in the dark "blue" scheme.
 - [ ] Register a new account with full name, email, password, secret
       question/answer — no email verification step, can log in immediately.
 - [ ] Log in with a valid demo account (e.g. `carla.diaz@activityflow.test` /

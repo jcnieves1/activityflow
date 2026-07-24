@@ -1,0 +1,142 @@
+/* ---------- Landing page (login.php) ----------
+   Loaded only by login.php, on top of app.css (for the shared --af-* theme
+   variables + Bootstrap primary overrides) so this page re-themes correctly
+   across all three color schemes, including dark blue, without duplicating
+   any of that logic. */
+
+.af-landing { background: var(--af-body-bg); color: var(--af-body-text); }
+
+/* ---- Nav ---- */
+.af-landing-nav {
+  position: sticky; top: 0; z-index: 1030;
+  background: var(--af-card-bg); border-bottom: 1px solid var(--af-card-border);
+  backdrop-filter: blur(6px);
+}
+.af-landing-brand { font-weight: 800; font-size: 1.25rem; color: var(--af-body-text); display: flex; align-items: center; gap: .5rem; }
+.af-landing-brand:hover { color: var(--bs-primary); text-decoration: none; }
+.af-landing-nav .nav-link { color: var(--af-muted-text); font-weight: 600; }
+.af-landing-nav .nav-link:hover { color: var(--bs-primary); }
+
+/* ---- Hero ---- */
+.af-hero {
+  padding: 4.5rem 0 3.5rem;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--bs-primary) 10%, var(--af-body-bg)) 0%, var(--af-body-bg) 100%);
+}
+.af-hero-eyebrow {
+  display: inline-block; text-transform: uppercase; letter-spacing: .06em;
+  font-size: .75rem; font-weight: 700; color: var(--bs-primary);
+  background: color-mix(in srgb, var(--bs-primary) 14%, transparent);
+  padding: .35rem .75rem; border-radius: 2rem; margin-bottom: 1rem;
+}
+.af-hero-title { font-size: clamp(1.9rem, 3.4vw, 2.9rem); font-weight: 800; line-height: 1.15; margin-bottom: 1rem; }
+.af-hero-subtitle { font-size: 1.1rem; color: var(--af-muted-text); max-width: 34rem; margin-bottom: 1.75rem; }
+.af-hero-note { font-size: .85rem; color: var(--af-muted-text); margin-top: .75rem; }
+
+/* ---- Generic section rhythm ---- */
+.af-section { padding: 4rem 0; }
+.af-section-alt { background: var(--af-surface-bg); }
+.af-section-title { font-weight: 800; font-size: clamp(1.5rem, 2.4vw, 2rem); margin-bottom: .5rem; }
+.af-section-subtitle { color: var(--af-muted-text); margin-bottom: 2.5rem; max-width: 40rem; }
+.af-section-header { text-align: center; margin-left: auto; margin-right: auto; }
+.af-section-header .af-section-subtitle { margin-left: auto; margin-right: auto; }
+
+/* ---- Stats strip ---- */
+.af-stats { background: var(--bs-primary); color: #fff; padding: 2.5rem 0; }
+.af-stat-number { font-weight: 800; font-size: clamp(1.5rem, 2.6vw, 2.1rem); }
+.af-stat-label { font-size: .85rem; opacity: .9; }
+
+/* ---- Cards (benefits / features) ---- */
+.af-card-tile {
+  background: var(--af-card-bg); border: 1px solid var(--af-card-border); border-radius: .9rem;
+  padding: 1.5rem; height: 100%;
+}
+.af-card-tile-icon {
+  width: 48px; height: 48px; border-radius: .75rem;
+  display: flex; align-items: center; justify-content: center;
+  background: color-mix(in srgb, var(--bs-primary) 14%, transparent);
+  color: var(--bs-primary); font-size: 1.4rem; margin-bottom: 1rem;
+}
+.af-card-tile h5 { font-weight: 700; margin-bottom: .4rem; }
+.af-card-tile p { color: var(--af-muted-text); margin-bottom: 0; font-size: .93rem; }
+
+/* ---- Workflow / how it works ---- */
+.af-workflow-step { display: flex; gap: 1.25rem; align-items: flex-start; margin-bottom: 2.25rem; }
+.af-workflow-step:last-child { margin-bottom: 0; }
+.af-workflow-number {
+  flex: none; width: 42px; height: 42px; border-radius: 50%;
+  background: var(--bs-primary); color: #fff; font-weight: 800;
+  display: flex; align-items: center; justify-content: center; font-size: 1.05rem;
+}
+.af-workflow-step h5 { font-weight: 700; margin-bottom: .3rem; }
+.af-workflow-step p { color: var(--af-muted-text); margin-bottom: 0; }
+
+/* ---- Testimonials ---- */
+.af-review-card {
+  background: var(--af-card-bg); border: 1px solid var(--af-card-border); border-radius: .9rem;
+  padding: 1.5rem; height: 100%; display: flex; flex-direction: column;
+}
+.af-review-stars { color: #f4a261; margin-bottom: .75rem; letter-spacing: .1em; }
+.af-review-quote { flex: 1; font-style: italic; margin-bottom: 1rem; }
+.af-review-author { display: flex; align-items: center; gap: .65rem; }
+.af-review-avatar {
+  width: 40px; height: 40px; border-radius: 50%; flex: none;
+  background: color-mix(in srgb, var(--bs-primary) 18%, transparent); color: var(--bs-primary);
+  display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: .85rem;
+}
+.af-review-name { font-weight: 700; font-size: .92rem; line-height: 1.2; }
+.af-review-role { font-size: .8rem; color: var(--af-muted-text); }
+
+/* ---- CTA banner ---- */
+.af-cta-banner {
+  background: linear-gradient(120deg, var(--bs-primary), color-mix(in srgb, var(--bs-primary) 60%, #111827));
+  color: #fff; border-radius: 1.25rem; padding: 3rem 2rem; text-align: center;
+}
+.af-cta-banner h2 { font-weight: 800; margin-bottom: .5rem; }
+.af-cta-banner p { opacity: .92; margin-bottom: 1.5rem; }
+
+/* ---- Auth section (the preserved login/create-account card) ---- */
+.af-auth-section { padding: 4.5rem 0; }
+.af-auth-card {
+  max-width: 440px; margin: 0 auto; background: var(--af-card-bg);
+  border: 1px solid var(--af-card-border); border-radius: 1rem; padding: 2rem;
+  box-shadow: 0 20px 45px rgba(0,0,0,.12);
+}
+
+/* ---- Footer ---- */
+.af-landing-footer { border-top: 1px solid var(--af-card-border); padding: 2rem 0; color: var(--af-muted-text); font-size: .9rem; }
+.af-landing-footer a { color: var(--af-muted-text); }
+.af-landing-footer a:hover { color: var(--bs-primary); }
+
+/* ---- Mascot ----
+   One hand-drawn SVG "buddy" character (defined once as a <symbol> in
+   login.php and reused via <use>), re-colored per theme through currentColor
+   / CSS variables so it never clashes with the active color scheme. Each
+   appearance gets a small floating icon badge instead of a fully separate
+   drawing, to vary what it's "holding" (clipboard, stopwatch, chart, trophy)
+   without needing a unique illustration per spot. */
+.af-mascot-fill-primary { fill: var(--bs-primary); }
+.af-mascot-fill-light { fill: #ffffff; }
+.af-mascot-fill-dark { fill: #1f2937; }
+.af-mascot-fill-accent { fill: var(--af-unplanned); }
+.af-mascot-fill-cheek { fill: #f9a8a8; opacity: .55; }
+.af-mascot-stroke-dark { stroke: #1f2937; }
+
+.af-mascot-wrap { position: relative; display: inline-block; }
+.af-mascot-badge {
+  position: absolute; bottom: -6px; right: -6px;
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--af-card-bg); border: 2px solid var(--af-body-bg);
+  box-shadow: 0 3px 8px rgba(0,0,0,.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; color: var(--bs-primary);
+}
+.af-mascot-hero { width: 240px; height: auto; }
+.af-mascot-sm { width: 64px; height: auto; }
+.af-mascot-md { width: 96px; height: auto; }
+.af-mascot-flip { transform: scaleX(-1); }
+
+@media (max-width: 991.98px) {
+  .af-hero { padding: 3rem 0 2.5rem; text-align: center; }
+  .af-hero-subtitle { margin-left: auto; margin-right: auto; }
+  .af-mascot-hero { width: 180px; margin-top: 2rem; }
+}
