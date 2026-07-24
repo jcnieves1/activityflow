@@ -46,6 +46,19 @@ function current_theme(): string
     return array_key_exists($theme, available_themes()) ? $theme : AF_DEFAULT_THEME;
 }
 
+/**
+ * Maps our color scheme to Bootstrap 5.3's own light/dark color mode
+ * (`<html data-bs-theme="...">`), so components Bootstrap itself controls the
+ * palette for — modals, dropdowns, tables, form controls, buttons, etc. — flip
+ * to their dark-mode colors automatically instead of staying light (white
+ * background, black text) underneath our dark sidebar/topbar. Only the "blue"
+ * scheme is dark; golden and green stay on Bootstrap's normal light mode.
+ */
+function bs_color_mode(): string
+{
+    return current_theme() === 'blue' ? 'dark' : 'light';
+}
+
 /** Memoized per-request load of the active language's string table, merged over the English base. */
 function _af_translations(): array
 {

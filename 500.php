@@ -3,10 +3,10 @@ declare(strict_types=1);
 if (!headers_sent()) { http_response_code(500); }
 $_t = function_exists('t') ? 't' : fn($k) => ['error.500.title' => 'System error', 'error.500.body' => 'Something went wrong on our end. Please try again shortly.', 'error.500.action' => 'Return home'][$k];
 ?><!DOCTYPE html>
-<html lang="<?= function_exists('current_locale') ? htmlspecialchars(current_locale()) : 'en' ?>" data-theme="<?= function_exists('current_theme') ? htmlspecialchars(current_theme()) : 'golden' ?>"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="<?= function_exists('current_locale') ? htmlspecialchars(current_locale()) : 'en' ?>" data-theme="<?= function_exists('current_theme') ? htmlspecialchars(current_theme()) : 'golden' ?>" data-bs-theme="<?= function_exists('bs_color_mode') ? htmlspecialchars(bs_color_mode()) : 'light' ?>"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= htmlspecialchars($_t('error.500.title')) ?> · <?= function_exists('t') ? htmlspecialchars(t('app.name')) : 'ActivityFlow' ?></title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
-</head><body class="d-flex align-items-center justify-content-center vh-100 bg-light">
+</head><body class="d-flex align-items-center justify-content-center vh-100 bg-body">
 <div class="text-center">
 <h1 class="display-4">500</h1>
 <p class="lead"><?= htmlspecialchars($_t('error.500.body')) ?></p>

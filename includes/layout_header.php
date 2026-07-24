@@ -25,7 +25,7 @@ $navItems = [
     ['key' => 'requesters', 'label' => t('nav.requesters'), 'icon' => 'graph-up-arrow', 'url' => 'requester_analytics.php'],
 ];
 ?><!DOCTYPE html>
-<html lang="<?= e(current_locale()) ?>" data-theme="<?= e(current_theme()) ?>">
+<html lang="<?= e(current_locale()) ?>" data-theme="<?= e(current_theme()) ?>" data-bs-theme="<?= e(bs_color_mode()) ?>">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">

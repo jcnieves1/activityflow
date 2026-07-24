@@ -20,6 +20,7 @@
    throughout the whole app for free, without touching every page. */
 :root, [data-theme="golden"] {
   --af-body-bg: #fbf8f0;
+  --af-body-text: #1f2937;
   --af-sidebar-bg: #ffffff;
   --af-sidebar-text: #55452a;
   --af-sidebar-hover-bg: rgba(0,0,0,.05);
@@ -29,6 +30,14 @@
   --af-topbar-border: #e5e7eb;
   --af-topbar-btn-bg: #f4f0e4;
   --af-topbar-btn-text: #55452a;
+  /* Surfaces: cards, activity chips, and other "raised" panels on top of the body background. */
+  --af-card-bg: #ffffff;
+  --af-card-border: #e5e7eb;
+  --af-surface-bg: #f9fafb;
+  --af-surface-border: #f1f5f9;
+  --af-muted-text: #6b7280;
+  --af-notif-unread-bg: #eff6ff;
+  --af-dropzone-hover-bg: #eef2ff;
   --bs-primary: #b8860b;
   --bs-primary-rgb: 184, 134, 11;
   --bs-link-color: #96690a;
@@ -38,6 +47,7 @@
 }
 [data-theme="green"] {
   --af-body-bg: #f1faf3;
+  --af-body-text: #1f2937;
   --af-sidebar-bg: #eaf7ee;
   --af-sidebar-text: #1f4d2e;
   --af-sidebar-hover-bg: rgba(0,0,0,.05);
@@ -47,6 +57,13 @@
   --af-topbar-border: #e5e7eb;
   --af-topbar-btn-bg: #eaf7ee;
   --af-topbar-btn-text: #1f4d2e;
+  --af-card-bg: #ffffff;
+  --af-card-border: #e5e7eb;
+  --af-surface-bg: #f9fafb;
+  --af-surface-border: #f1f5f9;
+  --af-muted-text: #6b7280;
+  --af-notif-unread-bg: #eff6ff;
+  --af-dropzone-hover-bg: #eef2ff;
   --bs-primary: #2e8b57;
   --bs-primary-rgb: 46, 139, 87;
   --bs-link-color: #247146;
@@ -56,6 +73,7 @@
 }
 [data-theme="blue"] {
   --af-body-bg: #101a2c;
+  --af-body-text: #e2e8f0;
   --af-sidebar-bg: #0b1220;
   --af-sidebar-text: #cbd5e1;
   --af-sidebar-hover-bg: rgba(255,255,255,.06);
@@ -65,6 +83,16 @@
   --af-topbar-border: rgba(255,255,255,.08);
   --af-topbar-btn-bg: rgba(255,255,255,.08);
   --af-topbar-btn-text: #e2e8f0;
+  /* Surfaces sit one step lighter than the body background so cards/panels
+     still read as distinct "raised" elements against the dark backdrop,
+     mirroring how the light themes' white cards sit on a tinted body. */
+  --af-card-bg: #16233b;
+  --af-card-border: rgba(255,255,255,.08);
+  --af-surface-bg: rgba(255,255,255,.06);
+  --af-surface-border: rgba(255,255,255,.08);
+  --af-muted-text: #94a3b8;
+  --af-notif-unread-bg: rgba(59,130,246,.15);
+  --af-dropzone-hover-bg: rgba(59,130,246,.15);
   --bs-primary: #3b82f6;
   --bs-primary-rgb: 59, 130, 246;
   --bs-link-color: #60a5fa;
@@ -73,10 +101,33 @@
   --bs-link-hover-color-rgb: 147, 197, 253;
 }
 
-body { background: var(--af-body-bg); color: #1f2937; }
-[data-theme="blue"] .af-topbar,
-[data-theme="blue"] .af-content { color: #e2e8f0; }
+body { background: var(--af-body-bg); color: var(--af-body-text); }
 [data-theme="blue"] .af-topbar .text-muted { color: #94a3b8 !important; }
+
+/* Bootstrap's contextual "light" variants (.bg-light, .table-light, and any
+   .card/.modal/.dropdown-menu that opts back into a specifically light
+   surface) are fixed, named colors — by design they do NOT follow Bootstrap's
+   own data-bs-theme="dark" switch the way default components do, so on the
+   blue scheme they were staying solid white with black text no matter what.
+   These are exactly the "sections stay white" spots: priority/role/count
+   badges (bg-light text-dark), and table headers (table-light) used across
+   People, Admin, Reports, My Tasks/Team Activities, and Audit Log. Re-map
+   them to a translucent light overlay instead — still reads as "the light
+   variant" against the dark surfaces around it, but no longer an opaque
+   white rectangle. */
+[data-theme="blue"] .bg-light { background-color: rgba(255,255,255,.12) !important; }
+[data-theme="blue"] .bg-light.text-dark,
+[data-theme="blue"] .table-light,
+[data-theme="blue"] .table-light > * { color: var(--af-body-text) !important; }
+[data-theme="blue"] .table-light,
+[data-theme="blue"] .table-light > th,
+[data-theme="blue"] .table-light > td {
+  --bs-table-bg: rgba(255,255,255,.08);
+  --bs-table-color: var(--af-body-text);
+  --bs-table-border-color: var(--af-card-border);
+  background-color: rgba(255,255,255,.08);
+  border-color: var(--af-card-border);
+}
 
 .bg-orange { background-color: var(--af-unplanned) !important; color: #402400; }
 
@@ -117,7 +168,7 @@ body { background: var(--af-body-bg); color: #1f2937; }
 }
 .af-search { position:relative; flex:1; max-width:420px; }
 .af-search i { position:absolute; left:.75rem; top:50%; transform:translateY(-50%); color:#9ca3af; }
-.af-search input { width:100%; border:1px solid #e5e7eb; border-radius:2rem; padding:.45rem .75rem .45rem 2.2rem; background:#f9fafb; }
+.af-search input { width:100%; border:1px solid var(--af-topbar-border); border-radius:2rem; padding:.45rem .75rem .45rem 2.2rem; background:var(--af-surface-bg); color:var(--af-body-text); }
 .af-topbar-actions { margin-left:auto; display:flex; align-items:center; gap:.5rem; }
 .af-topbar .btn-light { background: var(--af-topbar-btn-bg); color: var(--af-topbar-btn-text); border-color: transparent; }
 .af-avatar { width:28px; height:28px; border-radius:50%; background:var(--bs-primary); color:#fff; display:inline-flex; align-items:center; justify-content:center; font-weight:600; font-size:.85rem; }
@@ -127,13 +178,13 @@ body { background: var(--af-body-bg); color: #1f2937; }
 .af-theme-swatch.af-theme-blue { background: linear-gradient(135deg, #0b1220 50%, #3b82f6 50%); }
 .af-notif-badge { position:absolute; top:2px; right:2px; font-size:.6rem; }
 .af-notif-menu { width: 340px; max-height: 420px; overflow-y:auto; padding:0; }
-.af-notif-list .notif-item { padding:.6rem .9rem; border-bottom:1px solid #f1f5f9; font-size:.85rem; }
-.af-notif-list .notif-item.unread { background:#eff6ff; }
+.af-notif-list .notif-item { padding:.6rem .9rem; border-bottom:1px solid var(--af-surface-border); font-size:.85rem; }
+.af-notif-list .notif-item.unread { background:var(--af-notif-unread-bg); }
 
 .af-flash-container { padding: .75rem 1.25rem 0; }
 .af-breadcrumb { padding: .5rem 1.25rem 0; }
 .af-content { padding: 1.25rem; flex:1; }
-.af-footer { padding: .75rem 1.25rem; color:#9ca3af; font-size:.8rem; text-align:center; }
+.af-footer { padding: .75rem 1.25rem; color:var(--af-muted-text); font-size:.8rem; text-align:center; }
 
 @media (max-width: 991.98px) {
   .af-sidebar { transform: translateX(-100%); }
@@ -143,13 +194,13 @@ body { background: var(--af-body-bg); color: #1f2937; }
 }
 
 /* ---------- Cards / widgets ---------- */
-.af-card { background:#fff; border:1px solid #e5e7eb; border-radius:.75rem; padding:1rem 1.25rem; }
+.af-card { background:var(--af-card-bg); border:1px solid var(--af-card-border); border-radius:.75rem; padding:1rem 1.25rem; }
 .af-stat { font-size:1.6rem; font-weight:700; }
-.af-empty { text-align:center; padding: 2.5rem 1rem; color:#6b7280; }
+.af-empty { text-align:center; padding: 2.5rem 1rem; color:var(--af-muted-text); }
 .af-empty i { font-size:2rem; display:block; margin-bottom:.5rem; }
 
 /* ---------- Activity chips ---------- */
-.af-activity-item { border-left:4px solid var(--af-planned); background:#fff; border-radius:.5rem; padding:.6rem .85rem; margin-bottom:.5rem; box-shadow:0 1px 2px rgba(0,0,0,.04); }
+.af-activity-item { border-left:4px solid var(--af-planned); background:var(--af-card-bg); border-radius:.5rem; padding:.6rem .85rem; margin-bottom:.5rem; box-shadow:0 1px 2px rgba(0,0,0,.04); }
 .af-activity-item.unplanned { border-left-color: var(--af-unplanned); }
 .af-activity-item.urgent { border-left-color: var(--af-urgent); }
 .af-activity-item.completed { border-left-color: var(--af-completed); opacity:.85; }
@@ -158,11 +209,11 @@ body { background: var(--af-body-bg); color: #1f2937; }
 .af-activity-item.dragging { opacity:.5; }
 
 .af-dropzone { min-height: 60px; border:2px dashed transparent; border-radius:.5rem; transition: background .15s; }
-.af-dropzone.dragover { background:#eef2ff; border-color:var(--bs-primary); }
+.af-dropzone.dragover { background:var(--af-dropzone-hover-bg); border-color:var(--bs-primary); }
 
 /* ---------- Timeline ---------- */
-.af-timeline-track { position:relative; height:70px; background:#f1f5f9; border-radius:.5rem; margin-bottom:.5rem; }
-.af-timeline-track .label { position:absolute; left:.5rem; top:.25rem; font-size:.7rem; color:#6b7280; font-weight:600; text-transform:uppercase; }
+.af-timeline-track { position:relative; height:70px; background:var(--af-surface-bg); border-radius:.5rem; margin-bottom:.5rem; }
+.af-timeline-track .label { position:absolute; left:.5rem; top:.25rem; font-size:.7rem; color:var(--af-muted-text); font-weight:600; text-transform:uppercase; }
 .af-timeline-block { position:absolute; top:22px; height:36px; border-radius:.35rem; font-size:.72rem; color:#fff; padding:.2rem .4rem; overflow:hidden; white-space:nowrap; cursor:pointer; }
 .af-timeline-cursor { position:absolute; top:0; bottom:0; width:2px; background:#e63946; z-index:5; }
 
@@ -182,9 +233,19 @@ body { background: var(--af-body-bg); color: #1f2937; }
 /* ---------- Rich text (project description) ---------- */
 /* Editor: give Quill's content area a sane minimum height and match Bootstrap's
    rounded-corner/border look so it doesn't feel like a foreign widget. */
-.ql-container { min-height: 120px; border-bottom-left-radius:.375rem; border-bottom-right-radius:.375rem; font-size:1rem; }
-.ql-toolbar { border-top-left-radius:.375rem; border-top-right-radius:.375rem; background:#f9fafb; }
+.ql-container { min-height: 120px; border-bottom-left-radius:.375rem; border-bottom-right-radius:.375rem; font-size:1rem; color:var(--af-body-text); }
+.ql-toolbar { border-top-left-radius:.375rem; border-top-right-radius:.375rem; background:var(--af-surface-bg); }
 .ql-editor { min-height: 120px; }
+/* Quill (loaded from a third-party CDN) ships its own fixed light-mode colors
+   for the toolbar's icon strokes/fills and the border around the whole
+   widget — without this, the editor stays a light widget with barely-visible
+   dark-on-dark icons even though everything around it re-themed. */
+[data-theme="blue"] .ql-toolbar.ql-snow,
+[data-theme="blue"] .ql-container.ql-snow { border-color: var(--af-card-border); }
+[data-theme="blue"] .ql-snow .ql-stroke { stroke: var(--af-body-text); }
+[data-theme="blue"] .ql-snow .ql-fill, [data-theme="blue"] .ql-snow .ql-stroke.ql-fill { fill: var(--af-body-text); }
+[data-theme="blue"] .ql-snow .ql-picker { color: var(--af-body-text); }
+[data-theme="blue"] .ql-snow .ql-picker-options { background: var(--af-card-bg); border-color: var(--af-card-border); }
 
 /* Rendered output (project detail view): reset the typography a WYSIWYG editor
    produces so headings/lists don't look oversized or lose their bullets inside
@@ -195,5 +256,31 @@ body { background: var(--af-body-bg); color: #1f2937; }
 .af-rich-text h2 { font-size: 1.15rem; }
 .af-rich-text h3 { font-size: 1.05rem; }
 .af-rich-text ul, .af-rich-text ol { padding-left: 1.25rem; }
-.af-rich-text blockquote { border-left: 3px solid #cbd5e1; padding-left: .75rem; color: #6b7280; margin-left: 0; }
+.af-rich-text blockquote { border-left: 3px solid var(--af-card-border); padding-left: .75rem; color: var(--af-muted-text); margin-left: 0; }
 .af-rich-text a { word-break: break-word; }
+
+/* ---------- Calendar (FullCalendar, loaded from CDN) ---------- */
+/* FullCalendar ships its own light-mode look via a documented set of CSS
+   custom properties (not classes), so it doesn't pick up data-bs-theme at
+   all — left alone it renders as a solid white grid inside our dark shell.
+   Re-pointing its variables at our theme colors covers the day grid, list
+   view, header toolbar buttons, "today" highlight, and event styling. */
+[data-theme="blue"] .fc {
+  --fc-page-bg-color: transparent;
+  --fc-neutral-bg-color: var(--af-surface-bg);
+  --fc-neutral-text-color: var(--af-body-text);
+  --fc-border-color: var(--af-card-border);
+  --fc-button-text-color: var(--af-body-text);
+  --fc-button-bg-color: var(--af-surface-bg);
+  --fc-button-border-color: var(--af-card-border);
+  --fc-button-hover-bg-color: rgba(255,255,255,.16);
+  --fc-button-hover-border-color: var(--af-card-border);
+  --fc-button-active-bg-color: var(--bs-primary);
+  --fc-button-active-border-color: var(--bs-primary);
+  --fc-today-bg-color: rgba(59,130,246,.12);
+  --fc-highlight-color: rgba(59,130,246,.2);
+  --fc-list-event-hover-bg-color: rgba(255,255,255,.08);
+  color: var(--af-body-text);
+}
+[data-theme="blue"] .fc .fc-list-day-cushion { background: var(--af-surface-bg); }
+[data-theme="blue"] .fc .fc-list-event:hover td { background: rgba(255,255,255,.08); }

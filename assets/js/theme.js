@@ -8,6 +8,10 @@
 
   window.afSetTheme = function (theme) {
     document.documentElement.setAttribute('data-theme', theme);
+    // Bootstrap 5.3's own light/dark color mode — drives the built-in dark
+    // palette for modals, dropdowns, tables, form controls, etc. Only "blue"
+    // is dark; keep this in sync with includes/i18n.php's bs_color_mode().
+    document.documentElement.setAttribute('data-bs-theme', theme === 'blue' ? 'dark' : 'light');
     document.querySelectorAll('[data-theme-active]').forEach(function (el) {
       el.classList.toggle('active', el.dataset.themeOption === theme);
     });
