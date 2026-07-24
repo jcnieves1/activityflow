@@ -191,6 +191,11 @@ Mapped to the acceptance criteria. Run through this after installation
       concurrent action (e.g. the notification bell polling in the
       background) doesn't cause the overlay to disappear early — it should
       only hide once every in-flight request has finished.
+- [ ] Open an existing task, go to the "Time & Progress" tab and log a
+      manual time entry, then go to the Comments tab and post a comment —
+      confirm the loading overlay appears briefly for each and then
+      disappears on its own (does NOT stay stuck spinning afterward, and
+      you can still click/type elsewhere once it clears).
 - [ ] On Login, Register, and Forgot/Reset Password (plain full-page-submit
       forms), confirm the overlay appears immediately on clicking
       Submit/Login/Register. On a dialog that saves via AJAX (e.g. Edit

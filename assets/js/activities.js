@@ -394,23 +394,39 @@ window.afActivities = (function () {
       .catch((err) => afToast(err.message, 'danger'));
   }
 
-  document.addEventListener('submit', function (e) {
-    if (e.target && e.target.id === 'manualTimeForm') {
-      e.preventDefault();
-      if (!currentId) return;
-      const data = Object.fromEntries(new FormData(e.target).entries());
-      afFetch(window.AF_BASE_URL + 'api/time_entries.php', { method: 'POST', body: Object.assign({ action: 'manual', activity_id: currentId }, data) })
-        .then(() => { afToast('Time entry added.'); openEdit(currentId); })
-        .catch((err) => afToast(err.message, 'danger'));
-    }
-    if (e.target && e.target.id === 'commentForm') {
-      e.preventDefault();
-      if (!currentId) return;
-      const data = Object.fromEntries(new FormData(e.target).entries());
-      afFetch(API(), { method: 'POST', body: { action: 'add_comment', id: currentId, body: data.body } })
-        .then(() => { e.target.reset(); openEdit(currentId); })
-        .catch((err) => afToast(err.message, 'danger'));
-    }
+  // NOTE: these are bound directly to their form elements (rather than via a
+  // document-level delegated 'submit' listener keyed off e.target.id, as this
+  // used to be written) because the global loading-overlay listener in app.js
+  // also listens for 'submit' on document. Listeners on the same node+phase
+  // run in registration order, and app.js's listener is registered first (it
+  // loads before this file) — so a document-level listener here would always
+  // have its e.preventDefault() call land ONE TICK TOO LATE for app.js's
+  // check of e.defaultPrevented, making app.js think this was an
+  // un-intercepted, page-navigating form submit and show the loading overlay
+  // with no matching hide (it's actually intercepted right here). Binding
+  // directly to the form element itself makes this handler run in the
+  // "target phase", before the event ever bubbles up to document, so
+  // preventDefault() always takes effect in time. These two forms are static
+  // markup in includes/activity_modal.php (never destroyed/recreated), so a
+  // one-time binding here is safe.
+  const manualTimeFormEl = document.getElementById('manualTimeForm');
+  manualTimeFormEl && manualTimeFormEl.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (!currentId) return;
+    const data = Object.fromEntries(new FormData(manualTimeFormEl).entries());
+    afFetch(window.AF_BASE_URL + 'api/time_entries.php', { method: 'POST', body: Object.assign({ action: 'manual', activity_id: currentId }, data) })
+      .then(() => { afToast('Time entry added.'); openEdit(currentId); })
+      .catch((err) => afToast(err.message, 'danger'));
+  });
+
+  const commentFormEl = document.getElementById('commentForm');
+  commentFormEl && commentFormEl.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (!currentId) return;
+    const data = Object.fromEntries(new FormData(commentFormEl).entries());
+    afFetch(API(), { method: 'POST', body: { action: 'add_comment', id: currentId, body: data.body } })
+      .then(() => { commentFormEl.reset(); openEdit(currentId); })
+      .catch((err) => afToast(err.message, 'danger'));
   });
 
   return {
