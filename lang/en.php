@@ -349,6 +349,7 @@ return [
     'pd.unplanned_tasks' => 'Unplanned tasks ({time})',
     'pd.chart_by_status' => 'Tasks by status',
     'pd.chart_by_assignee' => 'Tasks by assignee',
+    'pd.no_tasks_yet' => 'No tasks yet.',
     'pd.overdue_tasks' => 'Overdue tasks',
     'pd.no_overdue' => 'No overdue tasks.',
     'pd.target_was' => 'Target was {date}',

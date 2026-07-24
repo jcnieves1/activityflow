@@ -77,36 +77,55 @@
     },
   };
 
-  // Charts are rendered last and are fully isolated: if Chart.js didn't load,
-  // or a chart's data shape is ever unexpected, log it and move on instead of
-  // throwing an uncaught error that could interfere with anything else on the page.
+  // Charts are rendered last and are fully isolated — from the rest of the
+  // page (a Chart.js/data problem here can't take down project editing or
+  // member management above) AND from each other (each chart gets its own
+  // try/catch; previously both charts shared one try/catch, so an exception
+  // building the FIRST chart — e.g. from stale/unexpected data — silently
+  // aborted the second one too, leaving both canvases blank with no visible
+  // error). A genuinely empty dataset (a brand-new project with no tasks
+  // yet) is shown as a plain "No tasks yet." message instead of an empty
+  // chart, so a blank card never has to be puzzled out as broken vs. simply empty.
   if (typeof Chart === 'undefined') {
     console.warn('Chart.js failed to load — skipping project charts.');
     return;
   }
 
-  try {
-    const statusCtx = document.getElementById('statusChart');
-    if (statusCtx) {
-      new Chart(statusCtx, {
-        type: 'doughnut',
-        data: {
-          labels: P.statusData.map((d) => d.status),
-          datasets: [{ data: P.statusData.map((d) => d.n), backgroundColor: ['#6c757d','#4361ee','#0dcaf0','#4361ee','#212529','#ffc107','#2a9d8f','#adb5bd'] }],
-        },
-        options: { plugins: { legend: { position: 'bottom' } } },
-      });
+  function renderChart(canvasId, emptyId, hasData, buildConfig) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const emptyEl = document.getElementById(emptyId);
+    if (!hasData) {
+      canvas.classList.add('d-none');
+      if (emptyEl) emptyEl.classList.remove('d-none');
+      return;
     }
-
-    const assigneeCtx = document.getElementById('assigneeChart');
-    if (assigneeCtx) {
-      new Chart(assigneeCtx, {
-        type: 'bar',
-        data: { labels: P.assigneeData.map((d) => d.name), datasets: [{ label: 'Tasks', data: P.assigneeData.map((d) => d.n), backgroundColor: '#4361ee' }] },
-        options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } },
-      });
+    try {
+      // Guards against "Canvas is already in use" if this ever runs twice
+      // against the same canvas (e.g. a future re-render without a full
+      // page reload) — Chart.getChart() returns the existing instance, if any.
+      const existing = typeof Chart.getChart === 'function' ? Chart.getChart(canvas) : null;
+      if (existing) existing.destroy();
+      new Chart(canvas, buildConfig());
+    } catch (err) {
+      console.warn(`Failed to render #${canvasId}:`, err);
+      canvas.classList.add('d-none');
+      if (emptyEl) emptyEl.classList.remove('d-none');
     }
-  } catch (err) {
-    console.warn('Failed to render project charts:', err);
   }
+
+  renderChart('statusChart', 'statusChartEmpty', (P.statusData || []).length > 0, () => ({
+    type: 'doughnut',
+    data: {
+      labels: P.statusData.map((d) => d.status),
+      datasets: [{ data: P.statusData.map((d) => d.n), backgroundColor: ['#6c757d','#4361ee','#0dcaf0','#4361ee','#212529','#ffc107','#2a9d8f','#adb5bd'] }],
+    },
+    options: { plugins: { legend: { position: 'bottom' } } },
+  }));
+
+  renderChart('assigneeChart', 'assigneeChartEmpty', (P.assigneeData || []).length > 0, () => ({
+    type: 'bar',
+    data: { labels: P.assigneeData.map((d) => d.name), datasets: [{ label: 'Tasks', data: P.assigneeData.map((d) => d.n), backgroundColor: '#4361ee' }] },
+    options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } },
+  }));
 })();

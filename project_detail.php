@@ -103,12 +103,14 @@ require __DIR__ . '/includes/layout_header.php';
     <div class="af-card">
       <h6><?= e(t('pd.chart_by_status')) ?></h6>
       <canvas id="statusChart" height="180"></canvas>
+      <p class="text-muted small mb-0 d-none" id="statusChartEmpty"><?= e(t('pd.no_tasks_yet')) ?></p>
     </div>
   </div>
   <div class="col-lg-6">
     <div class="af-card">
       <h6><?= e(t('pd.chart_by_assignee')) ?></h6>
       <canvas id="assigneeChart" height="180"></canvas>
+      <p class="text-muted small mb-0 d-none" id="assigneeChartEmpty"><?= e(t('pd.no_tasks_yet')) ?></p>
     </div>
   </div>
 </div>

@@ -348,6 +348,7 @@ return [
     'pd.unplanned_tasks' => 'Tareas no planificadas ({time})',
     'pd.chart_by_status' => 'Tareas por estado',
     'pd.chart_by_assignee' => 'Tareas por asignado',
+    'pd.no_tasks_yet' => 'Aún no hay tareas.',
     'pd.overdue_tasks' => 'Tareas vencidas',
     'pd.no_overdue' => 'No hay tareas vencidas.',
     'pd.target_was' => 'El objetivo era {date}',

@@ -115,6 +115,10 @@ Mapped to the acceptance criteria. Run through this after installation
 - [ ] Add both planned and unplanned tasks to the project; open Project
       Details and confirm progress, unplanned effort, and "requesters
       generating work for this project" all update.
+- [ ] On that same project, confirm the "Tasks by status" doughnut chart and
+      "Tasks by assignee" bar chart both render with the correct counts.
+      Open a brand-new project with no tasks yet and confirm both cards show
+      a plain "No tasks yet." message instead of a blank chart area.
 - [ ] Switch the progress method (duration-weighted vs. simple count) and
       confirm the percentage and label change accordingly.
 - [ ] Mark a task cancelled and confirm it drops out of the progress
