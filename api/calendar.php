@@ -27,7 +27,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['action'] ?? 'events') === 'e
     $activities = list_activities($filters);
 
     $events = array_map(function ($a) {
-        $color = $a['project_color'] ?? ($a['activity_type'] === 'unplanned' ? '#f4a261' : '#4361ee');
+        // Color reflects the event's planned/unplanned + status/priority
+        // state — exactly what the calendar's legend documents (Planned,
+        // Unplanned, Urgent, Completed, Blocked) — the same precedence
+        // project_board.php uses for its task cards. This used to fall back
+        // to the task's *project* color when one was set, which silently
+        // overrode the legend for the majority of tasks (anything attached
+        // to a project) with whatever arbitrary color that project's owner
+        // picked, making the on-screen legend meaningless for those events.
+        $color = $a['activity_type'] === 'unplanned' ? '#f4a261' : '#4361ee';
         if ($a['priority'] === 'urgent') $color = '#e63946';
         if ($a['status'] === 'completed') $color = '#2a9d8f';
         if ($a['status'] === 'blocked') $color = '#6c757d';
