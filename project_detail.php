@@ -330,7 +330,7 @@ require __DIR__ . '/includes/layout_header.php';
       <div class="modal-footer">
         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><?= e(t('common.cancel')) ?></button>
         <button type="button" class="btn btn-danger" id="deleteProjectConfirmBtn" disabled
-          onclick="afProjectDetail.deleteProject(<?= $projectId ?>, <?= json_encode($project['name']) ?>)">
+          onclick='afProjectDetail.deleteProject(<?= $projectId ?>, <?= json_encode($project['name'], JSON_HEX_APOS | JSON_HEX_QUOT) ?>)'>
           <i class="bi bi-trash3"></i> <?= e(t('pd.delete_permanently')) ?>
         </button>
       </div>
