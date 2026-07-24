@@ -102,6 +102,12 @@ require __DIR__ . '/includes/activity_modal.php';
           <div class="title"><?= e($a['title']) ?></div>
           <div class="small text-muted"><?= e($a['assignee_name']) ?></div>
           <div class="mt-1"><?= activity_type_badge($a['activity_type']) ?> <span class="badge <?= priority_badge_class($a['priority']) ?>"><?= e(status_label($a['priority'])) ?></span></div>
+          <div class="af-card-progress mt-2 d-flex align-items-center gap-2">
+            <div class="progress flex-grow-1" style="height:5px;">
+              <div class="progress-bar" role="progressbar" style="width:<?= (int)$a['completion_pct'] ?>%;" aria-valuenow="<?= (int)$a['completion_pct'] ?>" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <span class="small text-muted"><?= (int)$a['completion_pct'] ?>%</span>
+          </div>
         </div>
         <?php endforeach; ?>
       </div>
