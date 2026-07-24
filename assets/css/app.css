@@ -224,6 +224,29 @@ body { background: var(--af-body-bg); color: var(--af-body-text); }
   display:flex; align-items:center; justify-content:center;
 }
 
+/* ---------- Global loading overlay ----------
+   Shown while any server request (afFetch, the raw fetch() calls in
+   reports.js/calendar.js, or a plain full-page form submit) is in flight, so
+   the user can see the app is busy and can't click/tab into anything else
+   underneath it. z-index sits above modals+their backdrop (Bootstrap's are
+   1050/1055) so it can block a dialog's own Save/Delete buttons while that
+   very dialog's request is pending, but below the toast holder (2000) so a
+   result toast is never hidden behind it. */
+.af-loading-overlay {
+  display: none;
+  position: fixed; inset: 0; z-index: 1900;
+  background: rgba(0,0,0,.35);
+  align-items: center; justify-content: center;
+}
+.af-loading-overlay.show { display: flex; }
+.af-loading-box {
+  background: var(--af-card-bg); color: var(--af-body-text);
+  border-radius: .75rem; padding: 1.25rem 1.75rem;
+  display: flex; align-items: center; gap: .75rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,.3);
+}
+.af-loading-text { font-weight: 600; }
+
 /* Print */
 @media print {
   .af-sidebar, .af-topbar, .af-footer, .no-print { display:none !important; }

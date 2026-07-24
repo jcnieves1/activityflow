@@ -8,6 +8,12 @@
 <?php else: ?>
   </main>
 <?php endif; ?>
+<div id="afLoadingOverlay" class="af-loading-overlay" aria-hidden="true" aria-live="polite">
+  <div class="af-loading-box">
+    <div class="spinner-border text-primary" role="status"></div>
+    <div class="af-loading-text"><?= e(t('common.loading')) ?></div>
+  </div>
+</div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
 <script>
 window.AF_BASE_URL = <?= json_encode(base_url()) ?>;

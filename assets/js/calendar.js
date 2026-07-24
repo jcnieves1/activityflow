@@ -68,8 +68,10 @@
       const params = new URLSearchParams({ action: 'events', start: info.startStr, end: info.endStr });
       assigneeGroup.selectedValues().forEach((id) => params.append('assignee_id[]', id));
       projectGroup.selectedValues().forEach((id) => params.append('project_id[]', id));
+      window.afLoadingShow();
       fetch(window.AF_BASE_URL + 'api/calendar.php?' + params.toString())
-        .then((r) => r.json()).then(success).catch(failure);
+        .then((r) => r.json()).then(success).catch(failure)
+        .finally(() => window.afLoadingHide());
     },
     eventClick: function (info) {
       afActivities.openEdit(info.event.id);

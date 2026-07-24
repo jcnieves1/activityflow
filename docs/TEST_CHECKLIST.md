@@ -180,6 +180,23 @@ Mapped to the acceptance criteria. Run through this after installation
       non-empty selection). Confirm this preference is local to this
       browser/PC (per project) and doesn't affect other projects' boards.
 
+- [ ] Throttle the network (browser dev tools "Slow 3G") and trigger a
+      server action anywhere in the app (save a task, save a project, delete
+      something, run a report, load the calendar, apply a board filter) —
+      confirm a full-screen loading overlay with a spinner appears and
+      blocks clicks/typing elsewhere until the response comes back, then
+      disappears. Confirm a near-instant action (e.g. toggling a quick
+      filter) does NOT show a visible flash of the overlay.
+- [ ] While the overlay is showing for one action, confirm a second
+      concurrent action (e.g. the notification bell polling in the
+      background) doesn't cause the overlay to disappear early — it should
+      only hide once every in-flight request has finished.
+- [ ] On Login, Register, and Forgot/Reset Password (plain full-page-submit
+      forms), confirm the overlay appears immediately on clicking
+      Submit/Login/Register. On a dialog that saves via AJAX (e.g. Edit
+      Project), confirm the overlay still appears/disappears correctly and
+      doesn't get stuck open.
+
 - [ ] In "New project", check a few people in the "Assign people to this
       project" list and create the project — confirm the Members table on
       the resulting project detail page shows the owner as Project Manager

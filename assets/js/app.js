@@ -13,6 +13,63 @@
   closeBtn && closeBtn.addEventListener('click', closeSidebar);
   backdrop && backdrop.addEventListener('click', closeSidebar);
 
+  // ---- Global "server is busy" loading overlay ----
+  // A single blocking overlay (markup lives in includes/layout_footer.php, on
+  // every page) shown for the duration of any in-flight server request, so
+  // the user gets a clear "please wait" signal and can't click/tab into
+  // anything else while it's outstanding. Uses a counter rather than a
+  // boolean because more than one request can be in flight at once (e.g. a
+  // background notification poll overlapping a manual save) — the overlay
+  // should only hide once ALL of them have finished. A short show-delay
+  // avoids an annoying flash for requests that resolve almost instantly.
+  const SHOW_DELAY_MS = 150;
+  let afLoadingCount = 0;
+  let afLoadingShowTimer = null;
+  const afLoadingOverlay = document.getElementById('afLoadingOverlay');
+
+  window.afLoadingShow = function () {
+    afLoadingCount++;
+    if (afLoadingCount === 1 && afLoadingOverlay) {
+      clearTimeout(afLoadingShowTimer);
+      afLoadingShowTimer = setTimeout(() => {
+        if (afLoadingCount > 0) {
+          afLoadingOverlay.classList.add('show');
+          afLoadingOverlay.setAttribute('aria-hidden', 'false');
+        }
+      }, SHOW_DELAY_MS);
+    }
+  };
+  window.afLoadingHide = function () {
+    afLoadingCount = Math.max(0, afLoadingCount - 1);
+    if (afLoadingCount === 0 && afLoadingOverlay) {
+      clearTimeout(afLoadingShowTimer);
+      afLoadingOverlay.classList.remove('show');
+      afLoadingOverlay.setAttribute('aria-hidden', 'true');
+    }
+  };
+
+  // Plain, non-AJAX forms (login, register, forgot/reset password, profile,
+  // the GET-based board filter form, etc.) navigate the whole page on submit
+  // rather than going through afFetch, so they need their own trigger for the
+  // overlay. This listener runs in the bubble phase, which — per the DOM
+  // event dispatch order — always fires AFTER any listener attached directly
+  // to the form itself (those run during the "target phase", before bubbling
+  // reaches ancestors like document). So by the time this runs,
+  // e.defaultPrevented already reflects whether some other script called
+  // preventDefault() to handle the submission itself (e.g. an AJAX form like
+  // "Edit Project", which manages the overlay via its own afFetch call) —
+  // this listener only acts on forms nobody else intercepted, so it can never
+  // double up with or fight afFetch's own show/hide. No matching hide() call
+  // is needed here: since preventDefault() was NOT called, the browser is
+  // about to navigate away, which discards this page (and the overlay with
+  // it) regardless.
+  document.addEventListener('submit', function (e) {
+    if (e.defaultPrevented) return;
+    if (e.target && e.target.tagName === 'FORM') {
+      window.afLoadingShow();
+    }
+  });
+
   // ---- Fetch wrapper with CSRF + JSON ----
   window.afFetch = function (url, options) {
     options = options || {};
@@ -24,6 +81,7 @@
     if (opts.body && typeof opts.body !== 'string') {
       opts.body = JSON.stringify(Object.assign({ csrf_token: window.AF_CSRF }, opts.body));
     }
+    window.afLoadingShow();
     return fetch(url, opts).then(async (res) => {
       let data = null;
       try { data = await res.json(); } catch (e) { /* non-JSON response */ }
@@ -36,7 +94,7 @@
         throw new Error(message);
       }
       return data;
-    });
+    }).finally(() => window.afLoadingHide());
   };
 
   // ---- Toasts ----

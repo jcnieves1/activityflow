@@ -16,6 +16,7 @@
     table.querySelector('thead').innerHTML = '';
     table.querySelector('tbody').innerHTML = '';
     empty.classList.add('d-none');
+    window.afLoadingShow();
     fetch(window.AF_BASE_URL + 'api/reports.php?' + currentParams({ action: 'run' }).toString())
       .then((r) => r.json())
       .then((res) => {
@@ -32,7 +33,8 @@
           '<tr>' + res.columns.map((c) => `<td>${afEscapeHtml(row[c])}</td>`).join('') + '</tr>'
         ).join('');
       })
-      .catch(() => { empty.classList.remove('d-none'); empty.textContent = 'Unable to load this report.'; });
+      .catch(() => { empty.classList.remove('d-none'); empty.textContent = 'Unable to load this report.'; })
+      .finally(() => window.afLoadingHide());
   }
 
   document.querySelectorAll('#reportList [data-report]').forEach((btn) => {
