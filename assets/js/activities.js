@@ -114,6 +114,8 @@ window.afActivities = (function () {
       pane.classList.toggle('show', isDetails);
     });
     document.getElementById('am_reclassify_block').classList.add('d-none');
+    document.getElementById('am_interrupted_task_row').classList.add('d-none');
+    document.getElementById('am_interrupted_task_name').textContent = '';
     document.getElementById('am_repeat_block').style.display = '';
     // Re-shown by fillForm() only when editing a task the user is allowed to delete/edit.
     document.getElementById('am_delete_btn').classList.add('d-none');
@@ -181,6 +183,21 @@ window.afActivities = (function () {
     document.getElementById('am_current_type').innerHTML = a.activity_type === 'unplanned'
       ? '<span class="badge bg-orange">Unplanned</span>' : '<span class="badge bg-primary">Planned</span>';
     document.getElementById('am_reclassify_block').classList.remove('d-none');
+    // list_interruptions_for_activity() (returned as a.interruptions by the
+    // 'get' action) includes rows where this activity is EITHER side of an
+    // interruption, so pick the one where it's the interrupter — i.e. the
+    // record created when this very task was logged via Quick-add's
+    // "Interrupted task" field — to show what it interrupted. Reclassifying
+    // a task to/from unplanned doesn't create or remove this record, so it's
+    // shown whenever one exists, not gated on the current activity_type.
+    const interruptedTaskRow = document.getElementById('am_interrupted_task_row');
+    const interruption = (a.interruptions || []).find((i) => String(i.interrupting_activity_id) === String(a.id) && i.interrupted_activity_id);
+    if (interruption) {
+      document.getElementById('am_interrupted_task_name').textContent = interruption.interrupted_title || ('#' + interruption.interrupted_activity_id);
+      interruptedTaskRow.classList.remove('d-none');
+    } else {
+      interruptedTaskRow.classList.add('d-none');
+    }
     document.getElementById('am_repeat_block').style.display = 'none';
     // can_delete/can_edit are computed server-side (api/activities.php's 'get'
     // action) from the same permission rules enforced on the actual requests, so

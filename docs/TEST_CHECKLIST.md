@@ -78,6 +78,13 @@ Mapped to the acceptance criteria. Run through this after installation
       10 seconds; confirm it's tagged "Unplanned" everywhere it appears.
 - [ ] Quick-add a task that interrupts an in-progress task; confirm the
       interruption is recorded (visible on the Timeline detail panel).
+- [ ] Re-open that same unplanned task later from My Tasks/Team
+      Activities/Task Board — confirm an "Interrupted task:" line appears
+      near the Classification badge showing the title of the task it
+      interrupted. Quick-add a second unplanned task WITHOUT picking an
+      interrupted task and confirm that one shows no such line. Confirm a
+      normal planned task, and the planned task that WAS interrupted (not
+      the interrupter), also show no such line.
 - [ ] Try to reclassify a task's planned/unplanned status as a Project
       Manager or Administrator — confirm a reason is required and the
       original classification remains visible in its audit history.

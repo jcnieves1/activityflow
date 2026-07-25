@@ -217,6 +217,7 @@ return [
     'activity.field_notes' => 'Notes',
     'activity.classification_label' => 'Classification:',
     'activity.reclassify' => 'Reclassify…',
+    'activity.interrupted_task_label' => 'Interrupted task:',
     'activity.start_timer' => 'Start timer',
     'activity.pause_timer' => 'Pause/stop timer',
     'activity.field_status' => 'Status',

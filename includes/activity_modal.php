@@ -120,6 +120,9 @@ foreach ($amProjectMemberIds as $projId => $memberIds) {
                   <button type="button" class="btn btn-sm btn-outline-secondary" onclick="afActivities.reclassify()"><?= e(t('activity.reclassify')) ?></button>
                 </div>
               </div>
+              <div id="am_interrupted_task_row" class="mt-2 small d-none">
+                <strong><?= e(t('activity.interrupted_task_label')) ?></strong> <span id="am_interrupted_task_name"></span>
+              </div>
             </div>
           </form>
         </div>

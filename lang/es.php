@@ -216,6 +216,7 @@ return [
     'activity.field_notes' => 'Notas',
     'activity.classification_label' => 'Clasificación:',
     'activity.reclassify' => 'Reclasificar…',
+    'activity.interrupted_task_label' => 'Tarea interrumpida:',
     'activity.start_timer' => 'Iniciar cronómetro',
     'activity.pause_timer' => 'Pausar/detener cronómetro',
     'activity.field_status' => 'Estado',
