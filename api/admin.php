@@ -103,6 +103,33 @@ if ($method === 'POST') {
         }
         json_response(['ok' => true] + $result);
     }
+
+    if ($action === 'request_channel_save') {
+        $id = (int)($data['id'] ?? 0);
+        $label = trim((string)($data['label'] ?? ''));
+        try {
+            $channel = $id ? update_request_channel($id, $label) : create_request_channel($label);
+        } catch (InvalidArgumentException $e) {
+            json_error($e->getMessage());
+        } catch (RuntimeException $e) {
+            json_error($e->getMessage(), 404);
+        }
+        json_response(['ok' => true, 'channel' => $channel]);
+    }
+
+    if ($action === 'request_channel_delete') {
+        $id = (int)($data['id'] ?? 0);
+        $replacementSlug = isset($data['replacement_slug']) && $data['replacement_slug'] !== ''
+            ? (string)$data['replacement_slug'] : null;
+        try {
+            $result = delete_request_channel($id, $replacementSlug);
+        } catch (InvalidArgumentException $e) {
+            json_error($e->getMessage());
+        } catch (RuntimeException $e) {
+            json_error($e->getMessage());
+        }
+        json_response(['ok' => true] + $result);
+    }
 }
 
 json_error('Unknown action.', 404);

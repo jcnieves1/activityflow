@@ -42,6 +42,21 @@ INSERT INTO task_statuses (slug, label, sort_order, is_system) VALUES
  ('completed', 'Completed', 70, 1),
  ('cancelled', 'Cancelled', 80, 1);
 
+-- Request channels --------------------------------------------------------
+-- No business logic keys off a specific slug, so every default channel is
+-- is_system=0 (freely renamable/deletable); see includes/models/request_channels.php.
+INSERT INTO request_channels (slug, label, sort_order, is_system) VALUES
+ ('manager_request', 'Manager Request', 10, 0),
+ ('coworker_request', 'Coworker Request', 20, 0),
+ ('customer_request', 'Customer Request', 30, 0),
+ ('meeting', 'Meeting', 40, 0),
+ ('chat', 'Chat', 50, 0),
+ ('phone', 'Phone', 60, 0),
+ ('walk_up', 'Walk-up', 70, 0),
+ ('system_incident', 'System Incident', 80, 0),
+ ('self_initiated', 'Self-initiated', 90, 0),
+ ('other', 'Other', 100, 0);
+
 -- People (requesters / employees / stakeholders) ------------------------
 -- department_id: 1 Engineering, 2 Support, 3 Product, 4 Sales, 5 Operations
 INSERT INTO people (id, full_name, job_title, department_id, organization, org_role, email, phone, manager_id, is_active, notes) VALUES

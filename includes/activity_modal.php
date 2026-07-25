@@ -88,7 +88,7 @@ foreach ($amProjectMemberIds as $projId => $memberIds) {
               <div class="col-md-4 mb-2"><label class="form-label"><?= e(t('activity.field_request_channel')) ?></label>
                 <select class="form-select" name="request_channel" id="am_request_channel">
                   <option value="">—</option>
-                  <?php foreach (REQUEST_CHANNELS as $c): ?><option value="<?= $c ?>"><?= e(request_channel_label($c)) ?></option><?php endforeach; ?>
+                  <?php foreach (list_request_channels() as $rc): ?><option value="<?= e($rc['slug']) ?>"><?= e($rc['label']) ?></option><?php endforeach; ?>
                 </select>
               </div>
             </div>

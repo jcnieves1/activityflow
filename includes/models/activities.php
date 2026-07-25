@@ -11,11 +11,10 @@ declare(strict_types=1);
 // cancelled by default) are admin-manageable at runtime — see
 // includes/models/task_statuses.php's list_task_statuses()/task_status_slugs()
 // — rather than a fixed constant, so this list is no longer defined here.
+// Request channels are likewise admin-manageable at runtime — see
+// includes/models/request_channels.php's list_request_channels()/
+// request_channel_slugs() — so REQUEST_CHANNELS is no longer defined here.
 const ACTIVITY_PRIORITIES = ['low', 'normal', 'high', 'urgent'];
-const REQUEST_CHANNELS = [
-    'manager_request', 'coworker_request', 'customer_request', 'meeting',
-    'chat', 'phone', 'walk_up', 'system_incident', 'self_initiated', 'other',
-];
 
 function activity_select_base(): string
 {

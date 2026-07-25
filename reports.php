@@ -45,7 +45,7 @@ require __DIR__ . '/includes/layout_header.php';
         <div class="col-md-3"><label class="form-label small mb-0"><?= e(t('reports.priority')) ?></label><select class="form-select form-select-sm" name="priority"><option value=""><?= e(t('common.all')) ?></option>
           <?php foreach (ACTIVITY_PRIORITIES as $p): ?><option value="<?= $p ?>"><?= e(status_label($p)) ?></option><?php endforeach; ?></select></div>
         <div class="col-md-3"><label class="form-label small mb-0"><?= e(t('reports.request_channel')) ?></label><select class="form-select form-select-sm" name="request_channel"><option value=""><?= e(t('common.all')) ?></option>
-          <?php foreach (REQUEST_CHANNELS as $c): ?><option value="<?= $c ?>"><?= e(request_channel_label($c)) ?></option><?php endforeach; ?></select></div>
+          <?php foreach (list_request_channels() as $rc): ?><option value="<?= e($rc['slug']) ?>"><?= e($rc['label']) ?></option><?php endforeach; ?></select></div>
         <div class="col-md-3"><label class="form-label small mb-0"><?= e(t('reports.category')) ?></label><select class="form-select form-select-sm" name="category_id"><option value=""><?= e(t('common.all')) ?></option>
           <?php foreach ($categories as $c): ?><option value="<?= (int)$c['id'] ?>"><?= e($c['name']) ?></option><?php endforeach; ?></select></div>
         <div class="col-md-3 d-flex align-items-end"><button class="btn btn-primary btn-sm w-100"><?= e(t('reports.run_report')) ?></button></div>

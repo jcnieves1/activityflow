@@ -299,13 +299,9 @@ function activity_type_badge(string $type): string
         : '<span class="badge bg-primary"><i class="bi bi-calendar-check"></i> Planned</span>';
 }
 
-function request_channel_label(?string $channel): string
-{
-    if (!$channel) {
-        return '—';
-    }
-    return ucwords(str_replace('_', ' ', $channel));
-}
+// request_channel_label() now lives in includes/models/request_channels.php
+// — it looks up the admin-editable label from the request_channels table
+// (see that file's docblock), rather than a fixed ucwords() transform.
 
 /**
  * Returns $data[$key] if present and non-empty (not null, '', or missing entirely),

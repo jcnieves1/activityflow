@@ -55,7 +55,7 @@ $qaCategories = db()->query('SELECT * FROM activity_categories WHERE is_active =
             </div>
             <div class="col-6 mb-2"><label class="form-label"><?= e(t('quickadd.request_channel')) ?></label>
               <select class="form-select" name="request_channel">
-                <?php foreach (REQUEST_CHANNELS as $c): ?><option value="<?= $c ?>"><?= e(request_channel_label($c)) ?></option><?php endforeach; ?>
+                <?php foreach (list_request_channels() as $rc): ?><option value="<?= e($rc['slug']) ?>"><?= e($rc['label']) ?></option><?php endforeach; ?>
               </select>
             </div>
           </div>

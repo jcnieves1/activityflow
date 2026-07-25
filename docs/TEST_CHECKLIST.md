@@ -372,6 +372,36 @@ Mapped to the acceptance criteria. Run through this after installation
       status's internal key, not its display text, so renaming should have
       no effect on them.
 
+## Request channel management (admin)
+
+- [ ] As an Administrator, open Administration → Request Channels — confirm
+      all 10 default channels (Manager Request, Coworker Request, Customer
+      Request, Meeting, Chat, Phone, Walk-up, System Incident,
+      Self-initiated, Other) appear with their current text, internal key,
+      and a live count of tasks currently using each.
+- [ ] Rename a channel's text (e.g. "Phone" → "Phone Call") and save —
+      confirm it now shows with the new text everywhere it appears (Edit
+      Activity dialog's Request Channel field, Quick-add's Request Channel
+      field, the Reports request-channel filter dropdown, and the dashboard
+      "by source" chart) without any existing task losing its channel.
+- [ ] Add a new custom channel (e.g. "Slack DM") — confirm it appears in all
+      the same places and can be assigned to a task via the Edit Activity
+      dialog or Quick-add.
+- [ ] Delete a channel that has zero tasks on it — confirm a simple
+      confirmation is enough and it disappears from every list immediately.
+- [ ] Assign a handful of tasks to a channel, then delete that channel as an
+      admin — confirm the delete dialog shows the exact number of tasks
+      using it and requires you to pick a replacement channel before
+      proceeding. Confirm that after confirming, every one of those tasks
+      now shows the replacement channel, and the deleted channel no longer
+      appears anywhere.
+- [ ] As a non-Administrator (Project Manager, Employee, Viewer), confirm
+      Administration → Request Channels is not reachable (redirects/denies)
+      and a direct API call to save or delete a channel is rejected.
+- [ ] Confirm a task's Request Channel can still be left blank ("—") on both
+      Quick-add and the Edit Activity dialog, and that this displays
+      correctly wherever the channel is shown.
+
 ## Authorization boundaries
 
 - [ ] As an Employee, confirm Admin pages (`admin/*.php`, `audit_log.php`)

@@ -156,6 +156,23 @@ CREATE TABLE tags (
     UNIQUE KEY uq_tag_name (name)
 ) ENGINE=InnoDB;
 
+-- Admin-manageable request channels (Administration → Request Channels).
+-- `slug` is the stable internal key stored on activities.request_channel;
+-- `label` is the admin-editable display text. Unlike task_statuses, no
+-- business logic keys off a specific request_channel slug, so every row
+-- defaults to is_system=0 and can be freely renamed or deleted (with any
+-- activities using it reassigned first) — the is_system column is kept for
+-- structural consistency with task_statuses and future-proofing only.
+CREATE TABLE request_channels (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    slug VARCHAR(40) NOT NULL,
+    label VARCHAR(80) NOT NULL,
+    sort_order INT NOT NULL DEFAULT 0,
+    is_system TINYINT(1) NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_request_channel_slug (slug)
+) ENGINE=InnoDB;
+
 -- ---------------------------------------------------------------------
 -- Activities (central table)
 -- ---------------------------------------------------------------------
@@ -185,7 +202,10 @@ CREATE TABLE activities (
     completion_pct TINYINT UNSIGNED NOT NULL DEFAULT 0,
     category_id INT UNSIGNED DEFAULT NULL,
     interruption_reason VARCHAR(255) DEFAULT NULL,
-    request_channel ENUM('manager_request','coworker_request','customer_request','meeting','chat','phone','walk_up','system_incident','self_initiated','other') DEFAULT NULL,
+    -- Free-text key into request_channels.slug rather than an ENUM, so
+    -- administrators can add/rename/remove channels at runtime (see
+    -- admin/request_channels.php) without a schema migration for every change.
+    request_channel VARCHAR(40) DEFAULT NULL,
     notes TEXT,
     original_classification ENUM('planned','unplanned') DEFAULT NULL,
     reclassified_at DATETIME DEFAULT NULL,
