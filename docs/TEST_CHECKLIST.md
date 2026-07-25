@@ -109,6 +109,10 @@ Mapped to the acceptance criteria. Run through this after installation
       interrupted task and confirm that one shows no such line. Confirm a
       normal planned task, and the planned task that WAS interrupted (not
       the interrupter), also show no such line.
+- [ ] On that same unplanned task, click the task name in the "Interrupted
+      task:" line — confirm the dialog swaps in place to the interrupted
+      planned task (title, project, etc. all update to the other task)
+      rather than opening a second dialog or navigating away.
 - [ ] On My Tasks, confirm the planned task you interrupted above shows a
       small orange lightning-bolt icon next to its title (hover to see the
       tooltip). Confirm tasks that were never interrupted show no icon.

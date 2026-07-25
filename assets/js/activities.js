@@ -193,7 +193,15 @@ window.afActivities = (function () {
     const interruptedTaskRow = document.getElementById('am_interrupted_task_row');
     const interruption = (a.interruptions || []).find((i) => String(i.interrupting_activity_id) === String(a.id) && i.interrupted_activity_id);
     if (interruption) {
-      document.getElementById('am_interrupted_task_name').textContent = interruption.interrupted_title || ('#' + interruption.interrupted_activity_id);
+      const interruptedLabel = interruption.interrupted_title || ('#' + interruption.interrupted_activity_id);
+      // Clickable so a user looking at the unplanned task can jump straight
+      // to the planned task it interrupted, instead of hunting it down
+      // separately — reuses the same openEdit() the rest of the modal's
+      // internal navigation (Interruptions tab, parent task links) already
+      // relies on, so it swaps the dialog's content in place rather than
+      // opening a second dialog.
+      document.getElementById('am_interrupted_task_name').innerHTML =
+        `<a href="#" onclick="event.preventDefault(); afActivities.openEdit(${interruption.interrupted_activity_id})">${afEscapeHtml(interruptedLabel)}</a>`;
       interruptedTaskRow.classList.remove('d-none');
     } else {
       interruptedTaskRow.classList.add('d-none');
