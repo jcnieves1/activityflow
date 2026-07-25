@@ -43,6 +43,25 @@ function current_person_id(): ?int
     return $_SESSION['user']['person_id'] ?? null;
 }
 
+/**
+ * True while an administrator is impersonating another user — i.e. the
+ * session's current $_SESSION['user'] is the impersonated account, but the
+ * originating admin's identity is stashed in $_SESSION['impersonator'] (set
+ * by api/impersonate.php's 'start' action) so the session can be restored
+ * later via 'stop'. Deliberately session-based (not a DB flag) so it can
+ * never outlive the browser session it started in.
+ */
+function is_impersonating(): bool
+{
+    return !empty($_SESSION['impersonator']);
+}
+
+/** The original admin's stashed identity (id/full_name/email), or null if not impersonating. */
+function impersonator_info(): ?array
+{
+    return $_SESSION['impersonator'] ?? null;
+}
+
 function deny(string $message = 'You do not have permission to perform this action.'): void
 {
     if (is_json_request() || (($_SERVER['REQUEST_URI'] ?? '') && str_contains($_SERVER['REQUEST_URI'], '/api/'))) {

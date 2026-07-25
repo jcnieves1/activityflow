@@ -596,6 +596,8 @@ return [
     'admin.col_last_login' => 'Last login',
     'admin.assign_roles' => 'Assign roles',
     'admin.save_roles' => 'Save roles',
+    'admin.impersonate' => 'Impersonate',
+    'admin.impersonate_confirm' => "Log in as {name}? You'll be able to return to your own account at any time.",
 
     // ---- Admin: Categories ----
     'admin.categories_title' => 'Categories',
@@ -756,4 +758,15 @@ return [
 
     'landing.footer_tagline' => 'Plan. Track. Deliver.',
     'landing.footer_rights' => 'All rights reserved.',
+
+    // ---- Impersonation (admin "log in as" another user) ----
+    'impersonation.banner' => 'You are impersonating {name}.',
+    'impersonation.stop_button' => 'Stop impersonating',
+    'impersonation.error_admin_only' => 'Only administrators can impersonate other users.',
+    'impersonation.error_already_impersonating' => 'Stop your current impersonation before starting another.',
+    'impersonation.error_self' => "You can't impersonate yourself.",
+    'impersonation.error_not_found' => 'User not found.',
+    'impersonation.error_inactive' => 'Only active accounts can be impersonated.',
+    'impersonation.error_target_admin' => "Administrator accounts can't be impersonated.",
+    'impersonation.error_not_impersonating' => 'You are not currently impersonating anyone.',
 ];

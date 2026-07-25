@@ -36,11 +36,14 @@ window.AF_I18N = <?= json_encode([
     'calendar_all_projects' => t('tasks.all_projects'),
     'calendar_project_singular' => t('calendar.project_singular'),
     'calendar_project_plural' => t('calendar.project_plural'),
+    'admin_impersonate' => t('admin.impersonate'),
+    'admin_impersonate_confirm' => t('admin.impersonate_confirm'),
 ]) ?>;
 </script>
 <script src="<?= e(base_url('assets/js/app.js')) ?>"></script>
 <script src="<?= e(base_url('assets/js/theme.js')) ?>"></script>
 <?php if ($user): ?><script src="<?= e(base_url('assets/js/quickadd.js')) ?>"></script><?php endif; ?>
+<?php if (is_impersonating()): ?><script src="<?= e(base_url('assets/js/impersonation.js')) ?>"></script><?php endif; ?>
 <?php if (!empty($pageScripts)) foreach ($pageScripts as $src): ?>
 <script src="<?= e($src) ?>"></script>
 <?php endforeach; ?>

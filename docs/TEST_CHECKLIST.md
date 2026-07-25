@@ -59,6 +59,30 @@ Mapped to the acceptance criteria. Run through this after installation
 
 - [ ] As `alicia.moreno@activityflow.test` (administrator), open Admin →
       Users & Roles, change a user's roles and account status.
+- [ ] On Users & Roles, confirm the "Impersonate" button does NOT appear on
+      your own row, on any other administrator's row, or on an
+      inactive/locked account's row — only active PM/Employee/Viewer
+      accounts show it.
+- [ ] Click "Impersonate" on an active Employee/PM/Viewer account and
+      confirm the dialog — confirm you land on the dashboard logged in as
+      that user (their name in the topbar, their theme/locale, their nav
+      items — no Admin section), and an orange banner at the top of every
+      page reads "You are impersonating {name}." with a "Stop impersonating"
+      button.
+- [ ] While impersonating, try to reach an admin-only page directly (e.g.
+      `admin/users.php`) — confirm it's denied, exactly as it would be for
+      that user normally.
+- [ ] Click "Stop impersonating" — confirm you're returned to your own
+      admin account (dashboard, your own name/theme, Admin nav visible
+      again), and the banner is gone.
+- [ ] Attempt to call `api/impersonate.php` with `action=start` and your own
+      user id, or the id of another administrator, or the id of an
+      inactive/locked account — confirm each is rejected with a clear error
+      and no session change occurs.
+- [ ] Check Audit Log after an impersonate/stop cycle — confirm both
+      `impersonation_started` and `impersonation_ended` entries are recorded
+      against the impersonated user, each attributing the action to the
+      admin (not the impersonated user) as the actor.
 - [ ] Add a new person from the People Directory; add one with a name/email
       similar to an existing person and confirm the duplicate warning
       appears.

@@ -181,6 +181,12 @@ body { background: var(--af-body-bg); color: var(--af-body-text); }
 .af-notif-list .notif-item { padding:.6rem .9rem; border-bottom:1px solid var(--af-surface-border); font-size:.85rem; }
 .af-notif-list .notif-item.unread { background:var(--af-notif-unread-bg); }
 
+.af-impersonation-banner {
+  display: flex; align-items: center; gap: .6rem;
+  background: var(--af-unplanned); color: #402400;
+  padding: .5rem 1.25rem; font-weight: 600; font-size: .9rem;
+}
+.af-impersonation-banner .btn-light { color: #402400; font-weight: 700; }
 .af-flash-container { padding: .75rem 1.25rem 0; }
 .af-breadcrumb { padding: .5rem 1.25rem 0; }
 .af-content { padding: 1.25rem; flex:1; }

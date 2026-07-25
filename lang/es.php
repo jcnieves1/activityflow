@@ -592,6 +592,8 @@ return [
     'admin.col_last_login' => 'Último acceso',
     'admin.assign_roles' => 'Asignar roles',
     'admin.save_roles' => 'Guardar roles',
+    'admin.impersonate' => 'Suplantar',
+    'admin.impersonate_confirm' => '¿Iniciar sesión como {name}? Podrá volver a su propia cuenta en cualquier momento.',
 
     // ---- Admin: Categories ----
     'admin.categories_title' => 'Categorías',
@@ -752,4 +754,15 @@ return [
 
     'landing.footer_tagline' => 'Planifique. Registre. Entregue.',
     'landing.footer_rights' => 'Todos los derechos reservados.',
+
+    // ---- Impersonation (el administrador "inicia sesión como" otro usuario) ----
+    'impersonation.banner' => 'Está suplantando a {name}.',
+    'impersonation.stop_button' => 'Dejar de suplantar',
+    'impersonation.error_admin_only' => 'Solo los administradores pueden suplantar a otros usuarios.',
+    'impersonation.error_already_impersonating' => 'Detenga la suplantación actual antes de iniciar otra.',
+    'impersonation.error_self' => 'No puede suplantarse a sí mismo.',
+    'impersonation.error_not_found' => 'Usuario no encontrado.',
+    'impersonation.error_inactive' => 'Solo se pueden suplantar cuentas activas.',
+    'impersonation.error_target_admin' => 'Las cuentas de administrador no se pueden suplantar.',
+    'impersonation.error_not_impersonating' => 'Actualmente no está suplantando a nadie.',
 ];

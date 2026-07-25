@@ -124,6 +124,14 @@ $navItems = [
       </div>
     </header>
 
+    <?php if (is_impersonating()): $impersonatedUser = current_user(); ?>
+      <div class="af-impersonation-banner">
+        <i class="bi bi-person-badge-fill"></i>
+        <span><?= e(t('impersonation.banner', ['name' => $impersonatedUser['full_name'] ?? ''])) ?></span>
+        <button type="button" id="afStopImpersonationBtn" class="btn btn-sm btn-light ms-auto"><?= e(t('impersonation.stop_button')) ?></button>
+      </div>
+    <?php endif; ?>
+
     <?php $flashes = flash_all(); if ($flashes): ?>
       <div class="af-flash-container">
         <?php foreach ($flashes as $f): ?>
