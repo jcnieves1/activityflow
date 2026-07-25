@@ -158,13 +158,50 @@ function record_interruption(array $data): int
     return $id;
 }
 
+/**
+ * Interruption rows involving this activity from EITHER side, with both
+ * possible directions' related-task info joined in so the caller never needs
+ * a second query no matter which side it's rendering for:
+ *   - interrupted_title/interrupted_status: the PLANNED task that got
+ *     interrupted (used when this activity is the interrupter — "which task
+ *     did I interrupt?").
+ *   - interrupting_title/interrupting_status/interrupting_assignee_name: the
+ *     UNPLANNED task that did the interrupting (used when this activity is
+ *     the one that got interrupted — "what interrupted me, and who logged it?").
+ */
 function list_interruptions_for_activity(int $activityId): array
 {
     $stmt = db()->prepare(
-        'SELECT i.*, a.title AS interrupted_title FROM interruptions i
-         LEFT JOIN activities a ON a.id = i.interrupted_activity_id
+        'SELECT i.*,
+                ai.title AS interrupted_title, ai.status AS interrupted_status,
+                ag.title AS interrupting_title, ag.status AS interrupting_status,
+                agp.full_name AS interrupting_assignee_name
+         FROM interruptions i
+         LEFT JOIN activities ai ON ai.id = i.interrupted_activity_id
+         LEFT JOIN activities ag ON ag.id = i.interrupting_activity_id
+         LEFT JOIN people agp ON agp.id = ag.assignee_id
          WHERE i.interrupting_activity_id = ? OR i.interrupted_activity_id = ?'
     );
     $stmt->execute([$activityId, $activityId]);
     return $stmt->fetchAll();
+}
+
+/**
+ * Given a set of activity ids, returns the subset that were interrupted by
+ * some other (unplanned) task at least once — i.e. they appear as the
+ * "victim" side of an interruptions row. Used by My Tasks to flag a task
+ * with an indicator without an N+1 query per row.
+ */
+function activity_ids_that_were_interrupted(array $activityIds): array
+{
+    $activityIds = array_values(array_unique(array_map('intval', $activityIds)));
+    if (!$activityIds) {
+        return [];
+    }
+    $placeholders = implode(',', array_fill(0, count($activityIds), '?'));
+    $stmt = db()->prepare(
+        "SELECT DISTINCT interrupted_activity_id FROM interruptions WHERE interrupted_activity_id IN ($placeholders)"
+    );
+    $stmt->execute($activityIds);
+    return array_map('intval', array_column($stmt->fetchAll(), 'interrupted_activity_id'));
 }

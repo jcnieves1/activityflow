@@ -130,6 +130,9 @@ body { background: var(--af-body-bg); color: var(--af-body-text); }
 }
 
 .bg-orange { background-color: var(--af-unplanned) !important; color: #402400; }
+.text-orange { color: var(--af-unplanned) !important; }
+.af-interruption-item { cursor: pointer; transition: background-color .12s; }
+.af-interruption-item:hover { background-color: var(--af-surface-bg); }
 
 /* ---------- Shell layout ---------- */
 .af-shell { display: flex; min-height: 100vh; }

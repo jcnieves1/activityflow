@@ -15,6 +15,7 @@ $filters = [
 ];
 $activities = $personId ? list_activities($filters) : [];
 $projects = list_projects(['is_archived' => 0]);
+$interruptedTaskIds = array_flip(activity_ids_that_were_interrupted(array_column($activities, 'id')));
 
 $pageTitle = t('nav.my_tasks');
 $activeNav = 'my_tasks';
@@ -72,7 +73,7 @@ require __DIR__ . '/includes/activity_modal.php';
       <?php foreach ($activities as $a): ?>
         <tr>
           <td><input type="checkbox" class="af-task-select" value="<?= (int)$a['id'] ?>" aria-label="<?= e(t('tasks.select_task')) ?>"></td>
-          <td class="fw-semibold"><?= e($a['title']) ?><?= $a['is_milestone'] ? ' <i class="bi bi-flag-fill text-warning" title="' . e(t('tasks.milestone')) . '"></i>' : '' ?></td>
+          <td class="fw-semibold"><?= e($a['title']) ?><?= $a['is_milestone'] ? ' <i class="bi bi-flag-fill text-warning" title="' . e(t('tasks.milestone')) . '"></i>' : '' ?><?= isset($interruptedTaskIds[(int)$a['id']]) ? ' <i class="bi bi-lightning-charge-fill text-orange" title="' . e(t('tasks.interrupted_tooltip')) . '"></i>' : '' ?></td>
           <td><?= activity_type_badge($a['activity_type']) ?></td>
           <td><?= $a['project_name'] ? e($a['project_name']) : '<span class="text-muted">' . e(t('tasks.no_project')) . '</span>' ?></td>
           <td><?= e($a['requester_name']) ?></td>

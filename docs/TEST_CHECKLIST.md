@@ -109,6 +109,19 @@ Mapped to the acceptance criteria. Run through this after installation
       interrupted task and confirm that one shows no such line. Confirm a
       normal planned task, and the planned task that WAS interrupted (not
       the interrupter), also show no such line.
+- [ ] On My Tasks, confirm the planned task you interrupted above shows a
+      small orange lightning-bolt icon next to its title (hover to see the
+      tooltip). Confirm tasks that were never interrupted show no icon.
+- [ ] Open that interrupted planned task and go to its new "Interruptions"
+      tab — confirm it lists the unplanned task(s) that interrupted it
+      (title, who logged it, when, any notes). Click one of the listed
+      interruptions and confirm it opens that unplanned task in the same
+      dialog. Confirm a task that was never interrupted shows "No
+      interruptions recorded." on this tab instead.
+- [ ] Quick-add a third unplanned task that interrupts the SAME planned task
+      again — confirm the Interruptions tab now lists both interrupting
+      tasks, most recent included, and the My Tasks icon/tooltip still
+      shows correctly (doesn't duplicate or break with more than one).
 - [ ] Try to reclassify a task's planned/unplanned status as a Project
       Manager or Administrator — confirm a reason is required and the
       original classification remains visible in its audit history.

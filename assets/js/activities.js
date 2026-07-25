@@ -126,7 +126,7 @@ window.afActivities = (function () {
     // (am_status, am_completion_pct), so wiping its innerHTML deleted those
     // permanently and broke every subsequent fillForm() call.
     document.getElementById('am_time_totals').textContent = '';
-    ['am_time_entries', 'am_comments', 'am_history'].forEach((id) => { document.getElementById(id).innerHTML = ''; });
+    ['am_time_entries', 'am_comments', 'am_history', 'am_interruptions_list'].forEach((id) => { document.getElementById(id).innerHTML = ''; });
     syncDatetimeTracking();
   }
 
@@ -198,6 +198,21 @@ window.afActivities = (function () {
     } else {
       interruptedTaskRow.classList.add('d-none');
     }
+
+    // The Interruptions tab shows the other direction: unplanned tasks that
+    // interrupted THIS one (i.e. this activity is the "victim" side,
+    // interrupted_activity_id === a.id) — the mirror image of the row above.
+    const interruptedByList = (a.interruptions || []).filter((i) => String(i.interrupted_activity_id) === String(a.id));
+    document.getElementById('am_interruptions_list').innerHTML = interruptedByList.map((i) => `
+      <div class="border rounded p-2 mb-2 small af-interruption-item" onclick="afActivities.openEdit(${i.interrupting_activity_id})">
+        <div class="d-flex justify-content-between align-items-center">
+          <strong><i class="bi bi-lightning-charge-fill text-orange"></i> ${afEscapeHtml(i.interrupting_title || ('#' + i.interrupting_activity_id))}</strong>
+          ${i.interrupting_assignee_name ? `<span class="text-muted">${afEscapeHtml(i.interrupting_assignee_name)}</span>` : ''}
+        </div>
+        ${i.started_at ? `<div class="text-muted">${afEscapeHtml(i.started_at)}${i.time_lost_minutes != null ? ' · ' + i.time_lost_minutes + ' min lost' : ''}</div>` : ''}
+        ${i.notes ? `<div>${afEscapeHtml(i.notes)}</div>` : ''}
+      </div>`).join('') || '<p class="text-muted small">No interruptions recorded.</p>';
+
     document.getElementById('am_repeat_block').style.display = 'none';
     // can_delete/can_edit are computed server-side (api/activities.php's 'get'
     // action) from the same permission rules enforced on the actual requests, so

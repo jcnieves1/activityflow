@@ -35,6 +35,7 @@ foreach ($amProjectMemberIds as $projId => $memberIds) {
         <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#am_tab_details"><?= e(t('activity.tab_details')) ?></button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#am_tab_time"><?= e(t('activity.tab_time')) ?></button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#am_tab_comments"><?= e(t('activity.tab_comments')) ?></button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#am_tab_interruptions"><?= e(t('activity.tab_interruptions')) ?></button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#am_tab_history"><?= e(t('activity.tab_history')) ?></button></li>
       </ul>
       <div class="modal-body tab-content">
@@ -161,6 +162,11 @@ foreach ($amProjectMemberIds as $projId => $memberIds) {
             <input class="form-control" name="body" placeholder="<?= e(t('activity.add_comment_placeholder')) ?>" required>
             <button class="btn btn-outline-primary"><?= e(t('activity.post')) ?></button>
           </form>
+        </div>
+
+        <div class="tab-pane fade" id="am_tab_interruptions">
+          <p class="text-muted small"><?= e(t('activity.interruptions_tab_hint')) ?></p>
+          <div id="am_interruptions_list"></div>
         </div>
 
         <div class="tab-pane fade" id="am_tab_history">
