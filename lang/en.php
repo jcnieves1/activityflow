@@ -29,7 +29,7 @@ return [
     'nav.admin_departments' => 'Departments',
     'nav.admin_statuses' => 'Task Statuses',
     'nav.admin_request_channels' => 'Request Channels',
-    'nav.admin_releases' => 'Releases',
+    'nav.releases' => 'Releases',
     'nav.admin_release_phase_templates' => 'Release Phase Templates',
     'nav.admin_settings' => 'System Settings',
     'nav.audit_log' => 'Audit Log',

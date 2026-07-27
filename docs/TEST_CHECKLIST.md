@@ -609,6 +609,43 @@ Mapped to the acceptance criteria. Run through this after installation
       editor fall back to plain, fully-functional textareas instead of
       breaking the dialog.
 
+## Releases (open viewing, admin-only editing)
+
+- [ ] As an Employee or Viewer, confirm "Releases" appears in the main
+      sidebar nav (not under "Administration"), and clicking it loads
+      `releases.php` showing the full list of releases with their start/
+      launch dates and phase/project counts.
+- [ ] As an Employee or Viewer on the releases list, confirm there is no
+      "Add release" button, and no Edit/Delete buttons on any row — only
+      "Manage" (view) is available.
+- [ ] As an Employee or Viewer, click "Manage" on a release to open
+      `release_detail.php` — confirm the phases table and associated
+      projects table are visible, but there is no "Add phase" button, no
+      Edit/Delete on phases, no "Move"/"Disassociate" on projects, and no
+      "associate a project" control at the bottom.
+- [ ] Still as a non-admin, confirm editing/deleting a release from the top
+      of the detail page is not available (no Edit/Delete buttons next to
+      the release name).
+- [ ] As an Administrator, confirm all of the above controls (add/edit/
+      delete release, add/edit/delete phase, associate/move/disassociate
+      project) are visible and working exactly as before, on both
+      `releases.php` and `release_detail.php`.
+- [ ] As an Administrator, confirm the "Manage default phases" link inside
+      the New/Edit Release modal still goes to
+      `admin/release_phase_templates.php` (that page remains under
+      Administration — only release viewing/management moved).
+- [ ] Attempt a release write action directly against the API as a
+      non-admin (e.g. POST `action=release_save` to `api/admin.php` via
+      browser dev tools) — confirm it's rejected with a 403, independent of
+      whatever the UI shows (the UI hiding buttons is a convenience, not the
+      actual security boundary).
+- [ ] From a project's detail page, confirm the release badge still links
+      to the release's detail page and works identically for both admins
+      and non-admins (read-only either way for the badge itself).
+- [ ] Confirm no links anywhere in the app (nav, project detail, release
+      list) still point at the old `admin/releases.php` or
+      `admin/release_detail.php` paths.
+
 ## Workload
 
 - [ ] As an Employee or Viewer, confirm the "Workload" nav link is not shown,

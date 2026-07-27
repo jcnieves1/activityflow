@@ -28,7 +28,7 @@ return [
     'nav.admin_departments' => 'Departamentos',
     'nav.admin_statuses' => 'Estados de Tareas',
     'nav.admin_request_channels' => 'Canales de Solicitud',
-    'nav.admin_releases' => 'Releases',
+    'nav.releases' => 'Releases',
     'nav.admin_release_phase_templates' => 'Fases Predeterminadas de Release',
     'nav.admin_settings' => 'Configuración del Sistema',
     'nav.audit_log' => 'Registro de Auditoría',
