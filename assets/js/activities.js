@@ -37,6 +37,55 @@ window.afActivities = (function () {
   initDefaultTimeOnDateChange('am_planned_start_at', '09:00');
   initDefaultTimeOnDateChange('am_target_completion_at', '17:00');
 
+  // Live vacation-conflict check: re-runs whenever the assignee or either
+  // date field changes, so switching assignees or rescheduling shows the
+  // warning immediately instead of only after the task is saved and
+  // reloaded. fillForm() (existing task) short-circuits this with the
+  // already-computed a.vacation_conflict from the server instead of an
+  // extra round trip; this live check covers every subsequent edit made
+  // within the same modal session (including brand-new tasks).
+  function formatVacationWarning(tpl, vars) {
+    return Object.keys(vars).reduce((s, k) => s.split('{' + k + '}').join(vars[k]), tpl);
+  }
+  function showVacationWarning(conflict, personName) {
+    const el = document.getElementById('am_vacation_warning');
+    const textEl = document.getElementById('am_vacation_warning_text');
+    if (!el || !textEl) return;
+    if (!conflict) {
+      el.classList.add('d-none');
+      return;
+    }
+    const tpl = window.AF_I18N_VACATION_WARNING || '{name} is on vacation from {start} to {end}, which overlaps this task\'s scheduled dates.';
+    textEl.textContent = formatVacationWarning(tpl, {
+      name: personName || 'The assignee', start: conflict.start_date, end: conflict.end_date,
+    });
+    el.classList.remove('d-none');
+  }
+  function checkVacationConflict() {
+    const assigneeSelect = document.getElementById('am_assignee_id');
+    const startInput = document.getElementById('am_planned_start_at');
+    const endInput = document.getElementById('am_target_completion_at');
+    if (!assigneeSelect || !startInput) return;
+    const assigneeId = assigneeSelect.value;
+    const start = startInput.value;
+    const end = (endInput && endInput.value) || start;
+    if (!assigneeId || !start) {
+      showVacationWarning(null);
+      return;
+    }
+    afFetch(API() + '?action=check_vacation_conflict&assignee_id=' + encodeURIComponent(assigneeId) +
+      '&start=' + encodeURIComponent(start) + '&end=' + encodeURIComponent(end))
+      .then((res) => {
+        const opt = assigneeSelect.options[assigneeSelect.selectedIndex];
+        showVacationWarning(res.conflict, opt ? opt.text : '');
+      })
+      .catch(() => {});
+  }
+  ['am_assignee_id', 'am_planned_start_at', 'am_target_completion_at'].forEach((id) => {
+    const el = document.getElementById(id);
+    el && el.addEventListener('change', checkVacationConflict);
+  });
+
   // Filters the Assignee dropdown down to people assigned to the selected
   // Project (via each <option>'s data-projects attribute, set server-side in
   // includes/activity_modal.php from project_members) so picking a project
@@ -113,6 +162,7 @@ window.afActivities = (function () {
       pane.classList.toggle('active', isDetails);
       pane.classList.toggle('show', isDetails);
     });
+    document.getElementById('am_vacation_warning').classList.add('d-none');
     document.getElementById('am_reclassify_block').classList.add('d-none');
     document.getElementById('am_interrupted_task_row').classList.add('d-none');
     document.getElementById('am_interrupted_task_name').textContent = '';
@@ -152,6 +202,7 @@ window.afActivities = (function () {
     syncDatetimeTracking();
     filterAssigneesByProject(false);
     loadParentOptions(null);
+    checkVacationConflict();
     modal && modal.show();
   }
 
@@ -167,6 +218,11 @@ window.afActivities = (function () {
     document.getElementById('am_planned_start_at').value = (a.planned_start_at || '').replace(' ', 'T').slice(0, 16);
     document.getElementById('am_target_completion_at').value = (a.target_completion_at || '').replace(' ', 'T').slice(0, 16);
     syncDatetimeTracking();
+    // Server already computed this (activity_vacation_conflict() in the 'get'
+    // action) from the task's saved dates, so show it immediately rather than
+    // firing an extra round trip; the change listeners registered above take
+    // over from here for any further edits made within this modal session.
+    showVacationWarning(a.vacation_conflict, a.assignee_name);
     // estimated_minutes is stored in the database in minutes; the form field shows
     // and edits it in hours (supports fractions, e.g. 1.5h), converted at the boundary.
     document.getElementById('am_estimated_hours').value = a.estimated_minutes

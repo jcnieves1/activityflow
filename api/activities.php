@@ -35,7 +35,23 @@ if ($method === 'GET' && $action === 'get') {
     // same as any other change to the task.
     $activity['can_edit'] = can_edit_activity($activity);
     $activity['can_delete'] = can_delete_activity($activity);
+    $activity['vacation_conflict'] = activity_vacation_conflict($activity);
     json_response(['ok' => true, 'activity' => $activity]);
+}
+
+// Live check used by the activity modal while creating/editing a task, before
+// it's saved — lets an assignee/date change show the warning immediately
+// rather than only after the next full page load. Shares the exact same
+// overlap rule as activity_vacation_conflict()/bulk_activity_vacation_conflicts()
+// via find_overlapping_vacation().
+if ($method === 'GET' && $action === 'check_vacation_conflict') {
+    $assigneeId = (int)($_GET['assignee_id'] ?? 0);
+    $start = (string)($_GET['start'] ?? '');
+    $end = (string)($_GET['end'] ?? '');
+    $conflict = ($assigneeId && $start !== '' && $end !== '')
+        ? find_overlapping_vacation($assigneeId, substr($start, 0, 10), substr($end, 0, 10))
+        : null;
+    json_response(['ok' => true, 'conflict' => $conflict]);
 }
 
 if ($method === 'POST') {

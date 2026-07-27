@@ -31,6 +31,7 @@ foreach ($amProjectMemberIds as $projId => $memberIds) {
         <h5 class="modal-title" id="activityModalTitle"><?= e(t('activity.new_title')) ?></h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
+      <div class="alert alert-warning d-none mx-3 mt-2 mb-0 py-2" id="am_vacation_warning" role="alert"><i class="bi bi-exclamation-triangle-fill"></i> <span id="am_vacation_warning_text"></span></div>
       <ul class="nav nav-tabs px-3 pt-2" id="activityTabs" style="display:none">
         <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#am_tab_details"><?= e(t('activity.tab_details')) ?></button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#am_tab_time"><?= e(t('activity.tab_time')) ?></button></li>
@@ -186,6 +187,9 @@ foreach ($amProjectMemberIds as $projId => $memberIds) {
   </div>
 </div>
 
+<script>
+window.AF_I18N_VACATION_WARNING = <?= json_encode(t('activity.vacation_conflict_warning')) ?>;
+</script>
 <div class="modal fade" id="taskMoveCloneModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">

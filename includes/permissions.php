@@ -185,6 +185,12 @@ function project_owner_id(?int $projectId): ?int
     return $cache[$projectId];
 }
 
+/** A vacation entry can be managed (edited/deleted) by an administrator, or by the person it belongs to — no one else, including their manager or a PM. */
+function can_manage_vacation(array $vacation): bool
+{
+    return is_admin() || (int)$vacation['person_id'] === (int)current_person_id();
+}
+
 function is_project_member(int $projectId, ?int $personId = null): bool
 {
     $personId = $personId ?? current_person_id();

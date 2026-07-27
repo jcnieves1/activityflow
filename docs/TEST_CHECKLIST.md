@@ -489,6 +489,62 @@ Mapped to the acceptance criteria. Run through this after installation
       (redirect/deny), and a direct API call to any
       release_phase_template_* admin action is rejected.
 
+## Vacations
+
+- [ ] As any logged-in user, open the "Vacations" nav item — confirm it's
+      reachable by every role (Administrator, Project Manager, Employee,
+      Viewer), unlike the Administration-only sections.
+- [ ] Click "Add vacation" and submit a consecutive date range for yourself
+      — confirm it appears on the calendar in the current month, colored
+      consistently with your entry in the top people filter's swatches.
+- [ ] Try submitting a vacation whose dates overlap one you already have —
+      confirm it's rejected with a clear error; submitting an adjacent,
+      non-overlapping range (e.g. starting the day after an existing entry
+      ends) should succeed. Confirm two separate, non-consecutive blocks of
+      days off require two separate "Add vacation" entries — there's no way
+      to submit a single entry with a gap in it.
+- [ ] As a non-Administrator, confirm the "Add vacation" dialog only lets
+      you submit time off for yourself (no person picker) — and that a
+      direct API call to create a vacation for someone else is rejected. As
+      an Administrator, confirm you can pick any person when creating a new
+      entry.
+- [ ] Click an existing vacation event on the calendar you own (or, as an
+      Administrator, one that belongs to someone else) — confirm the dialog
+      opens editable with a Delete button; click one that belongs to someone
+      else while NOT an Administrator — confirm the dialog opens read-only
+      (no Save/Delete, fields disabled) and its Notes field is blank even if
+      the owner set one (notes are private to the owner and admins).
+- [ ] Use the calendar's view switcher to go from Month to Year view and
+      back, and use prev/next to move to a different month — confirm
+      vacations render correctly in both views and the "Today" button
+      returns to the current month.
+- [ ] Use the top people multi-select filter to narrow the calendar (and
+      the list below it) to one or two specific people — confirm both the
+      calendar and the conflicts list update to match, and reverting to "All
+      people" restores everyone.
+- [ ] As an Administrator or Project Manager, create/edit a task so its
+      assignee's planned dates fall within an existing vacation for that
+      assignee — confirm the Edit Activity dialog shows a warning banner
+      naming the person and the vacation's dates as soon as you pick the
+      conflicting assignee/dates (before saving), and confirm the same
+      banner appears automatically when reopening the saved task afterward.
+- [ ] Confirm a task with a vacation conflict shows a warning icon next to
+      its title on My Tasks, Team Activities, and the Task Board, and that
+      resolving the conflict (rescheduling the task or removing/moving the
+      vacation) makes the icon disappear on next reload.
+- [ ] On the Vacations page, confirm the "Vacation & Task Conflicts" list
+      below the calendar shows every currently-conflicting task (not just
+      ones on the current calendar month), with the person, vacation dates,
+      task title, task dates, and project — and that clicking "Open" on a
+      row opens that task in the same Edit Activity dialog used everywhere
+      else, letting you reschedule or reassign it directly from this list.
+- [ ] Delete a vacation entry — confirm it disappears from the calendar and
+      any task that no longer conflicts with anything loses its warning
+      badge on next reload, and drops off the conflicts list immediately.
+- [ ] Delete the person record (or deactivate) tied to a vacation — this is
+      a low-priority edge case, but confirm nothing on the Vacations page
+      errors out if a vacation's person is no longer active.
+
 ## Authorization boundaries
 
 - [ ] As an Employee, confirm Admin pages (`admin/*.php`, `audit_log.php`)

@@ -22,6 +22,7 @@ if ($selectedStatuses) {
     $activityFilters['status_in'] = $selectedStatuses;
 }
 $activities = list_activities($activityFilters);
+$vacationConflicts = bulk_activity_vacation_conflicts(array_column($activities, 'id'));
 $byStatus = [];
 foreach ($allStatusSlugs as $s) { $byStatus[$s] = []; }
 foreach ($activities as $a) { $byStatus[$a['status']][] = $a; }
@@ -99,7 +100,7 @@ require __DIR__ . '/includes/activity_modal.php';
           if ($a['priority'] === 'urgent') $cls = 'urgent';
         ?>
         <div class="af-activity-item <?= $cls ?>" draggable="true" data-id="<?= (int)$a['id'] ?>" onclick="afActivities.openEdit(<?= (int)$a['id'] ?>)">
-          <div class="title"><?= e($a['title']) ?></div>
+          <div class="title"><?= e($a['title']) ?><?= isset($vacationConflicts[(int)$a['id']]) ? ' <i class="bi bi-airplane-engines-fill text-danger" title="' . e(t('tasks.vacation_conflict_tooltip')) . '"></i>' : '' ?></div>
           <div class="small text-muted"><?= e($a['assignee_name']) ?></div>
           <div class="mt-1"><?= activity_type_badge($a['activity_type']) ?> <span class="badge <?= priority_badge_class($a['priority']) ?>"><?= e(status_label($a['priority'])) ?></span></div>
           <div class="af-card-progress mt-2 d-flex align-items-center gap-2">

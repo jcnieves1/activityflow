@@ -180,6 +180,29 @@ CREATE TABLE project_members (
 ) ENGINE=InnoDB;
 
 -- ---------------------------------------------------------------------
+-- Vacations
+-- ---------------------------------------------------------------------
+
+-- One consecutive block of time off per row — a person taking non-consecutive
+-- days submits multiple rows (see includes/models/vacations.php). Visible to
+-- every logged-in user (the Vacations page/calendar), but only an
+-- administrator or the vacationing person themselves can create/edit/delete
+-- a given row (see can_manage_vacation() in includes/permissions.php).
+CREATE TABLE vacations (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    person_id INT UNSIGNED NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    notes VARCHAR(255) DEFAULT NULL,
+    created_by INT UNSIGNED DEFAULT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    KEY idx_vacations_person (person_id),
+    KEY idx_vacations_dates (start_date, end_date),
+    CONSTRAINT fk_vacations_person FOREIGN KEY (person_id) REFERENCES people(id) ON DELETE CASCADE,
+    CONSTRAINT fk_vacations_created_by FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+-- ---------------------------------------------------------------------
 -- Classification
 -- ---------------------------------------------------------------------
 

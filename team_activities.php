@@ -29,6 +29,7 @@ if (!is_admin() && !user_has_role(ROLE_VIEWER)) {
 
 $people = list_people(['is_active' => 1]);
 $projects = list_projects(['is_archived' => 0]);
+$vacationConflicts = bulk_activity_vacation_conflicts(array_column($all, 'id'));
 
 $pageTitle = t('nav.team');
 $activeNav = 'team';
@@ -76,7 +77,7 @@ require __DIR__ . '/includes/activity_modal.php';
       <?php foreach ($all as $a): ?>
         <tr>
           <td><input type="checkbox" class="af-task-select" value="<?= (int)$a['id'] ?>" aria-label="<?= e(t('tasks.select_task')) ?>"></td>
-          <td class="fw-semibold"><?= e($a['title']) ?></td>
+          <td class="fw-semibold"><?= e($a['title']) ?><?= isset($vacationConflicts[(int)$a['id']]) ? ' <i class="bi bi-airplane-engines-fill text-danger" title="' . e(t('tasks.vacation_conflict_tooltip')) . '"></i>' : '' ?></td>
           <td><?= activity_type_badge($a['activity_type']) ?></td>
           <td><?= e($a['assignee_name']) ?></td>
           <td><?= e($a['requester_name']) ?></td>
