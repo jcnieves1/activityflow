@@ -573,6 +573,42 @@ Mapped to the acceptance criteria. Run through this after installation
       blocking), confirm the Description field falls back to a plain,
       fully-functional textarea instead of breaking the dialog.
 
+## Task comment rich text
+
+- [ ] Open any task's Comments tab — confirm the "add a comment" box renders
+      as a Quill WYSIWYG toolbar/editor (bold, italic, underline, strike,
+      headers, ordered/bullet lists, blockquote, link) rather than a plain
+      single-line input.
+- [ ] Format a new comment (e.g. a bold word, a bullet list, a link) and
+      post it — confirm it appears in the comment list with the formatting
+      preserved, not as literal HTML text.
+- [ ] Post a comment, then reopen the same task later (or reload the page) —
+      confirm the formatting is still there.
+- [ ] Click "Edit" on one of your own comments — confirm the inline editor
+      also becomes a Quill toolbar/editor pre-filled with the comment's
+      existing formatting, edit it, and save — confirm the updated
+      formatting is preserved and the "(edited ...)" note appears.
+- [ ] Click "Edit" on a comment, then "Cancel" — confirm the comment reverts
+      to its original read-only display with no changes and no leftover
+      editor controls.
+- [ ] Post a comment on task A, close the dialog, then open a *different*
+      task B — confirm task B's "add a comment" box starts empty rather than
+      carrying over what you typed for task A (the shared modal/editor
+      instance is reused across every task opened in a page session).
+- [ ] Try to post a comment that's empty or contains only formatting with no
+      actual text (e.g. just pressing Enter, or bolding nothing) — confirm
+      it's rejected with a "Comment cannot be empty" message rather than
+      being saved as blank.
+- [ ] Attempt to submit a comment containing a `<script>` tag or an
+      `onerror=` attribute (e.g. by pasting raw HTML) — confirm it's
+      stripped down to the safe allow-list of tags on save (same
+      sanitize_html() allow-list already used for descriptions) and never
+      executes when the task is reopened.
+- [ ] With the Quill CDN blocked (e.g. via browser dev tools' network
+      blocking), confirm both the new-comment box and the inline comment
+      editor fall back to plain, fully-functional textareas instead of
+      breaking the dialog.
+
 ## Authorization boundaries
 
 - [ ] As an Employee, confirm Admin pages (`admin/*.php`, `audit_log.php`)

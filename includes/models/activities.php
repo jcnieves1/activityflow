@@ -516,6 +516,10 @@ function my_day_hours_summary(int $personId, string $date): array
 
 function add_activity_comment(int $activityId, int $authorUserId, string $body): int
 {
+    $body = sanitize_html($body);
+    if (trim(strip_tags($body)) === '') {
+        throw new InvalidArgumentException('Comment cannot be empty.');
+    }
     db()->prepare('INSERT INTO activity_comments (activity_id, author_id, body) VALUES (?, ?, ?)')
         ->execute([$activityId, $authorUserId, $body]);
     $id = (int)db()->lastInsertId();
@@ -546,6 +550,10 @@ function get_activity_comment(int $id): ?array
 
 function update_activity_comment(int $id, string $body): void
 {
+    $body = sanitize_html($body);
+    if (trim(strip_tags($body)) === '') {
+        throw new InvalidArgumentException('Comment cannot be empty.');
+    }
     $before = get_activity_comment($id);
     db()->prepare('UPDATE activity_comments SET body = ?, updated_at = NOW() WHERE id = ?')
         ->execute([$body, $id]);

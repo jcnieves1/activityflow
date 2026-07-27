@@ -33,6 +33,20 @@ window.afActivities = (function () {
     if (descriptionQuill) descriptionQuill.root.innerHTML = html || '';
   }
 
+  // ---- Rich text new-comment field ----
+  // Same modal-reuse concern as the description field above: the "add a
+  // comment" textarea/Quill instance is shared across every task opened in
+  // this page session, so clearing it (after posting, or before loading a
+  // different task's comments) must go through setNewCommentHtml() rather
+  // than assigning the textarea's .value directly, which Quill would never
+  // pick up.
+  const newCommentQuill = window.afInitRichText && window.afInitRichText('am_new_comment_body');
+  function setNewCommentHtml(html) {
+    const textarea = document.getElementById('am_new_comment_body');
+    if (textarea) textarea.value = html || '';
+    if (newCommentQuill) newCommentQuill.root.innerHTML = html || '';
+  }
+
   // Picking a new day from the native datetime-local calendar widget shouldn't
   // force the user to also manually reset the hour every time — Planned start
   // defaults to 9:00 AM and Target completion to 5:00 PM whenever the DATE
@@ -163,6 +177,7 @@ window.afActivities = (function () {
   function reset() {
     form.reset();
     setDescriptionHtml('');
+    setNewCommentHtml('');
     currentId = null;
     document.getElementById('am_id').value = '';
     document.getElementById('activityModalTitle').textContent = 'New planned activity';
@@ -330,7 +345,13 @@ window.afActivities = (function () {
 
   // Comments are rendered from currentComments (rather than re-fetching) so
   // cancelling an in-progress edit doesn't need a round trip to the server.
+  // Any in-progress inline edit's Quill instance is tied to a DOM node that
+  // renderComments() is about to destroy, so drop our reference to it here
+  // too (avoids holding a dangling Quill instance after its editor div is
+  // wiped from the page).
+  let commentEditQuills = {};
   function renderComments() {
+    commentEditQuills = {};
     document.getElementById('am_comments').innerHTML = currentComments.map((c) => {
       const isOwner = window.AF_USER_ID != null && String(c.author_id) === String(window.AF_USER_ID);
       const editedNote = c.updated_at && c.updated_at !== c.created_at
@@ -341,7 +362,10 @@ window.afActivities = (function () {
           <div><strong>${afEscapeHtml(c.author_name)}</strong> <span class="text-muted small">${afEscapeHtml(c.created_at)}</span>${editedNote}</div>
           ${isOwner ? `<button type="button" class="btn btn-sm btn-link p-0" onclick="afActivities.editComment(${c.id})">Edit</button>` : ''}
         </div>
-        <div id="am_comment_body_${c.id}">${afEscapeHtml(c.body)}</div>
+        <!-- c.body is sanitized on write via sanitize_html() in add_activity_comment()/
+             update_activity_comment() -- safe to echo raw here, same convention used
+             for activity descriptions. -->
+        <div id="am_comment_body_${c.id}">${c.body}</div>
       </div>`;
     }).join('') || '<p class="text-muted small">No comments yet.</p>';
   }
@@ -356,20 +380,30 @@ window.afActivities = (function () {
       <button type="button" class="btn btn-sm btn-outline-secondary" onclick="afActivities.cancelEditComment(${id})">Cancel</button>`;
     const textarea = document.getElementById('am_comment_edit_' + id);
     textarea.value = c.body; // set as a value, not interpolated into the HTML string, so the raw text can't be mistaken for markup
-    textarea.focus();
+    // This textarea is created fresh on every editComment() call, so it's safe
+    // to enhance with a brand-new Quill instance each time (unlike the shared
+    // description/new-comment fields, there's no stale-instance risk here).
+    // It isn't nested in a <form>, so afInitRichText()'s submit-time sync is a
+    // no-op for it -- fine, since saveCommentEdit() reads textarea.value
+    // directly rather than via FormData/a submit event.
+    commentEditQuills[id] = window.afInitRichText && window.afInitRichText('am_comment_edit_' + id);
+    if (commentEditQuills[id]) commentEditQuills[id].focus(); else textarea.focus();
   }
 
   function cancelEditComment(id) {
+    delete commentEditQuills[id];
     renderComments();
   }
 
   function saveCommentEdit(id) {
     const textarea = document.getElementById('am_comment_edit_' + id);
     if (!textarea) return;
-    const body = textarea.value.trim();
-    if (!body) { afToast('Comment cannot be empty.', 'danger'); return; }
+    const body = textarea.value;
+    const stripped = body.replace(/<[^>]*>/g, '').trim();
+    if (!stripped) { afToast('Comment cannot be empty.', 'danger'); return; }
     afFetch(API(), { method: 'POST', body: { action: 'edit_comment', id, body } })
       .then((res) => {
+        delete commentEditQuills[id];
         currentComments = res.comments || [];
         renderComments();
         afToast('Comment updated.');
@@ -541,8 +575,10 @@ window.afActivities = (function () {
     e.preventDefault();
     if (!currentId) return;
     const data = Object.fromEntries(new FormData(commentFormEl).entries());
+    const stripped = (data.body || '').replace(/<[^>]*>/g, '').trim();
+    if (!stripped) { afToast('Comment cannot be empty.', 'danger'); return; }
     afFetch(API(), { method: 'POST', body: { action: 'add_comment', id: currentId, body: data.body } })
-      .then(() => { commentFormEl.reset(); openEdit(currentId); })
+      .then(() => { setNewCommentHtml(''); openEdit(currentId); })
       .catch((err) => afToast(err.message, 'danger'));
   });
 

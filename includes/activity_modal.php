@@ -159,9 +159,9 @@ foreach ($amProjectMemberIds as $projId => $memberIds) {
 
         <div class="tab-pane fade" id="am_tab_comments">
           <div id="am_comments" class="mb-3"></div>
-          <form id="commentForm" class="d-flex gap-2">
-            <input class="form-control" name="body" placeholder="<?= e(t('activity.add_comment_placeholder')) ?>" required>
-            <button class="btn btn-outline-primary"><?= e(t('activity.post')) ?></button>
+          <form id="commentForm">
+            <textarea class="form-control" id="am_new_comment_body" name="body" rows="2" placeholder="<?= e(t('activity.add_comment_placeholder')) ?>" required></textarea>
+            <div class="text-end mt-2"><button class="btn btn-outline-primary"><?= e(t('activity.post')) ?></button></div>
           </form>
         </div>
 

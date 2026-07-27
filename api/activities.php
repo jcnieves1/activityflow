@@ -187,7 +187,11 @@ if ($method === 'POST') {
     if ($action === 'add_comment') {
         $activity = get_activity((int)($data['id'] ?? 0));
         if (!$activity) json_error('Activity not found.', 404);
-        add_activity_comment((int)$activity['id'], $user['id'], trim($data['body'] ?? ''));
+        try {
+            add_activity_comment((int)$activity['id'], $user['id'], (string)($data['body'] ?? ''));
+        } catch (InvalidArgumentException $e) {
+            json_error($e->getMessage());
+        }
         json_response(['ok' => true, 'comments' => list_activity_comments((int)$activity['id'])]);
     }
 
@@ -195,9 +199,11 @@ if ($method === 'POST') {
         $comment = get_activity_comment((int)($data['id'] ?? 0));
         if (!$comment) json_error('Comment not found.', 404);
         if (!can_edit_comment($comment)) deny('You can only edit your own comments.');
-        $body = trim($data['body'] ?? '');
-        if ($body === '') json_error('Comment cannot be empty.');
-        update_activity_comment((int)$comment['id'], $body);
+        try {
+            update_activity_comment((int)$comment['id'], (string)($data['body'] ?? ''));
+        } catch (InvalidArgumentException $e) {
+            json_error($e->getMessage());
+        }
         json_response(['ok' => true, 'comments' => list_activity_comments((int)$comment['activity_id'])]);
     }
 
