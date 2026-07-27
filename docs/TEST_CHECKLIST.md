@@ -609,6 +609,43 @@ Mapped to the acceptance criteria. Run through this after installation
       editor fall back to plain, fully-functional textareas instead of
       breaking the dialog.
 
+## Workload
+
+- [ ] As an Employee or Viewer, confirm the "Workload" nav link is not shown,
+      and navigating to `workload.php` directly is denied.
+- [ ] As an Administrator or Project Manager, confirm the "Workload" nav
+      link appears and the page loads with every active person shown by
+      default (People filter = "All team members").
+- [ ] Use the People multi-select to pick two or three specific people —
+      confirm only those people's cards appear in the results, in the same
+      "All / individual picks" checkbox behavior used on the Task Board and
+      Vacations pages (picking anyone clears "All"; clearing everyone
+      reverts to "All").
+- [ ] Use the Task Statuses multi-select to pick one or more statuses (e.g.
+      "In Progress" and "Blocked") — confirm each person's task count and
+      task list only reflect tasks in those statuses, across *all* of their
+      projects, not just one.
+- [ ] Set a start and end date and re-run — confirm only tasks whose planned
+      window overlaps that date range are counted (a task starting before
+      the range but still open during it, and a task starting inside the
+      range, should both count; a task entirely outside the range should
+      not).
+- [ ] Confirm the result for each person shows their name, a task count
+      badge, and the list of matching task titles with each task's project
+      name (or "No project" if unassigned to one).
+- [ ] Switch "Sort by" between "Least busy first" and "Most busy first" —
+      confirm the person cards reorder by task count accordingly (ties
+      broken alphabetically).
+- [ ] Confirm a person with zero matching tasks still appears in the results
+      (not hidden) with a "No matching tasks in this range" note — this is
+      the point of the feature, spotting who has free capacity.
+- [ ] Click "Open" on a task in the workload results — confirm it opens the
+      same shared Edit Task dialog used everywhere else, and that
+      reassigning or rescheduling the task there and saving refreshes the
+      workload results.
+- [ ] Confirm switching the app language changes all Workload page labels
+      (filters, sort options, empty states) to Spanish.
+
 ## Authorization boundaries
 
 - [ ] As an Employee, confirm Admin pages (`admin/*.php`, `audit_log.php`)

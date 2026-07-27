@@ -52,6 +52,9 @@ $navItems = [
           <i class="bi bi-<?= e($item['icon']) ?>"></i> <span><?= e($item['label']) ?></span>
         </a>
       <?php endforeach; ?>
+      <?php if (can_view_workload()): ?>
+        <a href="<?= e(base_url('workload.php')) ?>" class="af-nav-link <?= $activeNav === 'workload' ? 'active' : '' ?>"><i class="bi bi-bar-chart-steps"></i> <span><?= e(t('nav.workload')) ?></span></a>
+      <?php endif; ?>
       <?php if (is_admin()): ?>
         <div class="af-nav-heading"><?= e(t('nav.admin_heading')) ?></div>
         <a href="<?= e(base_url('admin/users.php')) ?>" class="af-nav-link <?= $activeNav === 'admin_users' ? 'active' : '' ?>"><i class="bi bi-people-fill"></i> <span><?= e(t('nav.admin_users')) ?></span></a>
