@@ -58,6 +58,7 @@ $navItems = [
         <a href="<?= e(base_url('admin/departments.php')) ?>" class="af-nav-link <?= $activeNav === 'admin_departments' ? 'active' : '' ?>"><i class="bi bi-diagram-3"></i> <span><?= e(t('nav.admin_departments')) ?></span></a>
         <a href="<?= e(base_url('admin/statuses.php')) ?>" class="af-nav-link <?= $activeNav === 'admin_statuses' ? 'active' : '' ?>"><i class="bi bi-flag"></i> <span><?= e(t('nav.admin_statuses')) ?></span></a>
         <a href="<?= e(base_url('admin/request_channels.php')) ?>" class="af-nav-link <?= $activeNav === 'admin_request_channels' ? 'active' : '' ?>"><i class="bi bi-signpost-split"></i> <span><?= e(t('nav.admin_request_channels')) ?></span></a>
+        <a href="<?= e(base_url('admin/releases.php')) ?>" class="af-nav-link <?= in_array($activeNav, ['admin_releases'], true) ? 'active' : '' ?>"><i class="bi bi-rocket-takeoff"></i> <span><?= e(t('nav.admin_releases')) ?></span></a>
         <a href="<?= e(base_url('admin/settings.php')) ?>" class="af-nav-link <?= $activeNav === 'admin_settings' ? 'active' : '' ?>"><i class="bi bi-gear"></i> <span><?= e(t('nav.admin_settings')) ?></span></a>
         <a href="<?= e(base_url('audit_log.php')) ?>" class="af-nav-link <?= $activeNav === 'audit_log' ? 'active' : '' ?>"><i class="bi bi-journal-text"></i> <span><?= e(t('nav.audit_log')) ?></span></a>
       <?php endif; ?>

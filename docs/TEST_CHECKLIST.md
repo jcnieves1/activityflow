@@ -402,6 +402,56 @@ Mapped to the acceptance criteria. Run through this after installation
       Quick-add and the Edit Activity dialog, and that this displays
       correctly wherever the channel is shown.
 
+## Release management (admin)
+
+- [ ] As an Administrator, open Administration → Releases and create a new
+      release with a name, description, start date, and launch (end) date
+      spanning at least a few weeks — confirm it's rejected if the launch
+      date is before the start date, or if the span is under 4 days (each
+      of the 4 default phases needs at least one day).
+- [ ] After creating a release, open its Manage page — confirm 4 phases
+      (Design, Build, UAT, MTP, in that order) were created automatically,
+      their dates are contiguous with no gaps or overlaps, the first phase
+      starts on the release's start date, and the last phase ends on the
+      release's launch date.
+- [ ] Edit a phase's dates to a new range still inside the release's
+      start/launch window and not overlapping any other phase — confirm it
+      saves. Then try dates that exceed the release's launch date, and
+      separately dates that overlap an adjacent phase — confirm both are
+      rejected with a clear error and nothing is saved.
+- [ ] Add a new custom phase (e.g. "Hypercare") with its own date range —
+      confirm it appears in the phase list. Edit a phase's name. Delete a
+      phase — confirm it disappears and the others are unaffected.
+- [ ] Edit the release's own name/description/dates — confirm it saves
+      without needing to touch its phases.
+- [ ] From the release's Manage page, associate an existing project that
+      isn't yet part of any release — confirm it appears in the release's
+      Associated Projects list and disappears from the "associate" picker.
+- [ ] Confirm a project that already belongs to a release does NOT appear
+      in another release's "associate" picker (only unassigned projects
+      are offered there).
+- [ ] Use "Move to..." on a project already in Release A to move it to
+      Release B — confirm it now shows under Release B and no longer under
+      Release A, and that this is the only way to reassign an
+      already-associated project (there's no way to "associate" it directly
+      into a second release).
+- [ ] Disassociate a project from a release — confirm the project itself
+      still exists and is fully intact (check its task board, members,
+      etc.), and it now reappears in every release's "associate" picker.
+- [ ] Delete a release that has associated projects — confirm the
+      confirmation dialog says the projects will be disassociated, not
+      deleted, and after deleting, verify those projects still exist and
+      simply show no release. Confirm the release's phases are gone too.
+- [ ] As a non-Administrator (Project Manager, Employee, Viewer), confirm
+      Administration → Releases and its Manage page are not reachable
+      (redirect/deny), and a direct API call to any release_* admin action
+      is rejected.
+- [ ] As any role that can view a project belonging to a release, confirm
+      the project's card (Projects page) and detail page both show a
+      read-only "Release: <name>" badge — for non-admins this badge should
+      not be a clickable link (since the admin Releases pages are
+      Administrator-only).
+
 ## Authorization boundaries
 
 - [ ] As an Employee, confirm Admin pages (`admin/*.php`, `audit_log.php`)

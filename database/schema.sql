@@ -79,6 +79,45 @@ CREATE TABLE people (
 ) ENGINE=InnoDB;
 
 -- ---------------------------------------------------------------------
+-- Releases
+-- ---------------------------------------------------------------------
+
+-- A Release is a company launch made up of several project executions.
+-- start_date/end_date bound the whole release (end_date doubles as the
+-- "launch date"); its phases (release_phases) subdivide that window
+-- chronologically. Projects opt into a release via projects.release_id
+-- (see below) — a project belongs to at most one release at a time.
+CREATE TABLE releases (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(150) NOT NULL,
+    description TEXT,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    created_by INT UNSIGNED DEFAULT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_releases_created_by FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+-- Design/Build/UAT/MTP are auto-created (in that order, with dates evenly
+-- split across the release's start/end) the moment a release is created —
+-- see includes/models/releases.php's generate_default_phases(). Admins can
+-- freely rename, re-date, add, or remove phases afterward; the app enforces
+-- only that a phase's dates stay within its release's start/end window and
+-- never overlap a sibling phase — no fixed set of phase names is assumed
+-- anywhere else in the app, so there is no is_system-style protection here.
+CREATE TABLE release_phases (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    release_id INT UNSIGNED NOT NULL,
+    name VARCHAR(80) NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    KEY idx_release_phases_release (release_id),
+    CONSTRAINT fk_release_phases_release FOREIGN KEY (release_id) REFERENCES releases(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- ---------------------------------------------------------------------
 -- Projects
 -- ---------------------------------------------------------------------
 
@@ -89,6 +128,10 @@ CREATE TABLE projects (
     description TEXT,
     owner_id INT UNSIGNED NOT NULL,
     department_id INT UNSIGNED DEFAULT NULL,
+    -- Which company Release (if any) this project's execution belongs to. A
+    -- project belongs to at most one release at a time; see
+    -- includes/models/releases.php for the associate/move/disassociate rules.
+    release_id INT UNSIGNED DEFAULT NULL,
     start_date DATE DEFAULT NULL,
     target_completion_date DATE DEFAULT NULL,
     actual_completion_date DATE DEFAULT NULL,
@@ -106,7 +149,8 @@ CREATE TABLE projects (
     KEY idx_projects_owner (owner_id),
     CONSTRAINT fk_projects_owner FOREIGN KEY (owner_id) REFERENCES people(id) ON DELETE RESTRICT,
     CONSTRAINT fk_projects_department FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE SET NULL,
-    CONSTRAINT fk_projects_created_by FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+    CONSTRAINT fk_projects_created_by FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
+    CONSTRAINT fk_projects_release FOREIGN KEY (release_id) REFERENCES releases(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 CREATE TABLE project_members (

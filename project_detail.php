@@ -48,6 +48,13 @@ require __DIR__ . '/includes/layout_header.php';
       <h4 class="mb-0"><?= e($project['name']) ?></h4>
       <span class="badge <?= status_badge_class($project['status']) ?>"><?= e(status_label($project['status'])) ?></span>
       <span class="badge <?= priority_badge_class($project['priority']) ?>"><?= e(status_label($project['priority'])) ?></span>
+      <?php if (!empty($project['release_name'])): ?>
+        <?php if (is_admin()): ?>
+          <a href="<?= e(base_url('admin/release_detail.php?id=' . (int)$project['release_id'])) ?>" class="badge bg-info text-dark text-decoration-none"><i class="bi bi-rocket-takeoff"></i> <?= e(t('pd.release_label', ['name' => $project['release_name']])) ?></a>
+        <?php else: ?>
+          <span class="badge bg-info text-dark"><i class="bi bi-rocket-takeoff"></i> <?= e(t('pd.release_label', ['name' => $project['release_name']])) ?></span>
+        <?php endif; ?>
+      <?php endif; ?>
     </div>
     <div class="text-muted small mt-1"><?= e($project['code']) ?> · <?= e(t('pd.owner', ['name' => $project['owner_name']])) ?>
       <?= $project['start_date'] ? ' · ' . e(t('pd.start', ['date' => format_date($project['start_date'])])) : '' ?>

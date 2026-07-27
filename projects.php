@@ -44,6 +44,9 @@ require __DIR__ . '/includes/layout_header.php';
           <div>
             <div class="fw-semibold"><?= e($p['name']) ?></div>
             <div class="text-muted small"><?= e($p['code']) ?> · <?= e($p['owner_name'] ?? '—') ?></div>
+            <?php if (!empty($p['release_name'])): ?>
+              <div class="small mt-1"><span class="badge bg-info text-dark"><i class="bi bi-rocket-takeoff"></i> <?= e(t('pd.release_label', ['name' => $p['release_name']])) ?></span></div>
+            <?php endif; ?>
           </div>
           <span class="badge <?= status_badge_class($p['status']) ?>"><?= e(status_label($p['status'])) ?></span>
         </div>

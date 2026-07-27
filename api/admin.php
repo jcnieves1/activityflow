@@ -130,6 +130,97 @@ if ($method === 'POST') {
         }
         json_response(['ok' => true] + $result);
     }
+
+    if ($action === 'release_save') {
+        $id = (int)($data['id'] ?? 0);
+        try {
+            if ($id) {
+                update_release($id, $data);
+            } else {
+                $id = create_release($data, current_user()['id'] ?? null);
+            }
+        } catch (InvalidArgumentException $e) {
+            json_error($e->getMessage());
+        } catch (RuntimeException $e) {
+            json_error($e->getMessage(), 404);
+        }
+        json_response(['ok' => true, 'release' => get_release($id)]);
+    }
+
+    if ($action === 'release_delete') {
+        $id = (int)($data['id'] ?? 0);
+        if (!delete_release($id)) {
+            json_error('Release not found.', 404);
+        }
+        json_response(['ok' => true]);
+    }
+
+    if ($action === 'release_phase_save') {
+        $id = (int)($data['id'] ?? 0);
+        $releaseId = (int)($data['release_id'] ?? 0);
+        try {
+            if ($id) {
+                update_release_phase($id, $data);
+                $phase = get_release_phase($id);
+            } else {
+                $newId = create_release_phase($releaseId, $data);
+                $phase = get_release_phase($newId);
+            }
+        } catch (InvalidArgumentException $e) {
+            json_error($e->getMessage());
+        } catch (RuntimeException $e) {
+            json_error($e->getMessage(), 404);
+        }
+        json_response(['ok' => true, 'phase' => $phase]);
+    }
+
+    if ($action === 'release_phase_delete') {
+        $id = (int)($data['id'] ?? 0);
+        try {
+            delete_release_phase($id);
+        } catch (RuntimeException $e) {
+            json_error($e->getMessage(), 404);
+        }
+        json_response(['ok' => true]);
+    }
+
+    if ($action === 'release_associate_project') {
+        $releaseId = (int)($data['release_id'] ?? 0);
+        $projectId = (int)($data['project_id'] ?? 0);
+        try {
+            associate_project_to_release($releaseId, $projectId);
+        } catch (InvalidArgumentException $e) {
+            json_error($e->getMessage());
+        } catch (RuntimeException $e) {
+            json_error($e->getMessage(), 404);
+        }
+        json_response(['ok' => true]);
+    }
+
+    if ($action === 'release_move_project') {
+        $releaseId = (int)($data['release_id'] ?? 0);
+        $projectId = (int)($data['project_id'] ?? 0);
+        try {
+            move_project_to_release($projectId, $releaseId);
+        } catch (InvalidArgumentException $e) {
+            json_error($e->getMessage());
+        } catch (RuntimeException $e) {
+            json_error($e->getMessage(), 404);
+        }
+        json_response(['ok' => true]);
+    }
+
+    if ($action === 'release_disassociate_project') {
+        $projectId = (int)($data['project_id'] ?? 0);
+        try {
+            disassociate_project_from_release($projectId);
+        } catch (InvalidArgumentException $e) {
+            json_error($e->getMessage());
+        } catch (RuntimeException $e) {
+            json_error($e->getMessage(), 404);
+        }
+        json_response(['ok' => true]);
+    }
 }
 
 json_error('Unknown action.', 404);

@@ -3,10 +3,11 @@ declare(strict_types=1);
 
 function list_projects(array $filters = []): array
 {
-    $sql = 'SELECT pr.*, p.full_name AS owner_name,
+    $sql = 'SELECT pr.*, p.full_name AS owner_name, rel.name AS release_name,
                    (SELECT COUNT(*) FROM project_members pm WHERE pm.project_id = pr.id) AS member_count
             FROM projects pr
             LEFT JOIN people p ON p.id = pr.owner_id
+            LEFT JOIN releases rel ON rel.id = pr.release_id
             WHERE 1=1';
     $params = [];
 
@@ -37,8 +38,9 @@ function list_projects(array $filters = []): array
 function get_project(int $id): ?array
 {
     $stmt = db()->prepare(
-        'SELECT pr.*, p.full_name AS owner_name FROM projects pr
-         LEFT JOIN people p ON p.id = pr.owner_id WHERE pr.id = ?'
+        'SELECT pr.*, p.full_name AS owner_name, rel.name AS release_name FROM projects pr
+         LEFT JOIN people p ON p.id = pr.owner_id
+         LEFT JOIN releases rel ON rel.id = pr.release_id WHERE pr.id = ?'
     );
     $stmt->execute([$id]);
     $row = $stmt->fetch();
