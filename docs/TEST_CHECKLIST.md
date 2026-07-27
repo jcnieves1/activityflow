@@ -407,12 +407,14 @@ Mapped to the acceptance criteria. Run through this after installation
 - [ ] As an Administrator, open Administration → Releases and create a new
       release with a name, description, start date, and launch (end) date
       spanning at least a few weeks — confirm it's rejected if the launch
-      date is before the start date, or if the span is under 4 days (each
-      of the 4 default phases needs at least one day).
-- [ ] After creating a release, open its Manage page — confirm 4 phases
-      (Design, Build, UAT, MTP, in that order) were created automatically,
-      their dates are contiguous with no gaps or overlaps, the first phase
-      starts on the release's start date, and the last phase ends on the
+      date is before the start date, or if the span is under 8 days (each
+      of the 8 default phases needs at least one day).
+- [ ] After creating a release, open its Manage page — confirm 8 phases
+      (Grooming and BRD, FDS and TDS, Scope Commit, Build, SIT, UAT and
+      L&P, Code Freeze, MTP, in that order — or whatever is currently
+      configured in Administration → Release Phase Templates) were created
+      automatically, their dates are contiguous with no gaps or overlaps,
+      the first phase starts on the release's start date, and the last phase ends on the
       release's launch date.
 - [ ] Edit a phase's dates to a new range still inside the release's
       start/launch window and not overlapping any other phase — confirm it
@@ -451,6 +453,41 @@ Mapped to the acceptance criteria. Run through this after installation
       read-only "Release: <name>" badge — for non-admins this badge should
       not be a clickable link (since the admin Releases pages are
       Administrator-only).
+
+## Release phase templates (admin)
+
+- [ ] As an Administrator, open Administration → Release Phase Templates —
+      confirm the 8 defaults (Grooming and BRD, FDS and TDS, Scope Commit,
+      Build, SIT, UAT and L&P, Code Freeze, MTP) appear in that order.
+- [ ] Rename a default phase (e.g. "SIT" → "System Integration Testing")
+      and save — confirm the new name appears in the list, but any
+      already-created release's existing phases (from before the rename)
+      keep their original names unchanged.
+- [ ] Use the up/down arrows to reorder a phase — confirm the list re-sorts
+      and the position numbers update; confirm the arrows are disabled (or
+      no-op) at the very top and bottom of the list.
+- [ ] Add a new default phase (e.g. "Hypercare") — confirm it's appended to
+      the end of the list and that creating a new release afterward
+      includes it as one of the auto-generated phases, in its position in
+      the list.
+- [ ] Delete a default phase — confirm it disappears from the list and
+      that creating a new release afterward no longer includes it, while
+      any release created *before* the deletion is completely unaffected.
+- [ ] Try adding two default phases with the same name (case-insensitive) —
+      confirm it's rejected with a clear error.
+- [ ] Open Administration → Releases' "Add release" dialog — confirm the
+      hint text under the date fields lists the exact current default
+      phase names in order, and includes a link to manage them.
+- [ ] Delete every default phase, then create a new release — confirm it's
+      accepted (minimum span drops to 1 day) and the release ends up with
+      zero phases; confirm the "Add release" dialog's hint reflects that no
+      defaults are configured and phases must be added manually to the
+      release afterward. Restore the defaults afterward for the rest of
+      testing.
+- [ ] As a non-Administrator (Project Manager, Employee, Viewer), confirm
+      Administration → Release Phase Templates is not reachable
+      (redirect/deny), and a direct API call to any
+      release_phase_template_* admin action is rejected.
 
 ## Authorization boundaries
 

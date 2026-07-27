@@ -221,6 +221,43 @@ if ($method === 'POST') {
         }
         json_response(['ok' => true]);
     }
+
+    if ($action === 'release_phase_template_save') {
+        $id = (int)($data['id'] ?? 0);
+        $name = (string)($data['name'] ?? '');
+        try {
+            $template = $id ? update_release_phase_template($id, $name) : create_release_phase_template($name);
+        } catch (InvalidArgumentException $e) {
+            json_error($e->getMessage());
+        } catch (RuntimeException $e) {
+            json_error($e->getMessage(), 404);
+        }
+        json_response(['ok' => true, 'template' => $template]);
+    }
+
+    if ($action === 'release_phase_template_delete') {
+        $id = (int)($data['id'] ?? 0);
+        try {
+            delete_release_phase_template($id);
+        } catch (RuntimeException $e) {
+            json_error($e->getMessage(), 404);
+        }
+        json_response(['ok' => true]);
+    }
+
+    if ($action === 'release_phase_template_move') {
+        $id = (int)($data['id'] ?? 0);
+        $direction = (string)($data['direction'] ?? '');
+        if (!in_array($direction, ['up', 'down'], true)) {
+            json_error('Invalid direction.');
+        }
+        try {
+            move_release_phase_template($id, $direction);
+        } catch (RuntimeException $e) {
+            json_error($e->getMessage(), 404);
+        }
+        json_response(['ok' => true, 'templates' => list_release_phase_templates()]);
+    }
 }
 
 json_error('Unknown action.', 404);

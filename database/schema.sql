@@ -99,7 +99,22 @@ CREATE TABLE releases (
     CONSTRAINT fk_releases_created_by FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
--- Design/Build/UAT/MTP are auto-created (in that order, with dates evenly
+-- Admin-manageable list of default phase names (Administration → Release
+-- Phase Templates), applied in order whenever a new release is created —
+-- see includes/models/release_phase_templates.php and
+-- includes/models/releases.php's generate_default_phases(). Changing this
+-- list only affects releases created afterward; it has no relationship to
+-- release_phases below beyond being copied into it at creation time.
+CREATE TABLE release_phase_templates (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(80) NOT NULL,
+    sort_order INT NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_release_phase_template_name (name)
+) ENGINE=InnoDB;
+
+-- A release's actual phases, auto-created (in the order and using the names
+-- configured in release_phase_templates at the time, with dates evenly
 -- split across the release's start/end) the moment a release is created —
 -- see includes/models/releases.php's generate_default_phases(). Admins can
 -- freely rename, re-date, add, or remove phases afterward; the app enforces

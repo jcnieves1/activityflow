@@ -4,8 +4,9 @@ declare(strict_types=1);
 /**
  * Releases (Administration → Releases): a company launch made up of several
  * project executions. Each release has its own start_date/end_date (the
- * "launch date"), a set of chronological phases (release_phases — Design,
- * Build, UAT, MTP by default, auto-generated on create; see
+ * "launch date"), a set of chronological phases (release_phases — named and
+ * ordered from the admin-manageable release_phase_templates list at the
+ * moment of creation; see includes/models/release_phase_templates.php and
  * generate_default_phases()), and zero or more associated projects. A
  * project belongs to at most one release at a time (projects.release_id).
  *
@@ -15,9 +16,6 @@ declare(strict_types=1);
  * also used to show a project's release read-only to any role that can view
  * the project, so nothing in this file itself enforces permissions.
  */
-
-const RELEASE_DEFAULT_PHASE_NAMES = ['Design', 'Build', 'UAT', 'MTP'];
-const RELEASE_MIN_DAYS = 4; // must equal count(RELEASE_DEFAULT_PHASE_NAMES) — each default phase needs >= 1 day
 
 function list_releases(): array
 {
@@ -37,7 +35,16 @@ function get_release(int $id): ?array
     return $row ?: null;
 }
 
-/** Basic start<=end and non-empty validation shared by create/update. */
+/**
+ * Basic start<=end and non-empty validation shared by create/update, plus a
+ * minimum-span check sized to however many default phase templates are
+ * currently configured (each needs at least one day) — so this scales
+ * automatically as admins add/remove entries in Administration → Release
+ * Phase Templates, rather than assuming a fixed phase count. If the
+ * template list is ever emptied entirely, the minimum degrades to 1 day
+ * (just start<=end), since generate_default_phases() then creates no phases
+ * at all.
+ */
 function validate_release_dates(string $start, string $end): void
 {
     if ($start === '' || $end === '') {
@@ -47,10 +54,13 @@ function validate_release_dates(string $start, string $end): void
         throw new InvalidArgumentException('The start date must be on or before the launch date.');
     }
     $totalDays = (new DateTimeImmutable($start))->diff(new DateTimeImmutable($end))->days + 1;
-    if ($totalDays < RELEASE_MIN_DAYS) {
+    $templateNames = array_column(list_release_phase_templates(), 'name');
+    $minDays = max(1, count($templateNames));
+    if ($totalDays < $minDays) {
         throw new InvalidArgumentException(
-            'The release must span at least ' . RELEASE_MIN_DAYS . ' days, so each of its default phases (' .
-            implode(', ', RELEASE_DEFAULT_PHASE_NAMES) . ') can have at least one day.'
+            'The release must span at least ' . $minDays . ' day' . ($minDays === 1 ? '' : 's') .
+            ', so each of its ' . count($templateNames) . ' default phase' . (count($templateNames) === 1 ? '' : 's') .
+            ' (' . implode(', ', $templateNames) . ') can have at least one day.'
         );
     }
 }
@@ -151,16 +161,24 @@ function get_release_phase(int $id): ?array
 }
 
 /**
- * Splits a release's [start,end] window into count(RELEASE_DEFAULT_PHASE_NAMES)
- * contiguous, non-overlapping day ranges (Design, Build, UAT, MTP, in that
- * order) as a starting point — the largest-remainder method distributes any
+ * Splits a release's [start,end] window into contiguous, non-overlapping
+ * day ranges named and ordered from the current
+ * Administration → Release Phase Templates list (release_phase_templates)
+ * as a starting point — the largest-remainder method distributes any
  * leftover days to the earliest phases so every day in the release is
  * covered exactly once. Admins can freely re-date, rename, add to, or remove
- * from this set afterward via update/create/delete_release_phase().
+ * from this set afterward via update/create/delete_release_phase(), and
+ * changing the template list itself only affects releases created after
+ * that change. If the template list is empty, no phases are created at all
+ * — the release simply starts with none, and admins can add phases to it
+ * manually via create_release_phase().
  */
 function generate_default_phases(int $releaseId, string $startDate, string $endDate): void
 {
-    $names = RELEASE_DEFAULT_PHASE_NAMES;
+    $names = array_column(list_release_phase_templates(), 'name');
+    if (!$names) {
+        return;
+    }
     $count = count($names);
     $start = new DateTimeImmutable($startDate);
     $end = new DateTimeImmutable($endDate);

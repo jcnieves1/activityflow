@@ -5,6 +5,7 @@ require_login();
 require_role([ROLE_ADMIN]);
 
 $releases = list_releases();
+$defaultPhaseNames = array_column(list_release_phase_templates(), 'name');
 
 $pageTitle = t('admin.releases_title');
 $activeNav = 'admin_releases';
@@ -74,7 +75,14 @@ require __DIR__ . '/../includes/layout_header.php';
           <input type="date" class="form-control" name="end_date" id="release_end_date_input" required>
         </div>
       </div>
-      <div class="form-text" id="releaseDatesHint"><?= e(t('admin.release_dates_hint')) ?></div>
+      <div class="form-text" id="releaseDatesHint">
+        <?= $defaultPhaseNames
+              ? e(t('admin.release_dates_hint', ['phases' => implode(', ', $defaultPhaseNames)]))
+              : e(t('admin.release_dates_hint_none')) ?>
+        <?php if (is_admin()): ?>
+          <a href="<?= e(base_url('admin/release_phase_templates.php')) ?>"><?= e(t('admin.manage_default_phases_link')) ?></a>
+        <?php endif; ?>
+      </div>
     </div>
     <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><?= e(t('common.cancel')) ?></button><button class="btn btn-primary"><?= e(t('common.save')) ?></button></div>
   </form>

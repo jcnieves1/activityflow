@@ -57,6 +57,19 @@ INSERT INTO request_channels (slug, label, sort_order, is_system) VALUES
  ('self_initiated', 'Self-initiated', 90, 0),
  ('other', 'Other', 100, 0);
 
+-- Release phase templates -------------------------------------------------
+-- Applied, in this order, whenever a new release is created; see
+-- includes/models/release_phase_templates.php and admin/release_phase_templates.php.
+INSERT INTO release_phase_templates (name, sort_order) VALUES
+ ('Grooming and BRD', 10),
+ ('FDS and TDS', 20),
+ ('Scope Commit', 30),
+ ('Build', 40),
+ ('SIT', 50),
+ ('UAT and L&P', 60),
+ ('Code Freeze', 70),
+ ('MTP', 80);
+
 -- People (requesters / employees / stakeholders) ------------------------
 -- department_id: 1 Engineering, 2 Support, 3 Product, 4 Sales, 5 Operations
 INSERT INTO people (id, full_name, job_title, department_id, organization, org_role, email, phone, manager_id, is_active, notes) VALUES
