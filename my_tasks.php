@@ -21,7 +21,11 @@ $vacationConflicts = bulk_activity_vacation_conflicts(array_column($activities, 
 $pageTitle = t('nav.my_tasks');
 $activeNav = 'my_tasks';
 $breadcrumbs = [['label' => t('nav.my_tasks')]];
-$pageScripts = [base_url('assets/js/activities.js'), base_url('assets/js/my_tasks.js')];
+$pageStyles = ['https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css'];
+$pageScripts = [
+    'https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js',
+    base_url('assets/js/activities.js'), base_url('assets/js/my_tasks.js'),
+];
 require __DIR__ . '/includes/layout_header.php';
 require __DIR__ . '/includes/activity_modal.php';
 ?>

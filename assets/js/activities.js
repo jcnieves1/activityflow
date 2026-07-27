@@ -13,6 +13,26 @@ window.afActivities = (function () {
 
   const API = () => window.AF_BASE_URL + 'api/activities.php';
 
+  // ---- Rich text description ----
+  // Unlike the New/Edit Project modals (each initialized once over a
+  // textarea that only ever describes one, page-load-fixed project), this
+  // same modal — and the same underlying textarea/Quill instance — gets
+  // reused for potentially many different tasks in one page session
+  // (opening task A, closing, opening task B, opening Create, etc.).
+  // afInitRichText() only syncs Quill -> textarea (on the user typing,
+  // via its 'text-change' listener); it has no way to notice the textarea's
+  // .value being reassigned programmatically. So every place that used to
+  // just set the textarea's value now goes through setDescriptionHtml()
+  // instead, which pushes the new HTML into the live Quill instance too
+  // (mirroring how afInitRichText() itself seeds Quill's very first
+  // content from the textarea at init time: `quill.root.innerHTML = ...`).
+  const descriptionQuill = window.afInitRichText && window.afInitRichText('am_description');
+  function setDescriptionHtml(html) {
+    const textarea = document.getElementById('am_description');
+    if (textarea) textarea.value = html || '';
+    if (descriptionQuill) descriptionQuill.root.innerHTML = html || '';
+  }
+
   // Picking a new day from the native datetime-local calendar widget shouldn't
   // force the user to also manually reset the hour every time — Planned start
   // defaults to 9:00 AM and Target completion to 5:00 PM whenever the DATE
@@ -142,6 +162,7 @@ window.afActivities = (function () {
 
   function reset() {
     form.reset();
+    setDescriptionHtml('');
     currentId = null;
     document.getElementById('am_id').value = '';
     document.getElementById('activityModalTitle').textContent = 'New planned activity';
@@ -209,7 +230,7 @@ window.afActivities = (function () {
   function fillForm(a) {
     document.getElementById('am_id').value = a.id;
     document.getElementById('am_title').value = a.title || '';
-    document.getElementById('am_description').value = a.description || '';
+    setDescriptionHtml(a.description || '');
     document.getElementById('am_project_id').value = a.project_id || '';
     document.getElementById('am_category_id').value = a.category_id || '';
     document.getElementById('am_assignee_id').value = a.assignee_id || '';

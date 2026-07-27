@@ -27,7 +27,11 @@ $remaining = max(0, $capacityMinutes - $usedMinutes);
 $pageTitle = t('nav.my_day');
 $activeNav = 'my_day';
 $breadcrumbs = [['label' => t('nav.my_day')]];
-$pageScripts = [base_url('assets/js/activities.js'), base_url('assets/js/my_day.js')];
+$pageStyles = ['https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css'];
+$pageScripts = [
+    'https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js',
+    base_url('assets/js/activities.js'), base_url('assets/js/my_day.js'),
+];
 require __DIR__ . '/includes/layout_header.php';
 require __DIR__ . '/includes/activity_modal.php';
 ?>

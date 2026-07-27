@@ -16,8 +16,10 @@ foreach ($people as $p) {
 $pageTitle = t('nav.vacations');
 $activeNav = 'vacations';
 $breadcrumbs = [['label' => t('nav.vacations')]];
+$pageStyles = ['https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css'];
 $pageScripts = [
     'https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.15/index.global.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js',
     base_url('assets/js/activities.js'),
     base_url('assets/js/vacations.js'),
 ];

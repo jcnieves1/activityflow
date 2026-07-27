@@ -9,8 +9,10 @@ $projects = list_projects(['is_archived' => 0]);
 $pageTitle = t('nav.calendar');
 $activeNav = 'calendar';
 $breadcrumbs = [['label' => t('nav.calendar')]];
+$pageStyles = ['https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css'];
 $pageScripts = [
     'https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.15/index.global.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js',
     base_url('assets/js/activities.js'),
     base_url('assets/js/calendar.js'),
 ];

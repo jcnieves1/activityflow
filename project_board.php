@@ -31,7 +31,11 @@ $displayStatuses = $selectedStatuses ?: $allStatusSlugs;
 $pageTitle = t('board.title', ['name' => $project['name']]);
 $activeNav = 'projects';
 $breadcrumbs = [['label' => t('projects.title'), 'url' => base_url('projects.php')], ['label' => $project['name'], 'url' => base_url('project_detail.php?id=' . $projectId)], ['label' => t('pd.task_board')]];
-$pageScripts = [base_url('assets/js/activities.js'), base_url('assets/js/project_board.js')];
+$pageStyles = ['https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css'];
+$pageScripts = [
+    'https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js',
+    base_url('assets/js/activities.js'), base_url('assets/js/project_board.js'),
+];
 require __DIR__ . '/includes/layout_header.php';
 require __DIR__ . '/includes/activity_modal.php';
 ?>

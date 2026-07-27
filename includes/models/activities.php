@@ -180,6 +180,10 @@ function create_activity(array $data, string $activityType, int $createdByUserId
 {
     $status = $data['status'] ?? ($activityType === 'unplanned' ? 'in_progress' : 'planned');
     $requestedAt = $data['requested_at'] ?? now();
+    // Description comes from a rich-text (WYSIWYG) editor — sanitize to a small
+    // allow-list of tags before it ever touches the database, so it's always
+    // safe to echo back out directly (see sanitize_html() in functions.php).
+    $data['description'] = sanitize_html($data['description'] ?? null);
 
     $stmt = db()->prepare(
         'INSERT INTO activities
@@ -299,6 +303,7 @@ function update_activity(int $id, array $data): void
     if ((int)$parentId === (int)$id) {
         $parentId = null; // a task cannot be its own parent
     }
+    $data['description'] = sanitize_html($data['description'] ?? null);
 
     $stmt = db()->prepare(
         'UPDATE activities SET title=?, description=?, project_id=?, parent_activity_id=?, assignee_id=?, requester_id=?,

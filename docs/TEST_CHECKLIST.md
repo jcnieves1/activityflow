@@ -545,6 +545,34 @@ Mapped to the acceptance criteria. Run through this after installation
       a low-priority edge case, but confirm nothing on the Vacations page
       errors out if a vacation's person is no longer active.
 
+## Task description rich text
+
+- [ ] Open the New Task dialog from My Tasks, Team Activities, the Task
+      Board, Calendar, My Day, or Vacations' conflicts list — confirm the
+      Description field renders as a Quill WYSIWYG toolbar/editor (bold,
+      italic, underline, strike, headers, ordered/bullet lists, blockquote,
+      link) rather than a plain textarea, on every one of those pages.
+- [ ] Format some description text (e.g. a bold word, a bullet list, a
+      link), save the task, and reopen it — confirm the formatting is
+      preserved exactly as entered.
+- [ ] Open task A (with a rich-text description), close the dialog without
+      saving, then open a *different* task B — confirm task B's editor
+      shows B's own description, not a leftover copy of A's (this is the
+      main risk with reusing one modal/editor instance across many tasks).
+- [ ] Open the New Task dialog after having just viewed an existing task —
+      confirm the description editor starts empty, not carrying over the
+      previous task's content.
+- [ ] Attempt to submit a description containing a `<script>` tag or an
+      `onerror=` attribute (e.g. by pasting raw HTML) — confirm it's
+      stripped down to the safe allow-list of tags on save (same
+      sanitize_html() allow-list already used for project descriptions) and
+      never executes when the task is reopened.
+- [ ] Clone or move a task that has a rich-text description — confirm the
+      formatting carries over intact to the new/destination task.
+- [ ] With the Quill CDN blocked (e.g. via browser dev tools' network
+      blocking), confirm the Description field falls back to a plain,
+      fully-functional textarea instead of breaking the dialog.
+
 ## Authorization boundaries
 
 - [ ] As an Employee, confirm Admin pages (`admin/*.php`, `audit_log.php`)
