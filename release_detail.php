@@ -94,7 +94,7 @@ require __DIR__ . '/includes/layout_header.php';
     <tbody>
     <?php foreach ($projectsInRelease as $p): ?>
       <tr>
-        <td class="fw-semibold"><?= e($p['name']) ?> <span class="text-muted small">(<?= e($p['code']) ?>)</span></td>
+        <td class="fw-semibold"><a href="<?= e(base_url('project_detail.php?id=' . (int)$p['id'])) ?>" class="text-decoration-none"><?= e($p['name']) ?></a> <span class="text-muted small">(<?= e($p['code']) ?>)</span></td>
         <td><?= e($p['owner_name'] ?? '—') ?></td>
         <td class="text-end">
           <?php if (is_admin()): ?>
