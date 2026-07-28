@@ -25,7 +25,7 @@ function can_view_workload(): bool
  * }
  * @return array<int, array{person_id:int, person_name:string, job_title:string,
  *   task_count:int, tasks: array<int, array{id:int,title:string,project_name:?string,
- *   status:string,priority:string,activity_type:string}>}>
+ *   status:string,priority:string,activity_type:string,completion_pct:int}>}>
  */
 function workload_summary(array $filters = []): array
 {
@@ -53,7 +53,7 @@ function workload_summary(array $filters = []): array
 
     $rosterIds = array_map('intval', array_column($people, 'id'));
     $ph = implode(',', array_fill(0, count($rosterIds), '?'));
-    $sql = "SELECT a.id, a.title, a.assignee_id, a.status, a.priority, a.activity_type,
+    $sql = "SELECT a.id, a.title, a.assignee_id, a.status, a.priority, a.activity_type, a.completion_pct,
                    pr.name AS project_name
             FROM activities a
             LEFT JOIN projects pr ON pr.id = a.project_id
@@ -95,6 +95,7 @@ function workload_summary(array $filters = []): array
             'status' => $t['status'],
             'priority' => $t['priority'],
             'activity_type' => $t['activity_type'],
+            'completion_pct' => (int)$t['completion_pct'],
         ];
     }
 

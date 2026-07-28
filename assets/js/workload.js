@@ -57,11 +57,18 @@
 
   function taskRowHtml(t) {
     const projectLabel = t.project_name ? afEscapeHtml(t.project_name) : `<span class="text-muted">${afEscapeHtml(i18n.noProject || 'No project')}</span>`;
+    const pct = Number(t.completion_pct) || 0;
     return `
       <div class="d-flex justify-content-between align-items-center border-top py-2">
-        <div>
+        <div class="flex-grow-1 me-3">
           <div class="fw-semibold"><a href="#" class="text-reset text-decoration-none" onclick="event.preventDefault(); afActivities.openEdit(${t.id})">${afEscapeHtml(t.title)}</a></div>
           <div class="small text-muted">${projectLabel} · <span class="badge ${statusBadgeClass(t.status)}">${afEscapeHtml(statusLabelFor(t.status))}</span></div>
+          <div class="d-flex align-items-center gap-2 mt-1" style="max-width:200px;">
+            <div class="progress flex-grow-1" style="height:5px;">
+              <div class="progress-bar" role="progressbar" style="width:${pct}%;" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <span class="small text-muted">${pct}%</span>
+          </div>
         </div>
         <button type="button" class="btn btn-sm btn-outline-secondary" onclick="afActivities.openEdit(${t.id})">${afEscapeHtml(i18n.open || 'Open')}</button>
       </div>`;
