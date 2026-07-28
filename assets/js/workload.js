@@ -60,7 +60,7 @@
     return `
       <div class="d-flex justify-content-between align-items-center border-top py-2">
         <div>
-          <div class="fw-semibold">${afEscapeHtml(t.title)}</div>
+          <div class="fw-semibold"><a href="#" class="text-reset text-decoration-none" onclick="event.preventDefault(); afActivities.openEdit(${t.id})">${afEscapeHtml(t.title)}</a></div>
           <div class="small text-muted">${projectLabel} · <span class="badge ${statusBadgeClass(t.status)}">${afEscapeHtml(statusLabelFor(t.status))}</span></div>
         </div>
         <button type="button" class="btn btn-sm btn-outline-secondary" onclick="afActivities.openEdit(${t.id})">${afEscapeHtml(i18n.open || 'Open')}</button>
