@@ -294,6 +294,7 @@ CREATE TABLE activities (
     reclassified_by INT UNSIGNED DEFAULT NULL,
     reclassification_reason TEXT,
     is_milestone TINYINT(1) NOT NULL DEFAULT 0,
+    is_issue TINYINT(1) NOT NULL DEFAULT 0,
     sort_order INT NOT NULL DEFAULT 0,
     is_active TINYINT(1) NOT NULL DEFAULT 1,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

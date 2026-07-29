@@ -21,11 +21,12 @@ function can_view_workload(): bool
  *   status_in?: string[]  Task status slugs to include. Empty/absent = every status.
  *   date_from?: string    'Y-m-d'. A task is included if its effective end is on/after this date.
  *   date_to?: string      'Y-m-d'. A task is included if its effective start is on/before this date.
+ *   is_issue?: string     '1' to show only tasks tagged as an issue, '0' for only non-issues, '' or absent = both.
  *   order?: string        'asc' (least busy first) or 'desc' (most busy first). Default 'asc'.
  * }
  * @return array<int, array{person_id:int, person_name:string, job_title:string,
  *   task_count:int, tasks: array<int, array{id:int,title:string,project_name:?string,
- *   status:string,priority:string,activity_type:string,completion_pct:int}>}>
+ *   status:string,priority:string,activity_type:string,completion_pct:int,is_issue:bool}>}>
  */
 function workload_summary(array $filters = []): array
 {
@@ -33,6 +34,7 @@ function workload_summary(array $filters = []): array
     $statusSlugs = $filters['status_in'] ?? [];
     $dateFrom = trim((string)($filters['date_from'] ?? ''));
     $dateTo = trim((string)($filters['date_to'] ?? ''));
+    $isIssue = $filters['is_issue'] ?? '';
     $order = (strtolower((string)($filters['order'] ?? 'asc')) === 'desc') ? 'DESC' : 'ASC';
 
     // Roster: an explicit selection, or every active person — either way, everyone
@@ -53,7 +55,7 @@ function workload_summary(array $filters = []): array
 
     $rosterIds = array_map('intval', array_column($people, 'id'));
     $ph = implode(',', array_fill(0, count($rosterIds), '?'));
-    $sql = "SELECT a.id, a.title, a.assignee_id, a.status, a.priority, a.activity_type, a.completion_pct,
+    $sql = "SELECT a.id, a.title, a.assignee_id, a.status, a.priority, a.activity_type, a.completion_pct, a.is_issue,
                    pr.name AS project_name
             FROM activities a
             LEFT JOIN projects pr ON pr.id = a.project_id
@@ -67,6 +69,10 @@ function workload_summary(array $filters = []): array
             $sql .= " AND a.status IN ($sph)";
             array_push($params, ...$validStatuses);
         }
+    }
+    if ($isIssue !== '') {
+        $sql .= ' AND a.is_issue = ?';
+        $params[] = (int)$isIssue;
     }
     // Overlap test against the selected time frame, mirroring the vacation
     // overlap check (find_overlapping_vacation()): a task counts if its
@@ -96,6 +102,7 @@ function workload_summary(array $filters = []): array
             'priority' => $t['priority'],
             'activity_type' => $t['activity_type'],
             'completion_pct' => (int)$t['completion_pct'],
+            'is_issue' => (bool)$t['is_issue'],
         ];
     }
 

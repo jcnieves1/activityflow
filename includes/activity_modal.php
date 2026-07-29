@@ -103,6 +103,10 @@ foreach ($amProjectMemberIds as $projId => $memberIds) {
               <input type="checkbox" class="form-check-input" name="is_milestone" id="am_is_milestone" value="1">
               <label class="form-check-label" for="am_is_milestone"><?= e(t('activity.field_milestone')) ?></label>
             </div>
+            <div class="mb-2 form-check">
+              <input type="checkbox" class="form-check-input" name="is_issue" id="am_is_issue" value="1">
+              <label class="form-check-label" for="am_is_issue"><?= e(t('activity.field_issue')) ?></label>
+            </div>
             <div class="row" id="am_repeat_block">
               <div class="col-md-6 mb-2"><label class="form-label"><?= e(t('activity.field_repeat')) ?></label>
                 <select class="form-select" name="repeat_frequency" id="am_repeat_frequency">

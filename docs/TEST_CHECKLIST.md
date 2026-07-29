@@ -683,6 +683,38 @@ Mapped to the acceptance criteria. Run through this after installation
 - [ ] Confirm switching the app language changes all Workload page labels
       (filters, sort options, empty states) to Spanish.
 
+## Task "Is this an Issue?" flag
+
+- [ ] Open the New Task dialog from any page — confirm the "Is this an
+      Issue?" checkbox is present and unchecked by default.
+- [ ] Check "Is this an Issue?", save the task, and reopen it — confirm the
+      checkbox is still checked.
+- [ ] Edit an existing task that is NOT tagged as an issue, check the box,
+      and save — confirm it's now tagged; uncheck and save again — confirm
+      it's no longer tagged (the flag isn't sticky/one-way).
+- [ ] Clone a task tagged as an issue — confirm the new copy is also tagged
+      as an issue. Clone a non-issue task — confirm the copy is not tagged.
+- [ ] On My Tasks, Team Activities, and the Task Board, confirm a task
+      tagged as an issue shows a red exclamation-octagon icon next to its
+      title (alongside the existing milestone/interrupted/vacation-conflict
+      icons where applicable), with a tooltip identifying it as an issue.
+- [ ] On the Workload report, confirm a task tagged as an issue shows a red
+      "Issue" badge next to its title.
+- [ ] On My Tasks, use the new Issue filter (All / Issues only / Non-issues
+      only) — confirm selecting "Issues only" shows only tagged tasks and
+      "Non-issues only" excludes them, combined correctly with the other
+      filters (status, type, priority, project, search).
+- [ ] Repeat the Issue filter check on Team Activities.
+- [ ] On the Task Board, toggle the "Issues only" switch — confirm the
+      board narrows to just issue-tagged tasks across all status columns,
+      and toggling it off restores the full board. Confirm it works
+      together with the existing member/status filters.
+- [ ] On the Workload report, set the Issue filter to "Issues only" —
+      confirm each person's task list and count reflect only their
+      issue-tagged tasks; "Non-issues only" excludes them.
+- [ ] Confirm switching the app language changes the checkbox label, filter
+      option text, and tooltip to Spanish.
+
 ## Authorization boundaries
 
 - [ ] As an Employee, confirm Admin pages (`admin/*.php`, `audit_log.php`)

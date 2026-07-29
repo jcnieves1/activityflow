@@ -82,6 +82,14 @@ require __DIR__ . '/includes/activity_modal.php';
       <input type="date" class="form-control" id="wlDateTo">
     </div>
     <div class="col-md-2">
+      <label class="form-label small mb-0"><?= e(t('workload.field_issue')) ?></label>
+      <select class="form-select" id="wlIssueFilter">
+        <option value=""><?= e(t('common.all')) ?></option>
+        <option value="1"><?= e(t('tasks.issues_only')) ?></option>
+        <option value="0"><?= e(t('tasks.non_issues_only')) ?></option>
+      </select>
+    </div>
+    <div class="col-md-2">
       <label class="form-label small mb-0"><?= e(t('workload.field_sort')) ?></label>
       <select class="form-select" id="wlSortOrder">
         <option value="asc"><?= e(t('workload.sort_least_busy')) ?></option>
@@ -103,7 +111,8 @@ window.AF_I18N_WORKLOAD = {
   taskPlural: <?= json_encode(t('workload.task_plural')) ?>,
   noTasks: <?= json_encode(t('workload.no_tasks_in_range')) ?>,
   open: <?= json_encode(t('common.open')) ?>,
-  noProject: <?= json_encode(t('tasks.no_project')) ?>
+  noProject: <?= json_encode(t('tasks.no_project')) ?>,
+  issueBadge: <?= json_encode(t('workload.issue_badge')) ?>
 };
 </script>
 <?php require __DIR__ . '/includes/layout_footer.php'; ?>

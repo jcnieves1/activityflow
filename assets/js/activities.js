@@ -268,6 +268,7 @@ window.afActivities = (function () {
     document.getElementById('am_request_channel').value = a.request_channel || '';
     document.getElementById('am_tags').value = (a.tags || []).join(', ');
     document.getElementById('am_is_milestone').checked = !!Number(a.is_milestone);
+    document.getElementById('am_is_issue').checked = !!Number(a.is_issue);
     document.getElementById('am_notes').value = a.notes || '';
     document.getElementById('am_status').value = a.status;
     document.getElementById('am_completion_pct').value = a.completion_pct;
@@ -425,6 +426,7 @@ window.afActivities = (function () {
   function save() {
     const data = Object.fromEntries(new FormData(form).entries());
     data.is_milestone = form.querySelector('[name=is_milestone]').checked ? 1 : 0;
+    data.is_issue = form.querySelector('[name=is_issue]').checked ? 1 : 0;
     data.tags = data.tags ? data.tags.split(',').map((t) => t.trim()).filter(Boolean) : [];
     // The form collects estimated effort in hours (as a float, e.g. 1.5) but the API/DB
     // store it as whole minutes — convert at the boundary and drop the hours field so it

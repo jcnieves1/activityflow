@@ -12,6 +12,7 @@ $filters = [
     'priority' => $_GET['priority'] ?? '',
     'date_from' => $_GET['date_from'] ?? '',
     'date_to' => $_GET['date_to'] ?? '',
+    'is_issue' => $_GET['is_issue'] ?? '',
     'search' => $_GET['search'] ?? '',
     'limit' => 300,
     'order_by' => 'a.created_at DESC',
@@ -64,6 +65,10 @@ require __DIR__ . '/includes/activity_modal.php';
   </select></div>
   <div class="col-md-2"><input type="date" class="form-control" name="date_from" value="<?= e($_GET['date_from'] ?? '') ?>"></div>
   <div class="col-md-2"><input type="date" class="form-control" name="date_to" value="<?= e($_GET['date_to'] ?? '') ?>"></div>
+  <div class="col-md-2"><select class="form-select" name="is_issue"><option value=""><?= e(t('common.all')) ?></option>
+    <option value="1" <?= ($_GET['is_issue'] ?? '') === '1' ? 'selected' : '' ?>><?= e(t('tasks.issues_only')) ?></option>
+    <option value="0" <?= ($_GET['is_issue'] ?? '') === '0' ? 'selected' : '' ?>><?= e(t('tasks.non_issues_only')) ?></option>
+  </select></div>
   <div class="col-md-2"><button class="btn btn-outline-secondary w-100"><?= e(t('common.filter')) ?></button></div>
 </form>
 
@@ -81,7 +86,7 @@ require __DIR__ . '/includes/activity_modal.php';
       <?php foreach ($all as $a): ?>
         <tr>
           <td><input type="checkbox" class="af-task-select" value="<?= (int)$a['id'] ?>" aria-label="<?= e(t('tasks.select_task')) ?>"></td>
-          <td class="fw-semibold"><?= e($a['title']) ?><?= isset($vacationConflicts[(int)$a['id']]) ? ' <i class="bi bi-airplane-engines-fill text-danger" title="' . e(t('tasks.vacation_conflict_tooltip')) . '"></i>' : '' ?></td>
+          <td class="fw-semibold"><?= e($a['title']) ?><?= $a['is_issue'] ? ' <i class="bi bi-exclamation-octagon-fill text-danger" title="' . e(t('tasks.issue_tooltip')) . '"></i>' : '' ?><?= isset($vacationConflicts[(int)$a['id']]) ? ' <i class="bi bi-airplane-engines-fill text-danger" title="' . e(t('tasks.vacation_conflict_tooltip')) . '"></i>' : '' ?></td>
           <td><?= activity_type_badge($a['activity_type']) ?></td>
           <td><?= e($a['assignee_name']) ?></td>
           <td><?= e($a['requester_name']) ?></td>

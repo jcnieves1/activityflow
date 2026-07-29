@@ -61,7 +61,7 @@
     return `
       <div class="d-flex justify-content-between align-items-center border-top py-2">
         <div class="flex-grow-1 me-3">
-          <div class="fw-semibold"><a href="#" class="text-reset text-decoration-none" onclick="event.preventDefault(); afActivities.openEdit(${t.id})">${afEscapeHtml(t.title)}</a></div>
+          <div class="fw-semibold"><a href="#" class="text-reset text-decoration-none" onclick="event.preventDefault(); afActivities.openEdit(${t.id})">${afEscapeHtml(t.title)}</a>${t.is_issue ? ` <span class="badge bg-danger"><i class="bi bi-exclamation-octagon-fill"></i> ${afEscapeHtml(i18n.issueBadge || 'Issue')}</span>` : ''}</div>
           <div class="small text-muted">${projectLabel} · <span class="badge ${statusBadgeClass(t.status)}">${afEscapeHtml(statusLabelFor(t.status))}</span></div>
           <div class="d-flex align-items-center gap-2 mt-1" style="max-width:200px;">
             <div class="progress flex-grow-1" style="height:5px;">
@@ -122,6 +122,7 @@
       action: 'summary',
       date_from: document.getElementById('wlDateFrom').value,
       date_to: document.getElementById('wlDateTo').value,
+      is_issue: document.getElementById('wlIssueFilter').value,
       order: document.getElementById('wlSortOrder').value,
     });
     peopleGroup.selectedValues().forEach((id) => params.append('person_id[]', id));

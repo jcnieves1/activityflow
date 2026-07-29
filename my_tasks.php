@@ -10,6 +10,7 @@ $filters = [
     'activity_type' => $_GET['activity_type'] ?? '',
     'priority' => $_GET['priority'] ?? '',
     'project_id' => $_GET['project_id'] ?? '',
+    'is_issue' => $_GET['is_issue'] ?? '',
     'search' => $_GET['search'] ?? '',
     'order_by' => 'FIELD(a.status,"in_progress","blocked","ready","planned","backlog","waiting","completed","cancelled"), a.target_completion_at IS NULL, a.target_completion_at',
 ];
@@ -61,6 +62,12 @@ require __DIR__ . '/includes/activity_modal.php';
       <?php foreach ($projects as $p): ?><option value="<?= (int)$p['id'] ?>" <?= (string)($_GET['project_id'] ?? '') === (string)$p['id'] ? 'selected' : '' ?>><?= e($p['name']) ?></option><?php endforeach; ?>
     </select>
   </div>
+  <div class="col-md-2">
+    <select class="form-select" name="is_issue"><option value=""><?= e(t('common.all')) ?></option>
+      <option value="1" <?= ($_GET['is_issue'] ?? '') === '1' ? 'selected' : '' ?>><?= e(t('tasks.issues_only')) ?></option>
+      <option value="0" <?= ($_GET['is_issue'] ?? '') === '0' ? 'selected' : '' ?>><?= e(t('tasks.non_issues_only')) ?></option>
+    </select>
+  </div>
   <div class="col-md-1"><button class="btn btn-outline-secondary w-100"><?= e(t('tasks.go')) ?></button></div>
 </form>
 
@@ -78,7 +85,7 @@ require __DIR__ . '/includes/activity_modal.php';
       <?php foreach ($activities as $a): ?>
         <tr>
           <td><input type="checkbox" class="af-task-select" value="<?= (int)$a['id'] ?>" aria-label="<?= e(t('tasks.select_task')) ?>"></td>
-          <td class="fw-semibold"><?= e($a['title']) ?><?= $a['is_milestone'] ? ' <i class="bi bi-flag-fill text-warning" title="' . e(t('tasks.milestone')) . '"></i>' : '' ?><?= isset($interruptedTaskIds[(int)$a['id']]) ? ' <i class="bi bi-lightning-charge-fill text-orange" title="' . e(t('tasks.interrupted_tooltip')) . '"></i>' : '' ?><?= isset($vacationConflicts[(int)$a['id']]) ? ' <i class="bi bi-airplane-engines-fill text-danger" title="' . e(t('tasks.vacation_conflict_tooltip')) . '"></i>' : '' ?></td>
+          <td class="fw-semibold"><?= e($a['title']) ?><?= $a['is_milestone'] ? ' <i class="bi bi-flag-fill text-warning" title="' . e(t('tasks.milestone')) . '"></i>' : '' ?><?= $a['is_issue'] ? ' <i class="bi bi-exclamation-octagon-fill text-danger" title="' . e(t('tasks.issue_tooltip')) . '"></i>' : '' ?><?= isset($interruptedTaskIds[(int)$a['id']]) ? ' <i class="bi bi-lightning-charge-fill text-orange" title="' . e(t('tasks.interrupted_tooltip')) . '"></i>' : '' ?><?= isset($vacationConflicts[(int)$a['id']]) ? ' <i class="bi bi-airplane-engines-fill text-danger" title="' . e(t('tasks.vacation_conflict_tooltip')) . '"></i>' : '' ?></td>
           <td><?= activity_type_badge($a['activity_type']) ?></td>
           <td><?= $a['project_name'] ? e($a['project_name']) : '<span class="text-muted">' . e(t('tasks.no_project')) . '</span>' ?></td>
           <td><?= e($a['requester_name']) ?></td>

@@ -79,6 +79,10 @@ function list_activities(array $filters = []): array
         $sql .= ' AND a.is_adhoc = ?';
         $params[] = (int)$filters['is_adhoc'];
     }
+    if (isset($filters['is_issue']) && $filters['is_issue'] !== '') {
+        $sql .= ' AND a.is_issue = ?';
+        $params[] = (int)$filters['is_issue'];
+    }
     if (!empty($filters['no_project'])) {
         $sql .= ' AND a.project_id IS NULL';
     }
@@ -189,8 +193,8 @@ function create_activity(array $data, string $activityType, int $createdByUserId
         'INSERT INTO activities
             (title, description, activity_type, is_adhoc, project_id, parent_activity_id, assignee_id, requester_id,
              created_by, requested_at, planned_start_at, target_completion_at, estimated_minutes, priority, status,
-             completion_pct, category_id, interruption_reason, request_channel, notes, original_classification, is_milestone)
-         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0,?,?,?,?,?,?)'
+             completion_pct, category_id, interruption_reason, request_channel, notes, original_classification, is_milestone, is_issue)
+         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0,?,?,?,?,?,?,?)'
     );
     $stmt->execute([
         $data['title'],
@@ -214,6 +218,7 @@ function create_activity(array $data, string $activityType, int $createdByUserId
         $data['notes'] ?? null,
         $activityType, // original_classification preserved permanently
         !empty($data['is_milestone']) ? 1 : 0,
+        !empty($data['is_issue']) ? 1 : 0,
     ]);
     $id = (int)db()->lastInsertId();
 
@@ -257,6 +262,7 @@ function clone_activity(array $source, int $targetProjectId, int $createdByUserI
         'request_channel' => $source['request_channel'],
         'notes' => $source['notes'],
         'is_milestone' => $source['is_milestone'],
+        'is_issue' => $source['is_issue'],
     ];
 
     $newId = create_activity($data, $source['activity_type'], $createdByUserId, (bool)$source['is_adhoc']);
@@ -308,14 +314,15 @@ function update_activity(int $id, array $data): void
     $stmt = db()->prepare(
         'UPDATE activities SET title=?, description=?, project_id=?, parent_activity_id=?, assignee_id=?, requester_id=?,
             planned_start_at=?, target_completion_at=?, estimated_minutes=?, priority=?, category_id=?,
-            interruption_reason=?, request_channel=?, notes=?, is_milestone=? WHERE id=?'
+            interruption_reason=?, request_channel=?, notes=?, is_milestone=?, is_issue=? WHERE id=?'
     );
     $stmt->execute([
         $data['title'], $data['description'] ?? null, nz($data, 'project_id'), $parentId ?: null,
         $data['assignee_id'], $data['requester_id'], nz($data, 'planned_start_at'),
         nz($data, 'target_completion_at'), nz($data, 'estimated_minutes'),
         $data['priority'] ?? 'normal', nz($data, 'category_id'), $data['interruption_reason'] ?? null,
-        $data['request_channel'] ?? null, $data['notes'] ?? null, !empty($data['is_milestone']) ? 1 : 0, $id,
+        $data['request_channel'] ?? null, $data['notes'] ?? null, !empty($data['is_milestone']) ? 1 : 0,
+        !empty($data['is_issue']) ? 1 : 0, $id,
     ]);
 
     if ($scheduleChanged) {

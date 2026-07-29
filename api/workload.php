@@ -19,6 +19,7 @@ if ($action === 'summary') {
         'status_in' => array_values($statuses),
         'date_from' => $_GET['date_from'] ?? '',
         'date_to' => $_GET['date_to'] ?? '',
+        'is_issue' => $_GET['is_issue'] ?? '',
         'order' => $_GET['order'] ?? 'asc',
     ];
     json_response(['ok' => true, 'results' => workload_summary($filters)]);

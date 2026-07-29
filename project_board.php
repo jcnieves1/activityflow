@@ -21,6 +21,10 @@ if ($selectedMemberIds) {
 if ($selectedStatuses) {
     $activityFilters['status_in'] = $selectedStatuses;
 }
+$issuesOnly = !empty($_GET['issues_only']);
+if ($issuesOnly) {
+    $activityFilters['is_issue'] = 1;
+}
 $activities = list_activities($activityFilters);
 $vacationConflicts = bulk_activity_vacation_conflicts(array_column($activities, 'id'));
 $byStatus = [];
@@ -85,6 +89,11 @@ require __DIR__ . '/includes/activity_modal.php';
           <button type="submit" class="btn btn-sm btn-primary w-100 mt-3"><?= e(t('common.apply')) ?></button>
         </div>
       </div>
+
+      <div class="form-check form-switch mb-0">
+        <input class="form-check-input" type="checkbox" role="switch" name="issues_only" value="1" id="boardIssuesOnly" onchange="this.form.submit()" <?= $issuesOnly ? 'checked' : '' ?>>
+        <label class="form-check-label small" for="boardIssuesOnly"><?= e(t('tasks.issues_only')) ?></label>
+      </div>
     </form>
 
     <button class="btn btn-primary" onclick="afActivities.openCreate({project_id: <?= $projectId ?>})"><i class="bi bi-plus-lg"></i> <?= e(t('board.add_task')) ?></button>
@@ -104,7 +113,7 @@ require __DIR__ . '/includes/activity_modal.php';
           if ($a['priority'] === 'urgent') $cls = 'urgent';
         ?>
         <div class="af-activity-item <?= $cls ?>" draggable="true" data-id="<?= (int)$a['id'] ?>" onclick="afActivities.openEdit(<?= (int)$a['id'] ?>)">
-          <div class="title"><?= e($a['title']) ?><?= isset($vacationConflicts[(int)$a['id']]) ? ' <i class="bi bi-airplane-engines-fill text-danger" title="' . e(t('tasks.vacation_conflict_tooltip')) . '"></i>' : '' ?></div>
+          <div class="title"><?= e($a['title']) ?><?= $a['is_issue'] ? ' <i class="bi bi-exclamation-octagon-fill text-danger" title="' . e(t('tasks.issue_tooltip')) . '"></i>' : '' ?><?= isset($vacationConflicts[(int)$a['id']]) ? ' <i class="bi bi-airplane-engines-fill text-danger" title="' . e(t('tasks.vacation_conflict_tooltip')) . '"></i>' : '' ?></div>
           <div class="small text-muted"><?= e($a['assignee_name']) ?></div>
           <div class="mt-1"><?= activity_type_badge($a['activity_type']) ?> <span class="badge <?= priority_badge_class($a['priority']) ?>"><?= e(status_label($a['priority'])) ?></span></div>
           <div class="af-card-progress mt-2 d-flex align-items-center gap-2">
