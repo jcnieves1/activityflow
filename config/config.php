@@ -22,7 +22,7 @@ return [
         // No trailing slash. e.g. http://localhost/activityflow
         'base_url'                 => $env('AF_BASE_URL', 'https://activityflow.jcnieves.com'),
         'session_name'             => 'activityflow_session',
-        'session_lifetime_minutes' => 120,
+        'session_lifetime_minutes' => 7200,
         'timezone'                 => $env('AF_TIMEZONE', 'UTC'),
         'env'                      => $env('AF_ENV', 'development'), // development | production
     ],
