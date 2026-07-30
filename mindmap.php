@@ -131,8 +131,8 @@ require __DIR__ . '/includes/activity_modal.php';
   <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
     <div class="d-flex flex-wrap align-items-center gap-3 small text-muted">
       <span><span class="af-mm-swatch" style="background:#6f42c1"></span> <?= e(t('mindmap.legend_release')) ?></span>
-      <span><span class="af-mm-swatch" style="background:#0d6efd"></span> <?= e(t('mindmap.legend_project')) ?></span>
-      <span><span class="af-mm-swatch" style="background:#198754"></span> <?= e(t('mindmap.legend_task')) ?></span>
+      <span><span class="af-mm-swatch af-mm-swatch-gradient"></span> <?= e(t('mindmap.legend_project')) ?></span>
+      <span><span class="af-mm-swatch af-mm-swatch-gradient"></span> <?= e(t('mindmap.legend_task')) ?></span>
       <span><span class="af-mm-swatch rounded-circle" style="background:#fd7e14"></span> <?= e(t('mindmap.legend_person')) ?></span>
       <span class="text-muted"><i class="bi bi-info-circle"></i> <?= e(t('mindmap.node_hint')) ?></span>
     </div>

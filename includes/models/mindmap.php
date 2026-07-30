@@ -20,8 +20,8 @@ declare(strict_types=1);
  * }
  * @return array{
  *   releases: array<int, array{id:int,name:string}>,
- *   projects: array<int, array{id:int,name:string,release_id:?int}>,
- *   tasks: array<int, array{id:int,title:string,status:string,priority:string,project_id:?int,assignee_id:int,is_issue:bool}>,
+ *   projects: array<int, array{id:int,name:string,release_id:?int,color:string}>,
+ *   tasks: array<int, array{id:int,title:string,status:string,priority:string,project_id:?int,project_color:?string,assignee_id:int,is_issue:bool}>,
  *   people: array<int, array{id:int,name:string}>,
  *   has_no_release_bucket: bool,
  *   has_no_project_bucket: bool,
@@ -100,7 +100,12 @@ function mindmap_data(array $filters = []): array
             continue;
         }
         $releaseId = $p['release_id'] ? (int)$p['release_id'] : null;
-        $projectNodes[] = ['id' => $pid, 'name' => $p['name'], 'release_id' => $releaseId];
+        $projectNodes[] = [
+            'id' => $pid,
+            'name' => $p['name'],
+            'release_id' => $releaseId,
+            'color' => $p['color'] ?: '#4361ee',
+        ];
         if ($releaseId) {
             $usedReleaseIds[$releaseId] = true;
         } else {
@@ -127,6 +132,7 @@ function mindmap_data(array $filters = []): array
             'status' => $t['status'],
             'priority' => $t['priority'],
             'project_id' => $t['project_id'] !== null ? (int)$t['project_id'] : null,
+            'project_color' => $t['project_color'] ?: null,
             'assignee_id' => (int)$t['assignee_id'],
             'is_issue' => !empty($t['is_issue']),
         ];

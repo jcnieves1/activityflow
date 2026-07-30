@@ -721,15 +721,29 @@ Mapped to the acceptance criteria. Run through this after installation
       confirm the "Mind Map" nav link is visible and the page loads without
       a permission error — this view is open to everyone.
 - [ ] With no filters applied, confirm the map shows releases as purple
-      boxes at the top, projects as blue boxes below them, tasks as
-      status-colored ellipses below their project, and people as orange dots
-      below the tasks assigned to them — with connecting arrows following
-      that hierarchy.
+      boxes at the top, projects as boxes in each project's own assigned
+      color below them, tasks as ellipses in that same project's color below
+      their project, and people as orange dots with a light label pill below
+      the tasks assigned to them — with connecting arrows following that
+      hierarchy.
 - [ ] Confirm projects/releases with no currently-visible tasks are hidden
       from the default (no-filter) view, so the map isn't cluttered with
       long-dormant projects.
 - [ ] Confirm a person assigned to multiple tasks appears as a single node
       with multiple incoming arrows, not duplicated once per task.
+- [ ] Confirm each task node is colored the same as its own project (not by
+      status), so tasks belonging to the same project are visually grouped
+      and easy to tell apart from tasks in other projects. Tasks with no
+      project show the same neutral gray as the "No project" bucket.
+- [ ] Pick a project with a light/pale color (e.g. white or pale yellow) —
+      confirm its project box and its tasks' text renders in dark text for
+      readability. Pick a project with a dark/saturated color — confirm its
+      text renders in white. Either way the label must stay easily readable.
+- [ ] Switch to dark mode — confirm person node names stay clearly readable
+      (light pill behind the name) even against the dark page background.
+- [ ] Drag a node — confirm it can be moved both horizontally AND
+      vertically, and stays exactly where dropped (it should not snap back
+      to its original row/level).
 - [ ] Confirm a task tagged as an Issue shows a warning icon in its label
       and an "Issue" tooltip on hover.
 - [ ] Use the Releases filter (multi-select) to pick one release — confirm
