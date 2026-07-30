@@ -22,6 +22,7 @@ $navItems = [
     ['key' => 'projects', 'label' => t('nav.projects'), 'icon' => 'kanban', 'url' => 'projects.php'],
     ['key' => 'my_projects', 'label' => t('nav.my_projects'), 'icon' => 'person-workspace', 'url' => 'my_projects.php'],
     ['key' => 'releases', 'label' => t('nav.releases'), 'icon' => 'rocket-takeoff', 'url' => 'releases.php'],
+    ['key' => 'mindmap', 'label' => t('nav.mindmap'), 'icon' => 'diagram-3', 'url' => 'mindmap.php'],
     ['key' => 'people', 'label' => t('nav.people'), 'icon' => 'person-lines-fill', 'url' => 'people.php'],
     ['key' => 'reports', 'label' => t('nav.reports'), 'icon' => 'bar-chart-line', 'url' => 'reports.php'],
     ['key' => 'requesters', 'label' => t('nav.requesters'), 'icon' => 'graph-up-arrow', 'url' => 'requester_analytics.php'],

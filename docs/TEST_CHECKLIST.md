@@ -715,6 +715,59 @@ Mapped to the acceptance criteria. Run through this after installation
 - [ ] Confirm switching the app language changes the checkbox label, filter
       option text, and tooltip to Spanish.
 
+## Mind Map
+
+- [ ] As every role (Administrator, Project Manager, Employee, Viewer),
+      confirm the "Mind Map" nav link is visible and the page loads without
+      a permission error — this view is open to everyone.
+- [ ] With no filters applied, confirm the map shows releases as purple
+      boxes at the top, projects as blue boxes below them, tasks as
+      status-colored ellipses below their project, and people as orange dots
+      below the tasks assigned to them — with connecting arrows following
+      that hierarchy.
+- [ ] Confirm projects/releases with no currently-visible tasks are hidden
+      from the default (no-filter) view, so the map isn't cluttered with
+      long-dormant projects.
+- [ ] Confirm a person assigned to multiple tasks appears as a single node
+      with multiple incoming arrows, not duplicated once per task.
+- [ ] Confirm a task tagged as an Issue shows a warning icon in its label
+      and an "Issue" tooltip on hover.
+- [ ] Use the Releases filter (multi-select) to pick one release — confirm
+      the map narrows to that release's projects/tasks/people, and that the
+      release and its projects still show even if a project currently has
+      zero matching tasks (so you can confirm the filter, not clutter,
+      explains an empty branch).
+- [ ] Use the Projects filter (multi-select) to pick one or more projects —
+      confirm the map narrows accordingly and combines correctly with an
+      active Releases filter.
+- [ ] Use the Task Owners filter (multi-select) to pick one or more people —
+      confirm only tasks assigned to those people (and their
+      releases/projects) remain.
+- [ ] Use the Task Statuses filter (multi-select) to pick one or more
+      statuses — confirm only matching tasks remain, combined correctly with
+      the other three filters.
+- [ ] Confirm all four filter dropdowns follow the standard multi-select
+      behavior: checking "All" clears individual picks, checking any
+      individual pick clears "All", and unchecking the last individual pick
+      reverts back to "All" (never an ambiguous nothing-selected state).
+- [ ] Drag a node to a new position — confirm it stays where dropped (no
+      physics snapping it back).
+- [ ] Click "Reset Layout" after dragging nodes — confirm the map rebuilds
+      in its clean hierarchical arrangement.
+- [ ] Double-click a task node — confirm the Edit Task dialog opens for that
+      task, and that saving a change (e.g. reassigning it) refreshes the map
+      with the update reflected.
+- [ ] Click "Download PNG" — confirm a PNG image of the current map
+      (including any manual node rearrangement) downloads.
+- [ ] Click "Download JPG" — confirm a JPG image downloads with a solid
+      white background (not black/transparent).
+- [ ] As a non-admin, non-viewer role, confirm the map only shows
+      projects/tasks you're already allowed to see elsewhere (project owner
+      or member) — it should not leak tasks from projects you have no access
+      to, even though the Mind Map page itself has no role gate.
+- [ ] Confirm switching the app language changes all Mind Map labels,
+      filters, legend, and buttons to Spanish.
+
 ## Authorization boundaries
 
 - [ ] As an Employee, confirm Admin pages (`admin/*.php`, `audit_log.php`)

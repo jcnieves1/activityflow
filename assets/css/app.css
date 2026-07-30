@@ -207,6 +207,7 @@ body { background: var(--af-body-bg); color: var(--af-body-text); }
 .af-stat { font-size:1.6rem; font-weight:700; }
 .af-empty { text-align:center; padding: 2.5rem 1rem; color:var(--af-muted-text); }
 .af-empty i { font-size:2rem; display:block; margin-bottom:.5rem; }
+.af-mm-swatch { display:inline-block; width:.8rem; height:.8rem; border-radius:.2rem; vertical-align:middle; margin-right:.2rem; }
 
 /* ---------- Activity chips ---------- */
 .af-activity-item { border-left:4px solid var(--af-planned); background:var(--af-card-bg); border-radius:.5rem; padding:.6rem .85rem; margin-bottom:.5rem; box-shadow:0 1px 2px rgba(0,0,0,.04); }
