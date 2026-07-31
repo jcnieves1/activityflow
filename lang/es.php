@@ -412,7 +412,8 @@ return [
     'mindmap.legend_project' => 'Proyecto (coloreado por proyecto)',
     'mindmap.legend_task' => 'Tarea (coloreada según su proyecto)',
     'mindmap.legend_person' => 'Persona',
-    'mindmap.node_hint' => 'Arrastre los nodos para reorganizar · doble clic en una tarea para abrirla',
+    'mindmap.node_hint' => 'Arrastre los nodos para reorganizar · doble clic en una tarea para abrirla · el % mostrado es el avance',
+    'mindmap.completion_label' => 'Avance',
     'mindmap.empty' => 'Nada coincide con estos filtros todavía.',
 
     'pd.start' => 'Inicio: {date}',

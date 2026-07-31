@@ -731,6 +731,17 @@ Mapped to the acceptance criteria. Run through this after installation
       long-dormant projects.
 - [ ] Confirm a person assigned to multiple tasks appears as a single node
       with multiple incoming arrows, not duplicated once per task.
+- [ ] Confirm each project node shows its overall completion percentage
+      (a second line under the project name) and that hovering it shows a
+      "Completion: X%" tooltip — this should reflect the project's real,
+      duration-weighted progress across all of its tasks, not just the
+      tasks currently visible under an active filter.
+- [ ] Confirm each task node shows its own completion percentage under its
+      title, and that hovering it shows a tooltip with the completion
+      percentage (and, for issue-tagged tasks, the Issue label as well).
+- [ ] Change a task's completion percentage from its Edit Task dialog
+      (opened via double-click) and confirm the map refreshes to reflect
+      the new percentage on both the task node and its parent project node.
 - [ ] Confirm each task node is colored the same as its own project (not by
       status), so tasks belonging to the same project are visually grouped
       and easy to tell apart from tasks in other projects. Tasks with no

@@ -20,8 +20,8 @@ declare(strict_types=1);
  * }
  * @return array{
  *   releases: array<int, array{id:int,name:string}>,
- *   projects: array<int, array{id:int,name:string,release_id:?int,color:string}>,
- *   tasks: array<int, array{id:int,title:string,status:string,priority:string,project_id:?int,project_color:?string,assignee_id:int,is_issue:bool}>,
+ *   projects: array<int, array{id:int,name:string,release_id:?int,color:string,completion_pct:float}>,
+ *   tasks: array<int, array{id:int,title:string,status:string,priority:string,project_id:?int,project_color:?string,assignee_id:int,is_issue:bool,completion_pct:float}>,
  *   people: array<int, array{id:int,name:string}>,
  *   has_no_release_bucket: bool,
  *   has_no_project_bucket: bool,
@@ -105,6 +105,11 @@ function mindmap_data(array $filters = []): array
             'name' => $p['name'],
             'release_id' => $releaseId,
             'color' => $p['color'] ?: '#4361ee',
+            // The project's own overall completion (all of its tasks,
+            // duration-weighted) — independent of the Mind Map's status/
+            // assignee filters, so it always reflects the project's real
+            // progress rather than just the currently-visible subset.
+            'completion_pct' => (float)(calculate_project_progress($pid)['percent'] ?? 0),
         ];
         if ($releaseId) {
             $usedReleaseIds[$releaseId] = true;
@@ -135,6 +140,7 @@ function mindmap_data(array $filters = []): array
             'project_color' => $t['project_color'] ?: null,
             'assignee_id' => (int)$t['assignee_id'],
             'is_issue' => !empty($t['is_issue']),
+            'completion_pct' => (float)($t['completion_pct'] ?? 0),
         ];
         $peopleById[(int)$t['assignee_id']] = $t['assignee_name'];
     }

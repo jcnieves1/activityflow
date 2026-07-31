@@ -100,6 +100,9 @@
   function coloredNode(bg) {
     return { background: bg, border: darken(bg, 0.25) };
   }
+  function pctLabel(pct) {
+    return Math.round(Number(pct) || 0) + '%';
+  }
 
   let network = null;
   let lastData = null;
@@ -125,7 +128,10 @@
     data.projects.forEach((p) => {
       const bg = p.color || '#4361ee';
       nodes.push({
-        id: 'p-' + p.id, label: p.name, level: 1, shape: 'box',
+        id: 'p-' + p.id,
+        label: p.name + '\n' + pctLabel(p.completion_pct),
+        title: (i18n.completionLabel || 'Completion') + ': ' + pctLabel(p.completion_pct),
+        level: 1, shape: 'box',
         color: coloredNode(bg), font: { color: contrastTextColor(bg) },
       });
       edges.push({ from: p.release_id ? 'r-' + p.release_id : 'r-none', to: 'p-' + p.id });
@@ -142,10 +148,13 @@
       // by project at a glance; unassigned-to-a-project tasks fall back to
       // the same neutral gray as the "No project" bucket.
       const bg = t.project_id ? (t.project_color || '#4361ee') : NEUTRAL_COLOR;
+      const completionLabel = i18n.completionLabel || 'Completion';
+      const tooltipLines = [completionLabel + ': ' + pctLabel(t.completion_pct)];
+      if (t.is_issue) tooltipLines.unshift(i18n.issueTooltip || 'Issue');
       nodes.push({
         id: 't-' + t.id,
-        label: (t.is_issue ? '⚠ ' : '') + t.title,
-        title: t.is_issue ? (i18n.issueTooltip || 'Issue') : undefined,
+        label: (t.is_issue ? '⚠ ' : '') + t.title + '\n' + pctLabel(t.completion_pct),
+        title: tooltipLines.join(' · '),
         level: 2, shape: 'ellipse',
         color: coloredNode(bg), font: { color: contrastTextColor(bg) },
       });

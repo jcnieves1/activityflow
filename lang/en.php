@@ -413,7 +413,8 @@ return [
     'mindmap.legend_project' => 'Project (colored by project)',
     'mindmap.legend_task' => 'Task (colored by its project)',
     'mindmap.legend_person' => 'Person',
-    'mindmap.node_hint' => 'Drag nodes to rearrange · double-click a task to open it',
+    'mindmap.node_hint' => 'Drag nodes to rearrange · double-click a task to open it · % shown is completion',
+    'mindmap.completion_label' => 'Completion',
     'mindmap.empty' => 'Nothing matches these filters yet.',
 
     'pd.start' => 'Start: {date}',

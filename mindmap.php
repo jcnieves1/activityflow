@@ -150,7 +150,8 @@ require __DIR__ . '/includes/activity_modal.php';
 window.AF_I18N_MINDMAP = {
   noRelease: <?= json_encode(t('mindmap.no_release')) ?>,
   noProject: <?= json_encode(t('mindmap.no_project')) ?>,
-  issueTooltip: <?= json_encode(t('tasks.issue_tooltip')) ?>
+  issueTooltip: <?= json_encode(t('tasks.issue_tooltip')) ?>,
+  completionLabel: <?= json_encode(t('mindmap.completion_label')) ?>
 };
 </script>
 <?php require __DIR__ . '/includes/layout_footer.php'; ?>
