@@ -12,7 +12,15 @@ if ($method === 'GET' && $action === 'list') {
     $filters = $_GET;
     // order_by is only ever set by trusted server-side callers (never from client input) to avoid SQL injection via ORDER BY.
     unset($filters['action'], $filters['order_by']);
-    json_response(['ok' => true, 'activities' => list_activities($filters)]);
+    $activities = list_activities($filters);
+    // Defense in depth: every page that renders a task list already scopes
+    // its own list_activities() call appropriately, but this generic
+    // endpoint is reachable directly by URL, so a restricted role must be
+    // scoped here too rather than relying solely on callers behaving.
+    if (!has_broad_project_visibility()) {
+        $activities = array_values(array_filter($activities, 'activity_is_visible'));
+    }
+    json_response(['ok' => true, 'activities' => $activities]);
 }
 
 if ($method === 'GET' && $action === 'get') {

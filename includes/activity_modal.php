@@ -2,7 +2,7 @@
 declare(strict_types=1);
 /** Shared create/edit modal for planned activities and project tasks. Reused by My Tasks, Team Activities, and the Project Board. */
 $amPeople = list_people(['is_active' => 1]);
-$amProjects = list_projects(['is_archived' => 0]);
+$amProjects = filter_visible_projects(list_projects(['is_archived' => 0]));
 $amCategories = db()->query('SELECT * FROM activity_categories WHERE is_active = 1 ORDER BY name')->fetchAll();
 // Only offer projects the current user is actually allowed to clone/move tasks
 // into (admin/PM, or a member of that project) — narrower than $amProjects

@@ -43,6 +43,33 @@ function report_activity_where(array $f): array
     if (!empty($f['request_channel'])) { $where[] = 'a.request_channel = ?'; $params[] = $f['request_channel']; }
     if (!empty($f['category_id'])) { $where[] = 'a.category_id = ?'; $params[] = $f['category_id']; }
 
+    // Restricted roles (plain Employees) only ever see report rows for
+    // activities they're personally the assignee/requester on, or that
+    // belong to a project they're a member/owner of — set by the caller
+    // (api/reports.php, requester_analytics.php) for anyone without
+    // has_broad_project_visibility(). Admins/PMs/Viewers never set this, so
+    // they keep seeing the full org-wide dataset the requested filters ask
+    // for. This intentionally widens what used to be a hard "only your own
+    // assigned tasks" restriction: belonging to a project now surfaces that
+    // project's other tasks too, per product decision.
+    if (!empty($f['restrict_to_person_id'])) {
+        $personId = (int)$f['restrict_to_person_id'];
+        $visibleProjectIds = visible_project_ids_for_person($personId);
+        if ($visibleProjectIds) {
+            $placeholders = implode(',', array_fill(0, count($visibleProjectIds), '?'));
+            $where[] = "(a.assignee_id = ? OR a.requester_id = ? OR a.project_id IN ($placeholders))";
+            $params[] = $personId;
+            $params[] = $personId;
+            foreach ($visibleProjectIds as $pid) {
+                $params[] = $pid;
+            }
+        } else {
+            $where[] = '(a.assignee_id = ? OR a.requester_id = ?)';
+            $params[] = $personId;
+            $params[] = $personId;
+        }
+    }
+
     return [implode(' AND ', $where), $params];
 }
 
@@ -88,13 +115,19 @@ function run_report(string $key, array $filters): array
             return ['columns' => ['Employee', 'Tasks'], 'rows' => $stmt->fetchAll()];
 
         case 'interruptions_by_employee':
+            // This report is inherently per-employee (how often was each
+            // person interrupted) rather than project-scoped, so a
+            // restricted role sees only their own row here — not their
+            // project-mates' — same as before this report was touched by
+            // the broader project-visibility rule.
+            $interruptEmployeeId = !empty($filters['restrict_to_person_id']) ? $filters['restrict_to_person_id'] : ($filters['employee_id'] ?? '');
             $stmt = $pdo->prepare(
                 "SELECT asg.full_name AS 'Employee', COUNT(*) AS 'Interruptions', ROUND(AVG(i.time_lost_minutes),1) AS 'Avg minutes lost'
                  FROM interruptions i JOIN activities a ON a.id = i.interrupting_activity_id JOIN people asg ON asg.id = a.assignee_id
-                 WHERE 1=1 " . ($filters['employee_id'] ?? '' ? 'AND a.assignee_id = ?' : '') . "
+                 WHERE 1=1 " . ($interruptEmployeeId ? 'AND a.assignee_id = ?' : '') . "
                  GROUP BY asg.id ORDER BY 2 DESC"
             );
-            $stmt->execute($filters['employee_id'] ?? '' ? [$filters['employee_id']] : []);
+            $stmt->execute($interruptEmployeeId ? [$interruptEmployeeId] : []);
             return ['columns' => ['Employee', 'Interruptions', 'Avg minutes lost'], 'rows' => $stmt->fetchAll()];
 
         case 'tasks_by_project':
@@ -140,6 +173,10 @@ function run_report(string $key, array $filters): array
 
         case 'project_progress':
             $projects = list_projects(['is_archived' => 0]);
+            if (!empty($filters['restrict_to_person_id'])) {
+                $visibleIds = array_flip(visible_project_ids_for_person((int)$filters['restrict_to_person_id']));
+                $projects = array_values(array_filter($projects, fn($p) => isset($visibleIds[(int)$p['id']])));
+            }
             $rows = array_map(function ($p) {
                 $prog = calculate_project_progress((int)$p['id']);
                 return ['Project' => $p['name'], 'Status' => status_label($p['status']), 'Progress %' => $prog['percent'], 'Method' => $prog['method']];
@@ -162,13 +199,18 @@ function run_report(string $key, array $filters): array
             return ['columns' => ['Date', 'Type', 'Tasks'], 'rows' => $stmt->fetchAll()];
 
         case 'interrupted_delay':
+            // Same "own row only" rule as interruptions_by_employee — see
+            // that case for why this stays employee-scoped rather than
+            // extending to project-mates.
+            $delayEmployeeId = $filters['restrict_to_person_id'] ?? '';
             $stmt = $pdo->prepare(
                 "SELECT a.title AS 'Interrupted task', asg.full_name AS 'Employee', i.time_lost_minutes AS 'Minutes lost',
                  i.impact_on_target_date AS 'Impact on target date', i.was_resumed AS 'Resumed'
                  FROM interruptions i JOIN activities a ON a.id = i.interrupted_activity_id JOIN people asg ON asg.id = a.assignee_id
+                 WHERE 1=1 " . ($delayEmployeeId ? 'AND a.assignee_id = ?' : '') . "
                  ORDER BY i.created_at DESC LIMIT 200"
             );
-            $stmt->execute();
+            $stmt->execute($delayEmployeeId ? [$delayEmployeeId] : []);
             return ['columns' => ['Interrupted task', 'Employee', 'Minutes lost', 'Impact on target date', 'Resumed'], 'rows' => $stmt->fetchAll()];
 
         case 'added_after_planning':

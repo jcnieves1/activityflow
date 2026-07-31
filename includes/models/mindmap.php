@@ -76,6 +76,15 @@ function mindmap_data(array $filters = []): array
             if ($explicitProjectContext) {
                 continue;
             }
+            // A project-less task has no membership to check, so fall back
+            // to activity_is_visible()'s own rule: broad-visibility roles
+            // (admin/PM/viewer) see it regardless, but a restricted
+            // Employee only sees it if they're the assignee or requester —
+            // it no longer defaults to "visible to everyone" just because
+            // it isn't tied to a project.
+            if (!activity_is_visible($t)) {
+                continue;
+            }
         } elseif (!isset($projects[$projectId])) {
             continue;
         }

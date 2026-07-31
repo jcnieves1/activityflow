@@ -9,12 +9,12 @@ $filters = [
     'department_id' => $_GET['department_id'] ?? '',
     'project_id' => $_GET['project_id'] ?? '',
 ];
-if (!is_admin() && !is_pm() && !user_has_role(ROLE_VIEWER)) {
-    $filters['employee_id'] = current_person_id() ?: -1;
+if (!has_broad_project_visibility()) {
+    $filters['restrict_to_person_id'] = current_person_id() ?: -1;
 }
 $rows = requester_analytics($filters);
 $departments = department_list();
-$projects = list_projects(['is_archived' => 0]);
+$projects = filter_visible_projects(list_projects(['is_archived' => 0]));
 
 function top(array $rows, string $key, int $n = 5, bool $asc = false): array
 {

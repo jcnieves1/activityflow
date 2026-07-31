@@ -21,7 +21,7 @@ $pdo = db();
 
 // Planned schedule for the day (the original plan track).
 $plannedSql = 'SELECT a.id, a.title, a.status, a.activity_type, a.planned_start_at, a.target_completion_at,
-                      a.priority, pr.name AS project_name, req.full_name AS requester_name
+                      a.priority, a.project_id, a.requester_id, pr.name AS project_name, req.full_name AS requester_name
                FROM activities a
                LEFT JOIN projects pr ON pr.id = a.project_id
                LEFT JOIN people req ON req.id = a.requester_id
@@ -36,7 +36,7 @@ $planned = $stmt->fetchAll();
 // Actual execution periods (time entries) for the day.
 $stmt = $pdo->prepare(
     'SELECT te.id, te.activity_id, te.started_at, te.ended_at, te.duration_minutes, te.is_manual,
-            a.title, a.activity_type, a.status, pr.name AS project_name
+            a.title, a.activity_type, a.status, a.project_id, a.requester_id, pr.name AS project_name
      FROM time_entries te
      JOIN activities a ON a.id = te.activity_id
      LEFT JOIN projects pr ON pr.id = a.project_id
@@ -49,7 +49,7 @@ $actual = $stmt->fetchAll();
 // Unplanned insertions requested that day (regardless of when the work happened).
 $stmt = $pdo->prepare(
     'SELECT a.id, a.title, a.status, a.priority, a.requested_at, a.actual_start_at, a.actual_completion_at,
-            req.full_name AS requester_name, pr.name AS project_name, a.request_channel, a.interruption_reason
+            a.project_id, a.requester_id, req.full_name AS requester_name, pr.name AS project_name, a.request_channel, a.interruption_reason
      FROM activities a
      LEFT JOIN people req ON req.id = a.requester_id
      LEFT JOIN projects pr ON pr.id = a.project_id
@@ -58,6 +58,23 @@ $stmt = $pdo->prepare(
 );
 $stmt->execute([$employeeId, $date]);
 $unplanned = $stmt->fetchAll();
+
+// A restricted role (plain Employee) viewing someone else's day only sees
+// rows that are visible to THEM specifically — their own assigned/requested
+// tasks, or tasks belonging to a project they're a member/owner of — not
+// everything on that person's schedule. Admin/PM/Viewer see the full day.
+if (!has_broad_project_visibility()) {
+    $timelineVisible = function (array $row) use ($employeeId) {
+        return activity_is_visible([
+            'assignee_id' => $employeeId,
+            'requester_id' => $row['requester_id'] ?? null,
+            'project_id' => $row['project_id'] ?? null,
+        ]);
+    };
+    $planned = array_values(array_filter($planned, $timelineVisible));
+    $actual = array_values(array_filter($actual, $timelineVisible));
+    $unplanned = array_values(array_filter($unplanned, $timelineVisible));
+}
 
 // Interruptions tied to those unplanned insertions.
 $interruptions = [];
@@ -79,12 +96,15 @@ unset($u);
 
 // Tasks moved to another day (schedule history where date changed away from this one).
 $stmt = $pdo->prepare(
-    'SELECT h.*, a.title FROM activity_schedule_history h
+    'SELECT h.*, a.title, a.project_id, a.requester_id FROM activity_schedule_history h
      JOIN activities a ON a.id = h.activity_id
      WHERE a.assignee_id = ? AND DATE(h.old_planned_start_at) = ? AND DATE(h.new_planned_start_at) != ?'
 );
 $stmt->execute([$employeeId, $date, $date]);
 $moved = $stmt->fetchAll();
+if (!has_broad_project_visibility()) {
+    $moved = array_values(array_filter($moved, $timelineVisible));
+}
 
 $stmt = $pdo->prepare('SELECT full_name FROM people WHERE id = ?');
 $stmt->execute([$employeeId]);

@@ -2,7 +2,7 @@
 declare(strict_types=1);
 /** Global "record a last-minute task" modal — reachable from any screen in a few clicks. */
 $qaPeople = list_people(['is_active' => 1]);
-$qaProjects = list_projects(['is_archived' => 0]);
+$qaProjects = filter_visible_projects(list_projects(['is_archived' => 0]));
 $qaCategories = db()->query('SELECT * FROM activity_categories WHERE is_active = 1 ORDER BY name')->fetchAll();
 ?>
 <div class="modal fade" id="quickAddModal" tabindex="-1">

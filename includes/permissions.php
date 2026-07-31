@@ -202,10 +202,25 @@ function is_project_member(int $projectId, ?int $personId = null): bool
     return (bool)$stmt->fetchColumn();
 }
 
-/** Read visibility for a single activity: admins/viewers see all; otherwise project members, the assignee/requester, or anyone for project-less (org-wide) activities. */
+/**
+ * True for roles that should see every project/task across the whole
+ * organization regardless of membership: Administrators (full control),
+ * Project Managers (need cross-project visibility for management tools like
+ * Workload and org-wide Reports), and Viewers (a read-only role that exists
+ * specifically so stakeholders can see the whole picture without edit
+ * rights). Everyone else — plain Employees — only sees projects/tasks they
+ * own, are a member of, or are personally assigned/requester on; see
+ * can_view_project() and activity_is_visible(), which this gates.
+ */
+function has_broad_project_visibility(): bool
+{
+    return is_admin() || is_pm() || user_has_role(ROLE_VIEWER);
+}
+
+/** Read visibility for a single activity: broad-visibility roles see all; otherwise only the assignee/requester, or anyone whose project they belong to. Project-less activities are private to their assignee/requester for restricted roles (no more org-wide-by-default exception). */
 function activity_is_visible(array $activity): bool
 {
-    if (is_admin() || user_has_role(ROLE_VIEWER)) {
+    if (has_broad_project_visibility()) {
         return true;
     }
     $personId = current_person_id();
@@ -213,7 +228,7 @@ function activity_is_visible(array $activity): bool
         return true;
     }
     if (empty($activity['project_id'])) {
-        return true;
+        return false;
     }
     $stmt = db()->prepare('SELECT * FROM projects WHERE id = ?');
     $stmt->execute([$activity['project_id']]);
@@ -223,11 +238,60 @@ function activity_is_visible(array $activity): bool
 
 function can_view_project(array $project): bool
 {
-    if (is_admin() || user_has_role(ROLE_VIEWER)) {
+    if (has_broad_project_visibility()) {
         return true;
     }
     if ((int)$project['owner_id'] === (int)current_person_id()) {
         return true;
     }
     return is_project_member((int)$project['id']);
+}
+
+/**
+ * All project IDs a restricted role (Employee) can see — owned or a member
+ * of. Used to build SQL-level visibility filters (e.g. in Reports) rather
+ * than fetching everything and filtering in PHP. Does not filter by
+ * archived status, matching can_view_project()'s own ownership/membership
+ * check (an archived project you're a member of should stay visible to you
+ * on its own detail page).
+ */
+function visible_project_ids_for_person(int $personId): array
+{
+    $stmt = db()->prepare(
+        'SELECT id FROM projects WHERE owner_id = ?
+         UNION
+         SELECT project_id AS id FROM project_members WHERE person_id = ?'
+    );
+    $stmt->execute([$personId, $personId]);
+    return array_map('intval', array_column($stmt->fetchAll(), 'id'));
+}
+
+/**
+ * Same as visible_project_ids_for_person(), but for the current session, and
+ * returns null (meaning "no filtering needed") when the current user has
+ * broad project visibility — callers should treat null and an empty array
+ * differently: null = show everything, [] = show nothing project-scoped.
+ */
+function visible_project_ids_for_current_user(): ?array
+{
+    if (has_broad_project_visibility()) {
+        return null;
+    }
+    $personId = current_person_id();
+    return $personId ? visible_project_ids_for_person($personId) : [];
+}
+
+/**
+ * Filters a list of project rows (each needing at least 'id' and
+ * 'owner_id') down to the ones the current user can view. A thin wrapper
+ * around can_view_project() for the many pages that list projects into a
+ * dropdown or directory — keeps every one of those call sites a one-liner
+ * instead of re-implementing the loop.
+ */
+function filter_visible_projects(array $projects): array
+{
+    if (has_broad_project_visibility()) {
+        return $projects;
+    }
+    return array_values(array_filter($projects, 'can_view_project'));
 }

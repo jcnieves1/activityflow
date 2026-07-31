@@ -4,7 +4,7 @@ require __DIR__ . '/includes/bootstrap.php';
 require_login();
 
 $people = list_people(['is_active' => 1]);
-$projects = list_projects(['is_archived' => 0]);
+$projects = filter_visible_projects(list_projects(['is_archived' => 0]));
 
 $pageTitle = t('nav.calendar');
 $activeNav = 'calendar';

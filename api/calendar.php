@@ -25,6 +25,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['action'] ?? 'events') === 'e
         $filters['project_id_in'] = $projectIds;
     }
     $activities = list_activities($filters);
+    if (!has_broad_project_visibility()) {
+        $activities = array_values(array_filter($activities, 'activity_is_visible'));
+    }
 
     $events = array_map(function ($a) {
         // Color reflects the event's planned/unplanned + status/priority

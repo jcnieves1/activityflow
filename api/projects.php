@@ -8,10 +8,13 @@ $method = $_SERVER['REQUEST_METHOD'];
 $action = $method === 'GET' ? ($_GET['action'] ?? 'list') : (request_input()['action'] ?? '');
 
 if ($method === 'GET' && $action === 'list') {
-    json_response(['ok' => true, 'projects' => list_projects([
+    // Defense in depth: this generic endpoint is reachable directly by URL,
+    // so a restricted role must be scoped here too, not just on the pages
+    // that happen to filter their own list_projects() calls before showing it.
+    json_response(['ok' => true, 'projects' => filter_visible_projects(list_projects([
         'status' => $_GET['status'] ?? '', 'search' => $_GET['search'] ?? '',
         'owner_id' => $_GET['owner_id'] ?? '', 'is_archived' => $_GET['is_archived'] ?? '',
-    ])]);
+    ]))]);
 }
 
 if ($method === 'GET' && $action === 'get') {

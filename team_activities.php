@@ -19,17 +19,16 @@ $filters = [
 ];
 $all = list_activities($filters);
 
-// Enforce project-level visibility for non-admin/viewer roles.
-if (!is_admin() && !user_has_role(ROLE_VIEWER)) {
-    $all = array_values(array_filter($all, function ($a) {
-        if (empty($a['project_id'])) return true;
-        $project = get_project((int)$a['project_id']);
-        return $project && can_view_project($project);
-    }));
+// Restricted roles (plain Employees) only see tasks they're personally
+// assigned/requester on, or that belong to a project they're a member/owner
+// of — project-less tasks are no longer visible-to-everyone by default (see
+// activity_is_visible()). Admin/PM/Viewer keep seeing everything.
+if (!has_broad_project_visibility()) {
+    $all = array_values(array_filter($all, 'activity_is_visible'));
 }
 
 $people = list_people(['is_active' => 1]);
-$projects = list_projects(['is_archived' => 0]);
+$projects = filter_visible_projects(list_projects(['is_archived' => 0]));
 $vacationConflicts = bulk_activity_vacation_conflicts(array_column($all, 'id'));
 
 $pageTitle = t('nav.team');

@@ -25,9 +25,12 @@ $filters = [
     'request_channel' => $_GET['request_channel'] ?? '', 'category_id' => $_GET['category_id'] ?? '',
 ];
 
-// Plain employees see their own activity only; PM/Admin/Viewer get the requested scope.
-if (!is_admin() && !is_pm() && !user_has_role(ROLE_VIEWER)) {
-    $filters['employee_id'] = current_person_id() ?: -1;
+// Restricted roles (plain Employees) only ever see report rows for tasks
+// they're personally assigned/requester on, or that belong to a project
+// they're a member/owner of — report_activity_where() turns this into the
+// actual SQL restriction. PM/Admin/Viewer get the full requested scope.
+if (!has_broad_project_visibility()) {
+    $filters['restrict_to_person_id'] = current_person_id() ?: -1;
 }
 
 $result = run_report($reportKey, $filters);

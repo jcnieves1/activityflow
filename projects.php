@@ -3,9 +3,9 @@ declare(strict_types=1);
 require __DIR__ . '/includes/bootstrap.php';
 require_login();
 
-$projects = list_projects([
+$projects = filter_visible_projects(list_projects([
     'status' => $_GET['status'] ?? '', 'search' => $_GET['search'] ?? '', 'is_archived' => 0,
-]);
+]));
 $people = list_people(['is_active' => 1]);
 $canCreate = is_admin() || user_has_role(ROLE_PM);
 $statuses = ['draft','not_started','active','on_hold','completed','cancelled','archived'];

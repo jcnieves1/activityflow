@@ -12,7 +12,10 @@ if (!$release) {
 }
 
 $phases = list_release_phases($releaseId);
-$projectsInRelease = list_projects_in_release($releaseId);
+// Releases themselves are viewable by everyone, but the projects listed
+// under "Associated Projects" still follow normal project visibility — a
+// restricted Employee only sees the ones they belong to.
+$projectsInRelease = filter_visible_projects(list_projects_in_release($releaseId));
 // Everything below that mutates a release (edit/delete, phases, project
 // association/move/disassociation) is Administrator-only — see releases.php
 // for why. A non-admin never needs these lists, so skip the extra queries.

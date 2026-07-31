@@ -15,7 +15,7 @@ $filters = [
     'order_by' => 'FIELD(a.status,"in_progress","blocked","ready","planned","backlog","waiting","completed","cancelled"), a.target_completion_at IS NULL, a.target_completion_at',
 ];
 $activities = $personId ? list_activities($filters) : [];
-$projects = list_projects(['is_archived' => 0]);
+$projects = filter_visible_projects(list_projects(['is_archived' => 0]));
 $interruptedTaskIds = array_flip(activity_ids_that_were_interrupted(array_column($activities, 'id')));
 $vacationConflicts = bulk_activity_vacation_conflicts(array_column($activities, 'id'));
 

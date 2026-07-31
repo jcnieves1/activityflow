@@ -4,7 +4,7 @@ require __DIR__ . '/includes/bootstrap.php';
 require_login();
 
 $people = list_people(['is_active' => 1]);
-$projects = list_projects(['is_archived' => 0]);
+$projects = filter_visible_projects(list_projects(['is_archived' => 0]));
 $departments = department_list();
 $categories = db()->query('SELECT * FROM activity_categories WHERE is_active = 1 ORDER BY name')->fetchAll();
 

@@ -793,6 +793,61 @@ Mapped to the acceptance criteria. Run through this after installation
 - [ ] Confirm switching the app language changes all Mind Map labels,
       filters, legend, and buttons to Spanish.
 
+## Project/task visibility restrictions (Employees vs. Admin/PM/Viewer)
+
+Only the plain Employee role is restricted to projects/tasks it's assigned
+to or a member of. Administrators, Project Managers, and Viewers all keep
+full, org-wide visibility (PMs need it for management tools like Workload
+and cross-project Reports; Viewers exist specifically to see everything
+read-only) — see `has_broad_project_visibility()` in `includes/permissions.php`.
+
+- [ ] As an Employee who is a member of Project A but not Project B, confirm
+      Project B never appears: in the Projects directory, in the Project
+      field dropdown of the New/Edit Task modal (My Tasks, Team Activities,
+      Task Board, Calendar, Mind Map, Quick Add), in Team Activities' project
+      filter, in Calendar's/Timeline's project filter, in the Reports
+      Center's project filter, and in a release's "Associated Projects" list.
+- [ ] As that same Employee, confirm Project B's tasks never appear in Team
+      Activities, the Calendar (list or drag-to-reschedule), Mind Map, or any
+      Reports Center report/CSV export — even when no project filter is
+      applied and even when searching/paging through "all" results.
+- [ ] Confirm the Employee CAN still see and act on Project A's tasks
+      everywhere above, including tasks in Project A that are assigned to a
+      teammate (not just their own tasks) — membership grants visibility
+      into the whole project, not just self-assigned tasks within it.
+- [ ] As an Employee, create an ad-hoc/unplanned task with no project and
+      assign it to a colleague. Confirm the Employee no longer sees that
+      task anywhere (My Tasks doesn't show it since it isn't theirs; Team
+      Activities, Calendar, and Mind Map's "No project" bucket must also
+      hide it) — project-less tasks are only visible to their own
+      assignee/requester for a restricted Employee, not to everyone.
+- [ ] As an Employee, open Timeline and select a colleague who doesn't share
+      any project with them — confirm that colleague's planned/actual/
+      unplanned tracks come back empty (or only show items where the
+      Employee is themselves the requester), rather than exposing the
+      colleague's Project B tasks.
+- [ ] As an Employee, run each report in the Reports Center and confirm
+      results only include Project A (and project-less tasks where they're
+      the assignee/requester) — try "Tasks by project", "Overdue tasks",
+      "Estimated vs. actual", and "Requester-employee matrix" specifically,
+      since these previously could have shown org-wide data.
+- [ ] As an Employee, confirm the "Project progress" report only lists
+      Project A, and Requester Analytics' figures only reflect Project A's
+      (and their own) activity.
+- [ ] As a Project Manager, confirm all of the above show the FULL org-wide
+      dataset — Projects directory, Team Activities, Calendar, Timeline
+      (any employee), Mind Map, every Reports Center report, and Requester
+      Analytics — matching Admin's visibility (this is a widening from
+      before: PMs used to be restricted like Employees in Team Activities,
+      Project Detail, and Mind Map).
+- [ ] As a Viewer, confirm the same full org-wide visibility as Admin/PM
+      (unchanged from before).
+- [ ] Directly call `api/activities.php?action=list` and
+      `api/projects.php?action=list` as a logged-in Employee (e.g. via
+      browser dev tools) and confirm the results are scoped the same way as
+      the UI — these endpoints are reachable by URL even though no current
+      page calls them directly for a full unfiltered list.
+
 ## Authorization boundaries
 
 - [ ] As an Employee, confirm Admin pages (`admin/*.php`, `audit_log.php`)
