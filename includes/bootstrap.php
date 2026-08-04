@@ -31,6 +31,7 @@ require_once __DIR__ . '/models/request_channels.php';
 require_once __DIR__ . '/models/activities.php';
 require_once __DIR__ . '/models/workload.php';
 require_once __DIR__ . '/models/mindmap.php';
+require_once __DIR__ . '/models/task_templates.php';
 require_once __DIR__ . '/models/time_entries.php';
 require_once __DIR__ . '/models/dashboard.php';
 require_once __DIR__ . '/models/reports.php';

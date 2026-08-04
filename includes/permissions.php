@@ -191,6 +191,18 @@ function can_manage_vacation(array $vacation): bool
     return is_admin() || (int)$vacation['person_id'] === (int)current_person_id();
 }
 
+/**
+ * Task Templates are a shared, org-wide library (like Task Statuses or
+ * Request Channels) rather than something owned by whoever created them —
+ * any admin or PM can create, edit, or delete any template. *Applying* an
+ * existing template to a project is a separate, broader permission — see
+ * can_add_task_to_project(), used by api/task_templates.php's apply action.
+ */
+function can_manage_task_templates(): bool
+{
+    return is_admin() || is_pm();
+}
+
 function is_project_member(int $projectId, ?int $personId = null): bool
 {
     $personId = $personId ?? current_person_id();

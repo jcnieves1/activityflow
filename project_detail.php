@@ -15,6 +15,11 @@ if (!can_view_project($project)) {
 }
 
 $canManage = can_manage_project($project);
+// Applying a task template is deliberately broader than full project
+// management — anyone who can already add tasks to this project (admin,
+// PM, or a member of it) can pull in a template's tasks.
+$canApplyTemplate = can_add_task_to_project($project);
+$applyTemplates = $canApplyTemplate ? list_task_templates() : [];
 $method = $_GET['method'] ?? 'duration_weighted';
 $progress = calculate_project_progress($projectId, $method);
 $stats = project_task_stats($projectId);
@@ -63,6 +68,9 @@ require __DIR__ . '/includes/layout_header.php';
   </div>
   <div class="d-flex gap-2">
     <a href="<?= e(base_url('project_board.php?id=' . $projectId)) ?>" class="btn btn-outline-primary"><i class="bi bi-kanban"></i> <?= e(t('pd.task_board')) ?></a>
+    <?php if ($canApplyTemplate && $applyTemplates): ?>
+      <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#applyTemplateModal"><i class="bi bi-clipboard-check"></i> <?= e(t('pd.apply_template')) ?></button>
+    <?php endif; ?>
     <?php if ($canManage): ?>
       <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editProjectModal"><i class="bi bi-pencil-square"></i> <?= e(t('pd.edit_project')) ?></button>
       <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#memberModal"><i class="bi bi-person-plus"></i> <?= e(t('pd.add_member')) ?></button>
@@ -344,6 +352,49 @@ require __DIR__ . '/includes/layout_header.php';
     </div>
   </div>
 </div>
+<?php endif; ?>
+
+<?php if ($canApplyTemplate && $applyTemplates): ?>
+<div class="modal fade" id="applyTemplateModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title"><?= e(t('pd.apply_template')) ?></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label"><?= e(t('pd.choose_template')) ?></label>
+          <select class="form-select" id="applyTemplateSelect">
+            <option value=""><?= e(t('pd.choose_template_placeholder')) ?></option>
+            <?php foreach ($applyTemplates as $tpl): ?>
+              <option value="<?= (int)$tpl['id'] ?>"><?= e($tpl['name']) ?> (<?= (int)$tpl['item_count'] ?> <?= (int)$tpl['item_count'] === 1 ? e(t('tt.task_singular')) : e(t('tt.task_plural')) ?>)</option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <div id="applyTemplateItemsWrap" class="d-none">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <label class="form-label mb-0"><?= e(t('pd.choose_tasks')) ?></label>
+            <div>
+              <button type="button" class="btn btn-sm btn-link p-0 me-2" id="applyTemplateSelectAll"><?= e(t('tt.select_all_tasks')) ?></button>
+              <button type="button" class="btn btn-sm btn-link p-0" id="applyTemplateSelectNone"><?= e(t('tt.select_no_tasks')) ?></button>
+            </div>
+          </div>
+          <div id="applyTemplateItemsList" class="border rounded p-2" style="max-height:280px; overflow-y:auto;"></div>
+        </div>
+        <div class="af-empty d-none" id="applyTemplateEmpty"><i class="bi bi-clipboard-check"></i><?= e(t('pd.template_no_tasks')) ?></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><?= e(t('common.cancel')) ?></button>
+        <button type="button" class="btn btn-primary" id="applyTemplateConfirmBtn" disabled><i class="bi bi-check2-circle"></i> <?= e(t('pd.apply_selected')) ?></button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+window.AF_I18N_APPLY_TEMPLATE = {
+  issueBadge: <?= json_encode(t('workload.issue_badge')) ?>,
+  milestoneLabel: <?= json_encode(t('tasks.milestone')) ?>,
+  noEstimate: <?= json_encode(t('tt.no_estimate')) ?>
+};
+</script>
 <?php endif; ?>
 
 <script>

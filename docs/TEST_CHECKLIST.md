@@ -848,6 +848,63 @@ read-only) — see `has_broad_project_visibility()` in `includes/permissions.php
       the UI — these endpoints are reachable by URL even though no current
       page calls them directly for a full unfiltered list.
 
+## Task Templates
+
+- [ ] As an Employee or Viewer, confirm the "Task Templates" nav link is not
+      shown, and navigating to `task_templates.php` or
+      `task_template_detail.php?id=...` directly is denied.
+- [ ] As an Administrator or Project Manager, confirm the "Task Templates"
+      nav link appears and the list page loads, showing each template's
+      name, description, task count, and who created it.
+- [ ] Create a new template (name + optional description) — confirm it
+      appears in the list with 0 tasks.
+- [ ] Open a template's detail page and add a few tasks to it, each with a
+      title, optional description, priority, estimate (hours), category, and
+      milestone/issue flags — confirm each appears in the task list with the
+      right badges/estimate/category shown.
+- [ ] Use the move up/down buttons on a template task — confirm its position
+      changes and the buttons disable correctly at the top/bottom of the
+      list.
+- [ ] Edit a template task's fields (including changing its estimate and
+      unchecking milestone/issue) — confirm the changes are saved and
+      reflected in the list.
+- [ ] Delete a template task — confirm it's removed and the remaining tasks'
+      order is preserved.
+- [ ] Edit the template's own name/description from its detail page —
+      confirm the header updates.
+- [ ] Delete a whole template from the list page (with its confirmation
+      modal) — confirm it disappears along with all of its tasks (cascading
+      delete).
+- [ ] As an Employee who is a member of a project (but not admin/PM), open
+      that project's detail page — confirm an "Apply task template" button
+      is visible (since project members, not just admins/PMs, may apply a
+      template to their own project).
+- [ ] As an Employee who is *not* a member of a given project, confirm the
+      "Apply task template" button does not appear on that project's detail
+      page.
+- [ ] From a project's detail page, click "Apply task template", choose a
+      template with several tasks from the dropdown — confirm its tasks load
+      as a checklist, all checked by default, each showing its title,
+      milestone/issue badges, and estimate (or "No estimate").
+- [ ] Use "Select none" then check just one or two tasks, then click "Add
+      selected tasks" — confirm only the checked tasks are created in the
+      project (visible on the Task Board / My Tasks for the project owner),
+      each with the fields (title, description, priority, estimate,
+      category, milestone/issue) copied from the template item, status
+      "Planned", assignee defaulted to the project owner, and requester set
+      to whoever applied the template.
+- [ ] Pick a template that has zero tasks (or none) — confirm the modal
+      shows a "no tasks" message instead of an empty checklist, and the "Add
+      selected tasks" button stays disabled.
+- [ ] Toggle "Select all" / "Select none" — confirm the "Add selected tasks"
+      button enables/disables accordingly, and re-checking a single task
+      manually also re-enables it.
+- [ ] Directly call `api/task_templates.php` write actions (`create`,
+      `update`, `delete`, `item_save`, `item_delete`, `item_move`) as an
+      Employee and confirm each is denied; confirm the `apply` action is
+      allowed for a project member but denied for a non-member of that
+      project.
+
 ## Authorization boundaries
 
 - [ ] As an Employee, confirm Admin pages (`admin/*.php`, `audit_log.php`)

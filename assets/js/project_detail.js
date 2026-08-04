@@ -51,6 +51,95 @@
     });
   }
 
+  // Apply Task Template: pick a shared template, load its tasks, let the
+  // user choose which ones to add (all checked by default), then create
+  // them as real tasks in this project — see api/task_templates.php's
+  // 'apply' action and apply_task_template_to_project().
+  const applyTemplateSelect = document.getElementById('applyTemplateSelect');
+  if (applyTemplateSelect) {
+    const itemsWrap = document.getElementById('applyTemplateItemsWrap');
+    const itemsList = document.getElementById('applyTemplateItemsList');
+    const applyEmptyEl = document.getElementById('applyTemplateEmpty');
+    const confirmBtn = document.getElementById('applyTemplateConfirmBtn');
+    const tI18n = window.AF_I18N_APPLY_TEMPLATE || {};
+
+    function updateApplyConfirmState() {
+      confirmBtn.disabled = itemsList.querySelectorAll('.apply-template-item:checked').length === 0;
+    }
+
+    function renderTemplateItems(items) {
+      itemsList.innerHTML = '';
+      if (!items.length) {
+        itemsWrap.classList.add('d-none');
+        applyEmptyEl.classList.remove('d-none');
+        confirmBtn.disabled = true;
+        return;
+      }
+      applyEmptyEl.classList.add('d-none');
+      itemsWrap.classList.remove('d-none');
+      items.forEach((item) => {
+        const estimate = item.estimated_minutes
+          ? (Math.round((item.estimated_minutes / 60) * 10) / 10) + 'h'
+          : (tI18n.noEstimate || 'No estimate');
+        const row = document.createElement('div');
+        row.className = 'form-check mb-1';
+        row.innerHTML =
+          '<input class="form-check-input apply-template-item" type="checkbox" value="' + item.id + '" id="ati_' + item.id + '" checked>' +
+          '<label class="form-check-label" for="ati_' + item.id + '">' +
+          afEscapeHtml(item.title) +
+          (item.is_milestone ? ' <i class="bi bi-flag-fill text-warning" title="' + afEscapeHtml(tI18n.milestoneLabel || 'Milestone') + '"></i>' : '') +
+          (item.is_issue ? ' <span class="badge bg-danger">' + afEscapeHtml(tI18n.issueBadge || 'Issue') + '</span>' : '') +
+          ' <span class="text-muted small">— ' + afEscapeHtml(estimate) + '</span>' +
+          '</label>';
+        itemsList.appendChild(row);
+      });
+      itemsList.querySelectorAll('.apply-template-item').forEach((cb) => cb.addEventListener('change', updateApplyConfirmState));
+      updateApplyConfirmState();
+    }
+
+    applyTemplateSelect.addEventListener('change', function () {
+      const templateId = applyTemplateSelect.value;
+      itemsList.innerHTML = '';
+      itemsWrap.classList.add('d-none');
+      applyEmptyEl.classList.add('d-none');
+      confirmBtn.disabled = true;
+      if (!templateId) return;
+      fetch(window.AF_BASE_URL + 'api/task_templates.php?action=get&id=' + encodeURIComponent(templateId), { credentials: 'same-origin' })
+        .then((r) => r.json())
+        .then((res) => { if (res.ok) renderTemplateItems(res.template.items || []); else afToast('Unable to load that template.', 'danger'); })
+        .catch(() => afToast('Unable to load that template.', 'danger'));
+    });
+
+    const selectAllBtn = document.getElementById('applyTemplateSelectAll');
+    const selectNoneBtn = document.getElementById('applyTemplateSelectNone');
+    selectAllBtn && selectAllBtn.addEventListener('click', function () {
+      itemsList.querySelectorAll('.apply-template-item').forEach((cb) => { cb.checked = true; });
+      updateApplyConfirmState();
+    });
+    selectNoneBtn && selectNoneBtn.addEventListener('click', function () {
+      itemsList.querySelectorAll('.apply-template-item').forEach((cb) => { cb.checked = false; });
+      updateApplyConfirmState();
+    });
+
+    confirmBtn.addEventListener('click', function () {
+      const itemIds = Array.from(itemsList.querySelectorAll('.apply-template-item:checked')).map((cb) => cb.value);
+      if (!itemIds.length) return;
+      confirmBtn.disabled = true;
+      afFetch(window.AF_BASE_URL + 'api/task_templates.php', {
+        method: 'POST',
+        body: { action: 'apply', project_id: P.id, template_id: applyTemplateSelect.value, item_ids: itemIds },
+      })
+        .then((res) => {
+          afToast((res.created_count || itemIds.length) + ' task(s) added to the project.');
+          setTimeout(() => location.reload(), 400);
+        })
+        .catch((err) => {
+          afToast(err.message, 'danger');
+          confirmBtn.disabled = false;
+        });
+    });
+  }
+
   window.afProjectDetail = {
     removeMember(personId) {
       if (!afConfirm('Remove this member from the project?')) return;
