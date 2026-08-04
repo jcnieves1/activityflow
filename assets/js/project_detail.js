@@ -78,6 +78,12 @@
       applyEmptyEl.classList.add('d-none');
       itemsWrap.classList.remove('d-none');
       items.forEach((item) => {
+        // Booleans round-trip through MySQL/PDO/json_encode as 0/1 (numbers
+        // or numeric strings depending on driver config), never as JS
+        // true/false — comparing loosely against 0 handles every shape
+        // (0, "0", 1, "1", true, false) instead of assuming a JS boolean.
+        const isMilestone = Number(item.is_milestone) === 1;
+        const isIssue = Number(item.is_issue) === 1;
         const estimate = item.estimated_minutes
           ? (Math.round((item.estimated_minutes / 60) * 10) / 10) + 'h'
           : (tI18n.noEstimate || 'No estimate');
@@ -87,8 +93,8 @@
           '<input class="form-check-input apply-template-item" type="checkbox" value="' + item.id + '" id="ati_' + item.id + '" checked>' +
           '<label class="form-check-label" for="ati_' + item.id + '">' +
           afEscapeHtml(item.title) +
-          (item.is_milestone ? ' <i class="bi bi-flag-fill text-warning" title="' + afEscapeHtml(tI18n.milestoneLabel || 'Milestone') + '"></i>' : '') +
-          (item.is_issue ? ' <span class="badge bg-danger">' + afEscapeHtml(tI18n.issueBadge || 'Issue') + '</span>' : '') +
+          (isMilestone ? ' <i class="bi bi-flag-fill text-warning" title="' + afEscapeHtml(tI18n.milestoneLabel || 'Milestone') + '"></i>' : '') +
+          (isIssue ? ' <span class="badge bg-danger">' + afEscapeHtml(tI18n.issueBadge || 'Issue') + '</span>' : '') +
           ' <span class="text-muted small">— ' + afEscapeHtml(estimate) + '</span>' +
           '</label>';
         itemsList.appendChild(row);
@@ -104,10 +110,23 @@
       applyEmptyEl.classList.add('d-none');
       confirmBtn.disabled = true;
       if (!templateId) return;
+      window.afLoadingShow && window.afLoadingShow();
       fetch(window.AF_BASE_URL + 'api/task_templates.php?action=get&id=' + encodeURIComponent(templateId), { credentials: 'same-origin' })
-        .then((r) => r.json())
-        .then((res) => { if (res.ok) renderTemplateItems(res.template.items || []); else afToast('Unable to load that template.', 'danger'); })
-        .catch(() => afToast('Unable to load that template.', 'danger'));
+        .then((r) => r.json().catch(() => null).then((data) => {
+          if (!r.ok || !data) {
+            throw new Error('Server returned an unexpected response (HTTP ' + r.status + ').');
+          }
+          return data;
+        }))
+        .then((res) => {
+          if (!res.ok) throw new Error(res.error || 'Unable to load that template.');
+          renderTemplateItems((res.template && res.template.items) || []);
+        })
+        .catch((err) => {
+          console.error('Failed to load template items:', err);
+          afToast(err.message || 'Unable to load that template.', 'danger');
+        })
+        .finally(() => window.afLoadingHide && window.afLoadingHide());
     });
 
     const selectAllBtn = document.getElementById('applyTemplateSelectAll');

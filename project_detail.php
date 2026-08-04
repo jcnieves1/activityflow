@@ -42,7 +42,11 @@ $pageStyles = ['https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.mi
 $pageScripts = [
     'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js',
     'https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js',
-    base_url('assets/js/project_detail.js'),
+    // Cache-busted with the file's own mtime so a browser that already
+    // cached an older copy of this script (e.g. from before a feature like
+    // Apply Task Template was added to it) always picks up the latest
+    // version on the next load, instead of silently running stale JS.
+    base_url('assets/js/project_detail.js') . '?v=' . (@filemtime(__DIR__ . '/assets/js/project_detail.js') ?: time()),
 ];
 require __DIR__ . '/includes/layout_header.php';
 ?>
