@@ -40,9 +40,17 @@ CREATE TABLE users (
     last_login_at DATETIME DEFAULT NULL,
     theme ENUM('golden','green','blue') NOT NULL DEFAULT 'golden',
     locale ENUM('en','es') NOT NULL DEFAULT 'en',
+    -- Bumped on every request the user makes (see
+    -- includes/models/presence.php::touch_user_presence(), called from
+    -- bootstrap.php) — a user is considered "online" while this is within
+    -- the last few minutes. Not a precise "session active" flag (there's no
+    -- explicit disconnect event over HTTP), just a simple, good-enough
+    -- recency signal for the "Online (x)" topbar widget.
+    last_seen_at DATETIME DEFAULT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    UNIQUE KEY uq_users_email (email)
+    UNIQUE KEY uq_users_email (email),
+    KEY idx_users_last_seen (last_seen_at)
 ) ENGINE=InnoDB;
 
 CREATE TABLE user_roles (

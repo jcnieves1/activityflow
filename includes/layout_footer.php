@@ -23,6 +23,10 @@ window.AF_USER_ID = <?= json_encode($user['id'] ?? null) ?>;
 window.AF_I18N = <?= json_encode([
     'no_notifications' => t('topbar.no_notifications'),
     'unable_to_load_notifications' => t('topbar.unable_to_load_notifications'),
+    'online_count' => t('topbar.online_count'),
+    'no_one_online' => t('topbar.no_one_online'),
+    'you_suffix' => t('topbar.you_suffix'),
+    'unable_to_load_online' => t('topbar.unable_to_load_online'),
     'board_all_team_members' => t('board.all_team_members'),
     'board_member_singular' => t('board.member_singular'),
     'board_member_plural' => t('board.member_plural'),

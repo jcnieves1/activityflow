@@ -32,6 +32,7 @@ require_once __DIR__ . '/models/activities.php';
 require_once __DIR__ . '/models/workload.php';
 require_once __DIR__ . '/models/mindmap.php';
 require_once __DIR__ . '/models/task_templates.php';
+require_once __DIR__ . '/models/presence.php';
 require_once __DIR__ . '/models/time_entries.php';
 require_once __DIR__ . '/models/dashboard.php';
 require_once __DIR__ . '/models/reports.php';
@@ -74,4 +75,12 @@ if (session_status() === PHP_SESSION_NONE) {
         $_SESSION['flash'][] = ['type' => 'info', 'message' => 'Your session expired. Please log in again.'];
     }
     $_SESSION['last_activity'] = time();
+}
+
+// Presence heartbeat: bumps the logged-in user's last_seen_at on every
+// request (throttled inside touch_user_presence() itself, so this is cheap
+// to call unconditionally here rather than threading it through every page).
+// See includes/models/presence.php for the "Online (x)" topbar widget this feeds.
+if (!empty($_SESSION['user']['id'])) {
+    touch_user_presence((int)$_SESSION['user']['id']);
 }

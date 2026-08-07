@@ -905,6 +905,35 @@ read-only) — see `has_broad_project_visibility()` in `includes/permissions.php
       allowed for a project member but denied for a non-member of that
       project.
 
+## Presence / online users
+
+- [ ] Log in as any role and confirm the topbar shows an "Online (x)" widget
+      (green dot + count) between the language switcher and the notification
+      bell, and that `x` includes yourself.
+- [ ] Click the widget and confirm the dropdown lists every currently-online
+      user, each with a green dot, and that your own entry is suffixed with
+      "(You)".
+- [ ] Log in as a second user in a different browser (or a private window)
+      and confirm they appear in the first user's list (and vice versa)
+      within about a minute — the count and list refresh automatically every
+      45 seconds without a page reload.
+- [ ] Leave a session idle (no requests) for longer than the online window
+      (5 minutes) and confirm that user drops out of the list and the count
+      decreases on the next refresh, without anyone needing to explicitly
+      "log off" — presence is based on recent activity, not an explicit
+      connect/disconnect signal.
+- [ ] Confirm the widget and list are visible to every role (Administrator,
+      Project Manager, Employee, Viewer) — this is not gated by the
+      project/task visibility restrictions, since knowing who else is using
+      the app isn't project-sensitive.
+- [ ] With nobody else online, confirm the dropdown shows a "No one is
+      online right now." message instead of an empty list (this shouldn't
+      normally happen since you yourself always count, but confirm the
+      empty-state copy renders correctly if reached, e.g. via
+      `api/presence.php?action=list` directly).
+- [ ] Switch language to Español and confirm the widget label, dropdown
+      heading, and "(You)" suffix are translated.
+
 ## Authorization boundaries
 
 - [ ] As an Employee, confirm Admin pages (`admin/*.php`, `audit_log.php`)

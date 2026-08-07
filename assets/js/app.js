@@ -193,6 +193,46 @@
   }
   document.addEventListener('DOMContentLoaded', loadNotifications);
 
+  // ---- Online presence widget ----
+  // Who else currently has the app open, approximated by recency of
+  // activity (see includes/models/presence.php). The topbar already
+  // server-renders the current list on page load (includes/layout_header.php),
+  // so there's no need to re-fetch immediately — only refresh periodically
+  // after that, so long-lived tabs still see people come and go without a
+  // full page reload.
+  const onlineList = document.getElementById('afOnlineList');
+  const onlineCountEl = document.getElementById('afOnlineCount');
+  function loadPresence() {
+    if (!onlineList && !onlineCountEl) return;
+    afFetch(window.AF_BASE_URL + 'api/presence.php?action=list')
+      .then((data) => {
+        const users = (data && data.users) || [];
+        const i18n = window.AF_I18N || {};
+        if (onlineCountEl) {
+          const template = i18n.online_count || 'Online ({count})';
+          onlineCountEl.textContent = template.replace('{count}', String(users.length));
+        }
+        if (onlineList) {
+          if (!users.length) {
+            onlineList.innerHTML = `<div class="p-3 text-muted small">${i18n.no_one_online || 'No one is online right now.'}</div>`;
+            return;
+          }
+          onlineList.innerHTML = users.map((u) => `
+            <div class="af-online-item">
+              <span class="af-status-dot af-status-dot-online"></span>
+              <span>${escapeHtml(u.full_name)}${u.is_self ? ' ' + escapeHtml(i18n.you_suffix || '(You)') : ''}</span>
+            </div>`).join('');
+        }
+      })
+      .catch(() => {
+        const i18n = window.AF_I18N || {};
+        if (onlineList) onlineList.innerHTML = `<div class="p-3 text-muted small">${i18n.unable_to_load_online || 'Unable to load online users.'}</div>`;
+      });
+  }
+  if (onlineList || onlineCountEl) {
+    setInterval(loadPresence, 45000);
+  }
+
   function escapeHtml(str) {
     const d = document.createElement('div');
     d.innerText = str == null ? '' : String(str);

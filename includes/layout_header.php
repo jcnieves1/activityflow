@@ -10,6 +10,11 @@ $pageTitle = $pageTitle ?? t('app.name');
 $activeNav = $activeNav ?? '';
 $user = current_user();
 $unread = $user ? unread_notification_count($user['id']) : 0;
+// Presence has already been touched for this very request in bootstrap.php,
+// so the current user is guaranteed to be counted here — the topbar widget
+// never has to explain why "you" appear offline to yourself.
+$onlineUsers = $user ? list_online_users() : [];
+$onlineCount = count($onlineUsers);
 
 $navItems = [
     ['key' => 'dashboard', 'label' => t('nav.dashboard'), 'icon' => 'speedometer2', 'url' => 'dashboard.php'],
@@ -106,6 +111,29 @@ $navItems = [
               <li><a class="dropdown-item <?= current_locale() === $key ? 'active' : '' ?>" href="#" data-locale-option="<?= e($key) ?>"><?= e($label) ?></a></li>
             <?php endforeach; ?>
           </ul>
+        </div>
+        <div class="dropdown">
+          <button class="btn btn-light d-flex align-items-center gap-1" data-bs-toggle="dropdown" aria-label="<?= e(t('topbar.online_users')) ?>" title="<?= e(t('topbar.online_users')) ?>">
+            <span class="af-status-dot af-status-dot-online"></span>
+            <span id="afOnlineCount"><?= e(t('topbar.online_count', ['count' => (string)$onlineCount])) ?></span>
+          </button>
+          <div class="dropdown-menu dropdown-menu-end af-online-menu">
+            <div class="px-3 py-2">
+              <strong><?= e(t('topbar.online_users')) ?></strong>
+            </div>
+            <div id="afOnlineList" class="af-online-list">
+              <?php if (!$onlineUsers): ?>
+                <div class="p-3 text-muted small"><?= e(t('topbar.no_one_online')) ?></div>
+              <?php else: ?>
+                <?php foreach ($onlineUsers as $ou): ?>
+                  <div class="af-online-item">
+                    <span class="af-status-dot af-status-dot-online"></span>
+                    <span><?= e($ou['full_name']) ?><?= (int)$ou['id'] === (int)$user['id'] ? ' ' . e(t('topbar.you_suffix')) : '' ?></span>
+                  </div>
+                <?php endforeach; ?>
+              <?php endif; ?>
+            </div>
+          </div>
         </div>
         <div class="dropdown">
           <button class="btn btn-light position-relative" data-bs-toggle="dropdown" aria-label="<?= e(t('topbar.notifications')) ?>">
