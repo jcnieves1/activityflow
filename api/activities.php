@@ -35,7 +35,19 @@ if ($method === 'GET' && $action === 'get') {
     $activity['time_totals'] = activity_time_totals((int)$activity['id']);
     $activity['interruptions'] = list_interruptions_for_activity((int)$activity['id']);
     $activity['dependencies'] = list_activity_dependencies((int)$activity['id']);
-    $activity['history'] = audit_history('activity', (int)$activity['id']);
+    // Turn each history row's raw old_value/new_value JSON (see audit_log())
+    // into a short list of human-readable "Label: old → new" lines — see
+    // describe_activity_history_changes() for the field label/value
+    // formatting (resolving assignee/category/project ids to names,
+    // truncating long text fields, etc). The raw JSON columns aren't sent to
+    // the client once decoded — nothing in the History tab needs them.
+    $activity['history'] = array_map(static function (array $h): array {
+        $old = $h['old_value'] !== null ? json_decode($h['old_value'], true) : null;
+        $new = $h['new_value'] !== null ? json_decode($h['new_value'], true) : null;
+        $h['changes'] = describe_activity_history_changes($old, $new);
+        unset($h['old_value'], $h['new_value']);
+        return $h;
+    }, audit_history('activity', (int)$activity['id']));
     // Computed server-side so the client can decide which buttons to show without
     // re-implementing (and risking drifting out of sync with) the permission
     // rules in JS. can_edit also gates the Clone/Move buttons — cloning or

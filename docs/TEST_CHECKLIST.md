@@ -938,6 +938,40 @@ read-only) — see `has_broad_project_visibility()` in `includes/permissions.php
       allowed for a project member but denied for a non-member of that
       project.
 
+## Task History detail
+
+- [ ] Edit an existing task and change its priority (e.g. Normal → High), then
+      open the task again and check the History tab: confirm the entry shows
+      a bulleted line reading "Priority: Normal → High" (translated field
+      label, arrow, old value, new value), not just a generic "updated" line.
+- [ ] In one edit, change several fields at once (assignee, category,
+      progress %, and due date). Confirm the History entry lists one bullet
+      per changed field, each with its own before → after values, and that
+      only the fields that actually changed are listed.
+- [ ] Change the task's assignee and confirm the History line shows the
+      assignee's name (not their numeric ID) on both sides of the arrow.
+      Repeat for category and project fields.
+- [ ] Edit the task description with a long paragraph of text, save, and
+      confirm the History entry shows a short truncated preview (ending in
+      "…") rather than the full text.
+- [ ] Set a task's status/progress to 100% or otherwise trigger completion,
+      and confirm the progress change is labeled "Progress" (not "Actual
+      completion" or another mismatched label) and shown as a percentage.
+- [ ] Add a couple of comments and log time entries against a task, then
+      delete the task. If deletions are visible to you (e.g. via an audit
+      trail or the parent project's activity log), confirm the deletion
+      summary reads using proper labels like "Comments: N" and "Time
+      entries: N", not raw tab names.
+- [ ] Trigger an action with no field changes (e.g. adding a comment or an
+      interruption) and confirm the History entry still shows the action
+      line but renders no empty bullet list underneath.
+- [ ] Confirm History entries render oldest-action metadata safely — try a
+      value containing HTML-special characters (e.g. a task title or comment
+      with `<` or `&`) and confirm it displays as literal text, not
+      interpreted HTML.
+- [ ] Switch language to Español and confirm the field labels in History
+      lines (Priority, Assignee, Progress, etc.) are translated.
+
 ## Presence / online users
 
 - [ ] Log in as any role and confirm the topbar shows an "Online (x)" widget

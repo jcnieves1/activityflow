@@ -117,6 +117,154 @@ function get_activity(int $id): ?array
     return $row ?: null;
 }
 
+// ---------------------------------------------------------------------
+// History / audit display formatting
+// ---------------------------------------------------------------------
+//
+// audit_log() (see includes/models/audit.php) already stores the raw
+// before/after field values for every create/update/status-change/etc. on
+// an activity — the History tab just wasn't turning that into anything
+// readable (it only showed the action name, e.g. "updated"). The functions
+// below turn a decoded old_value/new_value pair into a short list of
+// human lines like "Priority: Normal → High" for the History tab to
+// render, resolving id fields (assignee, category, project) to names and
+// truncating long text fields (description/notes) to a preview rather than
+// dumping the whole thing.
+
+/** Cache activity_categories name lookups per request — history lists can have many rows. */
+function activity_category_name(?int $id): ?string
+{
+    static $cache = [];
+    if (!$id) {
+        return null;
+    }
+    if (!array_key_exists($id, $cache)) {
+        $stmt = db()->prepare('SELECT name FROM activity_categories WHERE id = ?');
+        $stmt->execute([$id]);
+        $cache[$id] = $stmt->fetchColumn() ?: null;
+    }
+    return $cache[$id];
+}
+
+function activity_history_field_label(string $key): string
+{
+    return match ($key) {
+        'title' => t('activity.field_title'),
+        'description' => t('activity.field_description'),
+        'notes' => t('projects.field_notes'),
+        'priority' => t('common.priority'),
+        'status' => t('activity.field_status'),
+        'assignee_id' => t('activity.field_assignee'),
+        'requester_id' => t('common.requester'),
+        'category_id' => t('activity.field_category'),
+        'project_id' => t('projects.field_name'),
+        'estimated_minutes' => t('activity.field_estimated_hours'),
+        'planned_start_at' => t('activity.field_planned_start'),
+        'target_completion_at' => t('activity.field_target_completion'),
+        'completion_pct' => t('history.progress_pct'),
+        'is_milestone' => t('activity.field_milestone'),
+        'is_issue' => t('activity.field_issue'),
+        'activity_type' => t('tasks.planned_and_unplanned'),
+        'request_channel' => t('activity.field_request_channel'),
+        'interruption_reason' => t('history.interruption_reason'),
+        'reason' => t('history.reason'),
+        'comment_count' => t('history.comment_count'),
+        'time_entry_count' => t('history.time_entry_count'),
+        'source_activity_id' => t('history.cloned_from'),
+        'is_adhoc' => t('history.ad_hoc'),
+        default => ucwords(str_replace('_', ' ', $key)),
+    };
+}
+
+function activity_history_field_value(string $key, $value): string
+{
+    if ($value === null || $value === '') {
+        return '—';
+    }
+    switch ($key) {
+        case 'priority':
+            return status_label((string)$value);
+        case 'status':
+            return task_status_label((string)$value);
+        case 'assignee_id':
+        case 'requester_id':
+            $person = get_person((int)$value);
+            return $person ? $person['full_name'] : '#' . $value;
+        case 'category_id':
+            return activity_category_name((int)$value) ?? '—';
+        case 'project_id':
+            $project = get_project((int)$value);
+            return $project ? $project['name'] : '#' . $value;
+        case 'source_activity_id':
+            $source = get_activity((int)$value);
+            return $source ? $source['title'] : '#' . $value;
+        case 'planned_start_at':
+        case 'target_completion_at':
+            return format_datetime((string)$value);
+        case 'estimated_minutes':
+            return format_minutes((int)$value);
+        case 'completion_pct':
+            return $value . '%';
+        case 'is_milestone':
+        case 'is_issue':
+        case 'is_adhoc':
+            return $value ? t('common.yes') : t('common.no');
+        case 'activity_type':
+            return $value === 'unplanned' ? t('tasks.unplanned') : t('tasks.planned');
+        case 'request_channel':
+            return request_channel_label((string)$value);
+        case 'description':
+        case 'notes':
+        case 'interruption_reason':
+        case 'reason':
+            // These can be long (rich-text description, freeform notes) — a
+            // full dump would swamp the History tab, so show just enough of
+            // a preview to recognize what changed, same truncation pattern
+            // used for template/project description previews elsewhere.
+            $text = trim(strip_tags((string)$value));
+            return $text === '' ? '—' : mb_strimwidth($text, 0, 100, '…');
+        default:
+            return (string)$value;
+    }
+}
+
+/**
+ * Turns a decoded old/new field pair (from an audit_logs row) into a list of
+ * short "Label: old → new" lines. Handles all three shapes audit_log() is
+ * called with for activities: both old+new present (a normal update — diff
+ * each field), only new present (creation — list what was set), or only old
+ * present (deletion — list what existed). Fields whose formatted display
+ * value didn't actually change (e.g. two timestamps that only differ in
+ * seconds) are skipped so the list only shows differences a person would
+ * actually notice.
+ */
+function describe_activity_history_changes(?array $old, ?array $new): array
+{
+    $old ??= [];
+    $new ??= [];
+    $keys = array_unique(array_merge(array_keys($old), array_keys($new)));
+    $lines = [];
+    foreach ($keys as $key) {
+        $hasOld = array_key_exists($key, $old);
+        $hasNew = array_key_exists($key, $new);
+        $label = activity_history_field_label($key);
+        $oldDisplay = $hasOld ? activity_history_field_value($key, $old[$key]) : null;
+        $newDisplay = $hasNew ? activity_history_field_value($key, $new[$key]) : null;
+
+        if ($hasOld && $hasNew) {
+            if ($oldDisplay === $newDisplay) {
+                continue;
+            }
+            $lines[] = "{$label}: {$oldDisplay} → {$newDisplay}";
+        } elseif ($hasNew) {
+            $lines[] = "{$label}: {$newDisplay}";
+        } elseif ($hasOld) {
+            $lines[] = "{$label}: {$oldDisplay}";
+        }
+    }
+    return $lines;
+}
+
 /**
  * Permanently deletes a task. Existing ON DELETE CASCADE foreign keys take care
  * of its comments, time entries, tags, dependencies, status history, and

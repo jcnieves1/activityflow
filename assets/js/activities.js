@@ -334,8 +334,15 @@ window.afActivities = (function () {
     currentComments = a.comments || [];
     renderComments();
 
+    // h.changes is a list of short "Label: old → new" lines built server-side
+    // (see describe_activity_history_changes() in includes/models/activities.php)
+    // from the raw before/after values audit_log() already records — this is
+    // what actually changed, not just the action name.
     document.getElementById('am_history').innerHTML = (a.history || []).map((h) => `
-      <div class="mb-1"><span class="text-muted">${h.created_at}</span> — ${afEscapeHtml(h.actor_name || 'System')} <em>${h.action.replace(/_/g, ' ')}</em></div>`
+      <div class="mb-2">
+        <div><span class="text-muted">${h.created_at}</span> — ${afEscapeHtml(h.actor_name || 'System')} <em>${h.action.replace(/_/g, ' ')}</em></div>
+        ${(h.changes && h.changes.length) ? '<ul class="mb-0 ps-3 text-muted">' + h.changes.map((c) => `<li>${afEscapeHtml(c)}</li>`).join('') + '</ul>' : ''}
+      </div>`
     ).join('') || '<p class="text-muted small">No history recorded.</p>';
 
     currentId = a.id;
