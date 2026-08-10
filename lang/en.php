@@ -524,6 +524,11 @@ return [
     'board.all_statuses' => 'All statuses',
     'board.add_task' => 'Add task',
     'board.showing_statuses' => 'Showing {shown} of {total} statuses.',
+    'board.compact_view' => 'Compact view',
+    'board.tooltip_assignee' => 'Assignee: {name}',
+    'board.tooltip_type' => 'Type: {type}',
+    'board.tooltip_priority' => 'Priority: {priority}',
+    'board.tooltip_progress' => 'Progress: {pct}%',
 
     // ---- My Tasks / Team Activities (shared table strings) ----
     'tasks.new_task' => 'New task',

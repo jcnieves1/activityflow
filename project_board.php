@@ -96,6 +96,15 @@ require __DIR__ . '/includes/activity_modal.php';
       </div>
     </form>
 
+    <!-- Purely a client-side display preference (not a server-side filter),
+         so it lives outside #boardFilterForm and never submits it — see
+         assets/js/project_board.js for the localStorage persistence + the
+         Bootstrap Tooltip init/dispose that backs the hover tooltips below. -->
+    <div class="form-check form-switch mb-0">
+      <input class="form-check-input" type="checkbox" role="switch" id="boardCompactToggle">
+      <label class="form-check-label small" for="boardCompactToggle"><?= e(t('board.compact_view')) ?></label>
+    </div>
+
     <button class="btn btn-primary" onclick="afActivities.openCreate({project_id: <?= $projectId ?>})"><i class="bi bi-plus-lg"></i> <?= e(t('board.add_task')) ?></button>
   </div>
 </div>
@@ -111,9 +120,29 @@ require __DIR__ . '/includes/activity_modal.php';
         <?php foreach ($byStatus[$status] as $a):
           $cls = $a['status'] === 'completed' ? 'completed' : ($a['status'] === 'blocked' ? 'blocked' : ($a['activity_type'] === 'unplanned' ? 'unplanned' : ''));
           if ($a['priority'] === 'urgent') $cls = 'urgent';
+
+          // Compact view hides everything but the title text (see
+          // .af-board-compact in app.css) — this single-line plain-text
+          // tooltip is how the rest of the card's info (assignee, type,
+          // priority, progress, issue/vacation flags) stays reachable on
+          // hover without it. Only initialized while compact view is on
+          // (assets/js/project_board.js); harmless to always render.
+          $tooltipParts = [
+              t('board.tooltip_assignee', ['name' => $a['assignee_name']]),
+              t('board.tooltip_type', ['type' => $a['activity_type'] === 'unplanned' ? t('tasks.unplanned') : t('tasks.planned')]),
+              t('board.tooltip_priority', ['priority' => status_label($a['priority'])]),
+              t('board.tooltip_progress', ['pct' => (int)$a['completion_pct']]),
+          ];
+          if ($a['is_issue']) { $tooltipParts[] = t('tasks.issue_tooltip'); }
+          if (isset($vacationConflicts[(int)$a['id']])) { $tooltipParts[] = t('tasks.vacation_conflict_tooltip'); }
+          $tooltipText = implode(' · ', $tooltipParts);
         ?>
-        <div class="af-activity-item <?= $cls ?>" draggable="true" data-id="<?= (int)$a['id'] ?>" onclick="afActivities.openEdit(<?= (int)$a['id'] ?>)">
-          <div class="title"><?= e($a['title']) ?><?= $a['is_issue'] ? ' <i class="bi bi-exclamation-octagon-fill text-danger" title="' . e(t('tasks.issue_tooltip')) . '"></i>' : '' ?><?= isset($vacationConflicts[(int)$a['id']]) ? ' <i class="bi bi-airplane-engines-fill text-danger" title="' . e(t('tasks.vacation_conflict_tooltip')) . '"></i>' : '' ?></div>
+        <div class="af-activity-item <?= $cls ?>" draggable="true" data-id="<?= (int)$a['id'] ?>" onclick="afActivities.openEdit(<?= (int)$a['id'] ?>)"
+             data-bs-toggle="tooltip" data-bs-placement="right" title="<?= e($tooltipText) ?>">
+          <div class="title">
+            <span class="af-card-title-text"><?= e($a['title']) ?></span><?php // hidden in compact view alongside everything below, kept visible in normal view ?>
+            <span class="af-card-title-icons"><?= $a['is_issue'] ? ' <i class="bi bi-exclamation-octagon-fill text-danger" title="' . e(t('tasks.issue_tooltip')) . '"></i>' : '' ?><?= isset($vacationConflicts[(int)$a['id']]) ? ' <i class="bi bi-airplane-engines-fill text-danger" title="' . e(t('tasks.vacation_conflict_tooltip')) . '"></i>' : '' ?></span>
+          </div>
           <div class="small text-muted"><?= e($a['assignee_name']) ?></div>
           <div class="mt-1"><?= activity_type_badge($a['activity_type']) ?> <span class="badge <?= priority_badge_class($a['priority']) ?>"><?= e(status_label($a['priority'])) ?></span></div>
           <div class="af-card-progress mt-2 d-flex align-items-center gap-2">

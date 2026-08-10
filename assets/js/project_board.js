@@ -45,6 +45,51 @@
     }
   })();
 
+  // Compact view: a pure display toggle (hide everything on a card but its
+  // title via CSS — see .af-board-compact in app.css) that's global across
+  // every project's board, not per-project, since it's a personal density
+  // preference rather than a filter. Cards, drag-and-drop, click-to-open,
+  // and the member/status filters are all untouched — this only ever adds
+  // or removes a class on the board container plus toggles the Bootstrap
+  // Tooltip instances that expose the hidden info on hover.
+  (function initCompactView() {
+    const STORAGE_KEY = 'af_board_compact';
+    const toggle = document.getElementById('boardCompactToggle');
+    const board = document.querySelector('.af-board');
+    if (!toggle || !board) return;
+
+    let tooltips = [];
+    function enableTooltips() {
+      if (tooltips.length || typeof bootstrap === 'undefined') return;
+      document.querySelectorAll('.af-activity-item[data-bs-toggle="tooltip"]').forEach((el) => {
+        tooltips.push(new bootstrap.Tooltip(el));
+      });
+    }
+    function disableTooltips() {
+      tooltips.forEach((t) => t.dispose());
+      tooltips = [];
+    }
+
+    function apply(isCompact) {
+      board.classList.toggle('af-board-compact', isCompact);
+      toggle.checked = isCompact;
+      if (isCompact) {
+        enableTooltips();
+      } else {
+        disableTooltips();
+      }
+    }
+
+    let saved = null;
+    try { saved = localStorage.getItem(STORAGE_KEY); } catch (e) { /* storage unavailable (private mode, etc.) */ }
+    apply(saved === '1');
+
+    toggle.addEventListener('change', function () {
+      apply(toggle.checked);
+      try { localStorage.setItem(STORAGE_KEY, toggle.checked ? '1' : '0'); } catch (e) { /* storage unavailable */ }
+    });
+  })();
+
   let draggedId = null;
 
   document.addEventListener('dragstart', function (e) {

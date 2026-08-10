@@ -715,6 +715,39 @@ Mapped to the acceptance criteria. Run through this after installation
 - [ ] Confirm switching the app language changes the checkbox label, filter
       option text, and tooltip to Spanish.
 
+## Task Board compact view
+
+- [ ] On any project's Task Board, confirm a "Compact view" switch appears
+      in the header next to the member/status filters and "Issues only"
+      switch, unchecked by default.
+- [ ] Toggle "Compact view" on — confirm every card across every status
+      column immediately shrinks to show only its task title (assignee line,
+      type/priority badges, progress bar, and the issue/vacation icons all
+      disappear), with tighter spacing between cards.
+- [ ] Hover over a card in compact view — confirm a tooltip appears showing
+      the assignee, type (Planned/Unplanned), priority, and progress
+      percentage, plus "This task is marked as an issue" / vacation-conflict
+      text when applicable.
+- [ ] Toggle "Compact view" off — confirm cards return to their full,
+      detailed layout and hovering no longer shows the tooltip.
+- [ ] With compact view on, confirm drag-and-drop between status columns
+      still works exactly as before (card moves, status updates, board
+      reloads with the same compact state still applied).
+- [ ] With compact view on, confirm clicking a card still opens the Edit
+      Activity dialog, same as in the full view.
+- [ ] With compact view on, confirm the member filter, status filter, and
+      "Issues only" switch all still narrow the board correctly — compact
+      view only changes how cards are drawn, not which tasks appear.
+- [ ] Reload the page (or navigate away and back to this project's board) —
+      confirm the compact/full choice persists (stored per browser/PC, not
+      per project — turning it on for one project's board turns it on for
+      every project's board).
+- [ ] Open a different project's Task Board in the same browser — confirm
+      compact view is already on there too, since the preference is global.
+- [ ] Confirm switching the app language changes the "Compact view" label
+      and the tooltip's field labels (Assignee/Type/Priority/Progress) to
+      Spanish.
+
 ## Mind Map
 
 - [ ] As every role (Administrator, Project Manager, Employee, Viewer),

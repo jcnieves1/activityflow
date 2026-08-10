@@ -228,6 +228,19 @@ body { background: var(--af-body-bg); color: var(--af-body-text); }
 .af-dropzone { min-height: 60px; border:2px dashed transparent; border-radius:.5rem; transition: background .15s; }
 .af-dropzone.dragover { background:var(--af-dropzone-hover-bg); border-color:var(--bs-primary); }
 
+/* Task Board compact view: only the title stays visible, everything else
+   (assignee, badges, progress bar, issue/vacation icons) is reachable via
+   the card's hover tooltip instead — see assets/js/project_board.js. Scoped
+   under .af-board-compact so it only ever affects the board container, not
+   .af-activity-item usages elsewhere (Project Detail's overdue/upcoming
+   lists, etc.). */
+.af-board-compact .af-activity-item { padding:.35rem .6rem; margin-bottom:.3rem; }
+.af-board-compact .af-activity-item .title { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.af-board-compact .af-activity-item .af-card-title-icons,
+.af-board-compact .af-activity-item .small,
+.af-board-compact .af-activity-item .mt-1,
+.af-board-compact .af-activity-item .af-card-progress { display:none; }
+
 /* ---------- Timeline ---------- */
 .af-timeline-track { position:relative; height:70px; background:var(--af-surface-bg); border-radius:.5rem; margin-bottom:.5rem; }
 .af-timeline-track .label { position:absolute; left:.5rem; top:.25rem; font-size:.7rem; color:var(--af-muted-text); font-weight:600; text-transform:uppercase; }

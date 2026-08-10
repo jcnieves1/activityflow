@@ -523,6 +523,11 @@ return [
     'board.all_statuses' => 'Todos los estados',
     'board.add_task' => 'Agregar tarea',
     'board.showing_statuses' => 'Mostrando {shown} de {total} estados.',
+    'board.compact_view' => 'Vista compacta',
+    'board.tooltip_assignee' => 'Asignado a: {name}',
+    'board.tooltip_type' => 'Tipo: {type}',
+    'board.tooltip_priority' => 'Prioridad: {priority}',
+    'board.tooltip_progress' => 'Avance: {pct}%',
 
     // ---- My Tasks / Team Activities (shared table strings) ----
     'tasks.new_task' => 'Nueva tarea',
