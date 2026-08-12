@@ -1,6 +1,13 @@
 <?php
 declare(strict_types=1);
 /** Shared create/edit modal for planned activities and project tasks. Reused by My Tasks, Team Activities, and the Project Board. */
+// Admin-only: lets the assignee field offer people who aren't yet on the
+// selected project (see assets/js/activities.js's filterAssigneesByProject())
+// — picking one auto-adds them as a project member on save (see
+// auto_join_assignee_to_project() in api/activities.php). Regular users only
+// ever see the plain, project-filtered list, matching the pre-existing
+// behavior exactly.
+$amIsAdmin = is_admin();
 $amPeople = list_people(['is_active' => 1]);
 $amProjects = filter_visible_projects(list_projects(['is_archived' => 0]));
 $amCategories = db()->query('SELECT * FROM activity_categories WHERE is_active = 1 ORDER BY name')->fetchAll();
@@ -61,10 +68,13 @@ foreach ($amProjectMemberIds as $projId => $memberIds) {
             </div>
             <div class="row">
               <div class="col-md-6 mb-2"><label class="form-label"><?= e(t('activity.field_assignee')) ?></label>
-                <select class="form-select" name="assignee_id" id="am_assignee_id" required>
+                <select class="form-select" name="assignee_id" id="am_assignee_id" required<?= $amIsAdmin ? ' data-admin-assign="1"' : '' ?>>
+                  <?php if ($amIsAdmin): ?><optgroup label="<?= e(t('activity.assignee_group_team')) ?>" id="am_assignee_group_team"><?php endif; ?>
                   <?php foreach ($amPeople as $p): ?><option value="<?= (int)$p['id'] ?>" data-projects="<?= e(implode(',', $amPersonProjectIds[(int)$p['id']] ?? [])) ?>"><?= e($p['full_name']) ?></option><?php endforeach; ?>
+                  <?php if ($amIsAdmin): ?></optgroup><optgroup label="<?= e(t('activity.assignee_group_other')) ?>" id="am_assignee_group_other" style="display:none"></optgroup><?php endif; ?>
                 </select>
                 <div class="form-text" id="am_assignee_filter_hint" style="display:none"><?= e(t('activity.assignee_filtered_hint')) ?></div>
+                <?php if ($amIsAdmin): ?><div class="form-text text-primary d-none" id="am_assignee_admin_hint"><i class="bi bi-person-plus-fill"></i> <?= e(t('activity.assignee_will_join_project')) ?></div><?php endif; ?>
               </div>
               <div class="col-md-6 mb-2"><label class="form-label"><?= e(t('activity.field_requester')) ?></label>
                 <div class="input-group">

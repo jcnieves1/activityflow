@@ -135,6 +135,24 @@ window.afActivities = (function () {
   // missing. Live changes from the dropdown itself (and a fresh create) pass
   // `false` instead, so the filter is strict and an assignee left invalid by
   // the new project choice is swapped for the first valid one automatically.
+  //
+  // Admin-only variant: when the select has data-admin-assign="1" (set
+  // server-side in includes/activity_modal.php via is_admin()), non-members
+  // aren't hidden/disabled at all — instead they're moved into a separate,
+  // visible "other people" <optgroup> (#am_assignee_group_other) so an admin
+  // can still pick them directly from the dropdown. Saving with one of those
+  // selected auto-joins them to the project server-side (see
+  // auto_join_assignee_to_project() in api/activities.php) — updateAdminAssignHint()
+  // below just surfaces that fact in the UI before saving.
+  function updateAdminAssignHint() {
+    const assigneeSelect = document.getElementById('am_assignee_id');
+    const hint = document.getElementById('am_assignee_admin_hint');
+    if (!assigneeSelect || !hint || assigneeSelect.dataset.adminAssign !== '1') return;
+    const selectedOpt = assigneeSelect.options[assigneeSelect.selectedIndex];
+    const inOtherGroup = !!(selectedOpt && selectedOpt.parentElement && selectedOpt.parentElement.id === 'am_assignee_group_other');
+    hint.classList.toggle('d-none', !inOtherGroup);
+  }
+
   function filterAssigneesByProject(preserveCurrent) {
     const projectSelect = document.getElementById('am_project_id');
     const assigneeSelect = document.getElementById('am_assignee_id');
@@ -142,6 +160,41 @@ window.afActivities = (function () {
     const projectId = projectSelect.value;
     const currentValue = assigneeSelect.value;
     const hint = document.getElementById('am_assignee_filter_hint');
+    const isAdminAssign = assigneeSelect.dataset.adminAssign === '1';
+    const teamGroup = isAdminAssign ? document.getElementById('am_assignee_group_team') : null;
+    const otherGroup = isAdminAssign ? document.getElementById('am_assignee_group_other') : null;
+
+    if (isAdminAssign && teamGroup && otherGroup) {
+      // Regroup every option (wherever it currently lives) into "team" vs.
+      // "other" rather than hiding anything, so an admin can always reach
+      // every active person from this one dropdown.
+      let otherCount = 0;
+      Array.from(assigneeSelect.querySelectorAll('option')).forEach((opt) => {
+        opt.hidden = false;
+        opt.disabled = false;
+        if (!projectId) {
+          teamGroup.appendChild(opt);
+          return;
+        }
+        const projects = (opt.dataset.projects || '').split(',').filter(Boolean);
+        const isMember = projects.indexOf(String(projectId)) !== -1;
+        if (isMember) {
+          teamGroup.appendChild(opt);
+        } else {
+          otherGroup.appendChild(opt);
+          otherCount++;
+        }
+      });
+      otherGroup.style.display = projectId && otherCount > 0 ? '' : 'none';
+      if (hint) hint.style.display = 'none';
+      // Moving options between optgroups doesn't fire a change event, so the
+      // previously-selected value is restored explicitly, then the hint text
+      // is refreshed to match wherever that option ended up.
+      assigneeSelect.value = currentValue;
+      updateAdminAssignHint();
+      return;
+    }
+
     let anyHidden = false;
     Array.from(assigneeSelect.options).forEach((opt) => {
       if (!projectId || (preserveCurrent && opt.value === currentValue)) {
@@ -166,6 +219,8 @@ window.afActivities = (function () {
   }
   const amProjectSelectEl = document.getElementById('am_project_id');
   amProjectSelectEl && amProjectSelectEl.addEventListener('change', function () { filterAssigneesByProject(false); });
+  const amAssigneeSelectEl = document.getElementById('am_assignee_id');
+  amAssigneeSelectEl && amAssigneeSelectEl.addEventListener('change', updateAdminAssignHint);
 
   function syncDatetimeTracking() {
     ['am_planned_start_at', 'am_target_completion_at'].forEach((id) => {

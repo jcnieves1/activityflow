@@ -198,6 +198,25 @@ function list_projects_for_person(int $personId): array
 }
 
 /**
+ * Adds a person to a project's membership only if they aren't already a
+ * member — used when an admin assigns a task to someone outside the
+ * project's current team (the "other people" picker in the shared activity
+ * modal) so assigning the task and joining the project happen as one
+ * atomic step instead of two. Deliberately checks membership first rather
+ * than calling add_project_member() unconditionally: that function's
+ * ON DUPLICATE KEY UPDATE upsert would silently downgrade an existing
+ * project_manager/reviewer back to $role if called on someone who's
+ * already a member with a different role.
+ */
+function ensure_project_member(int $projectId, int $personId, string $role = 'contributor'): void
+{
+    $existingIds = array_map(fn($m) => (int)$m['person_id'], list_project_members($projectId));
+    if (!in_array($personId, $existingIds, true)) {
+        add_project_member($projectId, $personId, $role);
+    }
+}
+
+/**
  * Bulk-fetches member person_ids for a set of projects in one query, keyed by project_id.
  * Used to feed the client-side "filter assignees by selected project" behavior in the
  * shared activity modal without an N+1 query per project.

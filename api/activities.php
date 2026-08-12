@@ -8,6 +8,32 @@ $method = $_SERVER['REQUEST_METHOD'];
 $action = $method === 'GET' ? ($_GET['action'] ?? 'list') : (request_input()['action'] ?? '');
 $user = current_user();
 
+/**
+ * Lets an administrator assign a task to someone who isn't yet on the
+ * task's project — the "other people" picker in the shared activity modal
+ * (assets/js/activities.js's filterAssigneesByProject()) shows every active
+ * person there, not just current project members, but only for admins. This
+ * is the server-side half of that feature: even though the picker is
+ * hidden in the UI for everyone else, the permission is enforced here
+ * (is_admin()), not just by hiding the control client-side, so a non-admin
+ * request that somehow supplied a non-member assignee_id simply leaves
+ * project membership untouched (the pre-existing behavior — assigning a
+ * non-member was already technically possible and is unrelated to this
+ * feature; it's just never auto-joined to the project for non-admins).
+ */
+function auto_join_assignee_to_project(array $data): void
+{
+    if (!is_admin()) {
+        return;
+    }
+    $projectId = (int)($data['project_id'] ?? 0);
+    $assigneeId = (int)($data['assignee_id'] ?? 0);
+    if (!$projectId || !$assigneeId) {
+        return;
+    }
+    ensure_project_member($projectId, $assigneeId);
+}
+
 if ($method === 'GET' && $action === 'list') {
     $filters = $_GET;
     // order_by is only ever set by trusted server-side callers (never from client input) to avoid SQL injection via ORDER BY.
@@ -87,6 +113,7 @@ if ($method === 'POST') {
     if ($action === 'create_planned') {
         $errors = validate_activity_input($data + ['activity_type' => 'planned']);
         if ($errors) json_error(implode(' ', $errors));
+        auto_join_assignee_to_project($data);
         $id = create_activity($data, 'planned', $user['id'], !empty($data['is_adhoc']));
 
         // Simple recurrence: create additional independent occurrences up to repeat_until.
@@ -144,6 +171,7 @@ if ($method === 'POST') {
         if (!can_edit_activity($activity)) deny();
         $errors = validate_activity_input($data);
         if ($errors) json_error(implode(' ', $errors));
+        auto_join_assignee_to_project($data);
         update_activity((int)$activity['id'], $data);
         json_response(['ok' => true, 'activity' => get_activity((int)$activity['id'])]);
     }

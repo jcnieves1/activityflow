@@ -972,6 +972,39 @@ read-only) — see `has_broad_project_visibility()` in `includes/permissions.php
 - [ ] Switch language to Español and confirm the field labels in History
       lines (Priority, Assignee, Progress, etc.) are translated.
 
+## Assign tasks to people outside the project (admin)
+
+- [ ] Log in as an administrator, open a project task in the Edit Activity
+      dialog (or create a new task under a project), and check the Assignee
+      dropdown: confirm it shows two labeled groups — "Project team" (the
+      project's current members) and "Other people (not on this project
+      yet)" — and that the second group only appears once a project is
+      selected.
+- [ ] Pick someone from the "Other people" group and confirm a hint appears
+      below the field explaining they'll be added to the project
+      automatically on save.
+- [ ] Save the task, then check the project's member list (Project Detail →
+      Members, or Edit Project) and confirm that person is now a project
+      member (default "contributor" role), and the task's assignee is set to
+      them — both from one save, with no separate "add to project" step.
+- [ ] Repeat with an existing project member who has a non-default role
+      (e.g. project_manager or reviewer): assign a task to them again and
+      confirm their project role is NOT reset/downgraded to "contributor" —
+      only genuinely new members get the default role.
+- [ ] Switch the task's Project field between two different projects (while
+      the dialog is open) and confirm the two assignee groups immediately
+      regroup to match the newly-selected project's actual membership.
+- [ ] Log out and log back in as a non-admin (Project Manager, Employee, or
+      Viewer with edit rights) and confirm the Assignee dropdown shows only
+      the plain, single, project-filtered list — no "Project team" / "Other
+      people" grouping and no auto-join hint text anywhere in the dialog.
+- [ ] As a non-admin, confirm you still can't select anyone outside the
+      selected project's member list — the dropdown only offers current
+      project members, exactly as before this feature.
+- [ ] Confirm this feature is scoped to the Edit Activity dialog's own
+      assignee field only — the New/Edit Project member picker, task
+      cloning/moving, and bulk actions are unaffected.
+
 ## Presence / online users
 
 - [ ] Log in as any role and confirm the topbar shows an "Online (x)" widget
