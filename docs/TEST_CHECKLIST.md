@@ -1014,14 +1014,27 @@ read-only) — see `has_broad_project_visibility()` in `includes/permissions.php
       user, each with a green dot, and that your own entry is suffixed with
       "(You)".
 - [ ] Log in as a second user in a different browser (or a private window)
-      and confirm they appear in the first user's list (and vice versa)
-      within about a minute — the count and list refresh automatically every
-      45 seconds without a page reload.
+      and confirm they eventually appear in the first user's list (and vice
+      versa) — the widget no longer polls on a timer, so the first user's
+      browser only picks up the change the next time it performs any action
+      that hits the server (opening a task, saving something, switching
+      pages, etc.), not automatically while sitting idle.
+- [ ] Confirm the widget does NOT update on its own while a tab sits idle —
+      open the browser's network tab, wait over a minute without clicking
+      anything, and confirm no `api/presence.php` requests fire during that
+      time.
+- [ ] Perform any action that talks to the server (save a task, add a
+      comment, switch a filter, etc.) and confirm the widget refreshes
+      shortly afterward.
+- [ ] Perform several actions in quick succession (within a few seconds) and
+      confirm the widget doesn't refetch on every single one — the refresh
+      is throttled so it settles down rather than firing a request per
+      click.
 - [ ] Leave a session idle (no requests) for longer than the online window
-      (5 minutes) and confirm that user drops out of the list and the count
-      decreases on the next refresh, without anyone needing to explicitly
-      "log off" — presence is based on recent activity, not an explicit
-      connect/disconnect signal.
+      (5 minutes), then have another user perform an action that refreshes
+      their own widget — confirm the idle user has dropped out of their
+      list, without anyone needing to explicitly "log off"; presence is
+      based on recent activity, not an explicit connect/disconnect signal.
 - [ ] Confirm the widget and list are visible to every role (Administrator,
       Project Manager, Employee, Viewer) — this is not gated by the
       project/task visibility restrictions, since knowing who else is using

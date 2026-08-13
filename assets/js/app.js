@@ -93,6 +93,14 @@
         const message = (data && data.error) ? data.error : 'Something went wrong. Please try again.';
         throw new Error(message);
       }
+      // Every afFetch call represents the user doing something in the app
+      // (saving, filtering, opening a task, etc.) — piggyback the online
+      // presence widget's refresh on that instead of polling on a timer. See
+      // notifyUserActivity() below; it excludes the presence endpoint itself
+      // to avoid refreshing in response to its own request.
+      if (typeof url === 'string' && url.indexOf('presence.php') === -1) {
+        window.afNotifyUserActivity && window.afNotifyUserActivity();
+      }
       return data;
     }).finally(() => window.afLoadingHide());
   };
@@ -197,9 +205,11 @@
   // Who else currently has the app open, approximated by recency of
   // activity (see includes/models/presence.php). The topbar already
   // server-renders the current list on page load (includes/layout_header.php),
-  // so there's no need to re-fetch immediately — only refresh periodically
-  // after that, so long-lived tabs still see people come and go without a
-  // full page reload.
+  // so there's no need to re-fetch immediately. Rather than polling on a
+  // timer, it's refreshed opportunistically whenever the user does something
+  // that hits the server — see afNotifyUserActivity()/afFetch() below —
+  // which keeps the count reasonably fresh without any background requests
+  // while a tab just sits idle.
   const onlineList = document.getElementById('afOnlineList');
   const onlineCountEl = document.getElementById('afOnlineCount');
   function loadPresence() {
@@ -229,9 +239,20 @@
         if (onlineList) onlineList.innerHTML = `<div class="p-3 text-muted small">${i18n.unable_to_load_online || 'Unable to load online users.'}</div>`;
       });
   }
-  if (onlineList || onlineCountEl) {
-    setInterval(loadPresence, 45000);
-  }
+  // Throttled trigger called from afFetch() on every successful request (any
+  // save, filter, task open, etc. counts as "the user performed an action").
+  // Throttled to once per 10s so a burst of several requests in quick
+  // succession (e.g. a page that fires off a few fetches on load) only
+  // refreshes the widget once, rather than once per request.
+  const PRESENCE_REFRESH_THROTTLE_MS = 10000;
+  let lastPresenceRefreshAt = 0;
+  window.afNotifyUserActivity = function () {
+    if (!onlineList && !onlineCountEl) return;
+    const now = Date.now();
+    if (now - lastPresenceRefreshAt < PRESENCE_REFRESH_THROTTLE_MS) return;
+    lastPresenceRefreshAt = now;
+    loadPresence();
+  };
 
   function escapeHtml(str) {
     const d = document.createElement('div');
