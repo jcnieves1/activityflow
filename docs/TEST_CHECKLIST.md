@@ -503,6 +503,20 @@ Mapped to the acceptance criteria. Run through this after installation
       ends) should succeed. Confirm two separate, non-consecutive blocks of
       days off require two separate "Add vacation" entries — there's no way
       to submit a single entry with a gap in it.
+- [ ] As a non-Administrator, click "Add vacation," fill in dates, and save
+      — confirm it succeeds (no "You can only submit vacation time for
+      yourself" error) and the new entry shows up under your own name.
+      Repeat as a user who belongs to at least one project with other
+      members, since that's the specific case that previously triggered a
+      PHP variable-scope bug (includes/activity_modal.php's project-member
+      loop was reusing the name $personId, silently overwriting the
+      current-user id that vacations.php had just set before requiring that
+      shared file — the hidden person_id field ended up holding an unrelated
+      project member's id instead of your own, which the "for yourself"
+      check correctly rejected. Fixed by namespacing that file's loop
+      variables; regression-test by also confirming the "New Task" button's
+      default assignee on My Tasks/My Day still points at yourself after
+      opening a project with members, since that's the same $personId path).
 - [ ] As a non-Administrator, confirm the "Add vacation" dialog only lets
       you submit time off for yourself (no person picker) — and that a
       direct API call to create a vacation for someone else is rejected. As

@@ -25,9 +25,22 @@ $amTargetProjects = array_values(array_filter($amProjects, fn($p) => can_add_tas
 // "not a member of anything" rather than "member of everything".
 $amProjectMemberIds = list_project_members_map(array_column($amProjects, 'id'));
 $amPersonProjectIds = [];
-foreach ($amProjectMemberIds as $projId => $memberIds) {
-    foreach ($memberIds as $personId) {
-        $amPersonProjectIds[$personId][] = $projId;
+// Loop variables below are deliberately "am"-prefixed rather than generic
+// names like $projId/$personId: this file is require()'d directly into the
+// including page's own variable scope (it's not a function call, so nothing
+// isolates its locals), and several pages (vacations.php, my_tasks.php,
+// my_day.php) already set their own top-level $personId = current_person_id()
+// before requiring this file. A same-named loop variable here would silently
+// clobber that with whatever project member happened to be last in the loop,
+// corrupting every "for myself" default computed from $personId afterward —
+// e.g. vacations.php's hidden person_id field ended up set to a random
+// project member instead of the current user, which made regular users' own
+// vacation submissions get rejected by api/vacations.php's "you can only
+// submit for yourself" check (admins were unaffected only because that
+// check is skipped for them).
+foreach ($amProjectMemberIds as $amProjId => $amMemberIds) {
+    foreach ($amMemberIds as $amMemberPersonId) {
+        $amPersonProjectIds[$amMemberPersonId][] = $amProjId;
     }
 }
 ?>
