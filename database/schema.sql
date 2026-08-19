@@ -75,6 +75,13 @@ CREATE TABLE people (
     is_active TINYINT(1) NOT NULL DEFAULT 1,
     notes TEXT,
     user_id INT UNSIGNED DEFAULT NULL,
+    -- Filename only (e.g. "a1b2c3....jpg"), relative to uploads/avatars/ —
+    -- never a full path or URL, so the storage location can move without a
+    -- data migration. NULL means "show initials" (see avatar_html() in
+    -- includes/models/avatars.php). Populated via profile.php's photo
+    -- upload, which center-crops and downsamples the image with GD before
+    -- ever writing it here — see process_avatar_upload().
+    avatar_path VARCHAR(255) DEFAULT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     KEY idx_people_name (full_name),

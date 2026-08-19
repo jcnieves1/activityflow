@@ -19,7 +19,8 @@ const ACTIVITY_PRIORITIES = ['low', 'normal', 'high', 'urgent'];
 function activity_select_base(): string
 {
     return 'SELECT a.*, pr.name AS project_name, pr.color AS project_color, pr.code AS project_code,
-                    asg.full_name AS assignee_name, req.full_name AS requester_name,
+                    asg.full_name AS assignee_name, asg.avatar_path AS assignee_avatar_path,
+                    req.full_name AS requester_name, req.avatar_path AS requester_avatar_path,
                     c.name AS category_name, u.full_name AS created_by_name
              FROM activities a
              LEFT JOIN projects pr ON pr.id = a.project_id
@@ -682,25 +683,37 @@ function add_activity_comment(int $activityId, int $authorUserId, string $body):
     return $id;
 }
 
+/** Adds author_avatar_url (a ready-to-use URL, or null) and drops the internal-only avatar_path filename from a comment row. */
+function _with_comment_avatar_url(array $row): array
+{
+    $row['author_avatar_url'] = avatar_url($row['author_avatar_path'] ?? null);
+    unset($row['author_avatar_path']);
+    return $row;
+}
+
 function list_activity_comments(int $activityId): array
 {
     $stmt = db()->prepare(
-        'SELECT c.*, u.full_name AS author_name FROM activity_comments c
-         JOIN users u ON u.id = c.author_id WHERE c.activity_id = ? ORDER BY c.created_at'
+        'SELECT c.*, u.full_name AS author_name, p.avatar_path AS author_avatar_path FROM activity_comments c
+         JOIN users u ON u.id = c.author_id
+         LEFT JOIN people p ON p.user_id = u.id
+         WHERE c.activity_id = ? ORDER BY c.created_at'
     );
     $stmt->execute([$activityId]);
-    return $stmt->fetchAll();
+    return array_map('_with_comment_avatar_url', $stmt->fetchAll());
 }
 
 function get_activity_comment(int $id): ?array
 {
     $stmt = db()->prepare(
-        'SELECT c.*, u.full_name AS author_name FROM activity_comments c
-         JOIN users u ON u.id = c.author_id WHERE c.id = ?'
+        'SELECT c.*, u.full_name AS author_name, p.avatar_path AS author_avatar_path FROM activity_comments c
+         JOIN users u ON u.id = c.author_id
+         LEFT JOIN people p ON p.user_id = u.id
+         WHERE c.id = ?'
     );
     $stmt->execute([$id]);
     $row = $stmt->fetch();
-    return $row ?: null;
+    return $row ? _with_comment_avatar_url($row) : null;
 }
 
 function update_activity_comment(int $id, string $body): void

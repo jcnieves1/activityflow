@@ -64,6 +64,25 @@ flow in `includes/auth.php` is defensive by design:
 - `config/`, `includes/`, and `database/` are denied by `.htaccess` in case
   the document root is ever pointed above this folder.
 
+## File uploads (profile photos)
+
+- The only user-controlled file upload in the app is the profile photo on
+  `profile.php` — see `includes/models/avatars.php`.
+- The upload is never trusted as-is: `getimagesize()` validates it's
+  actually a decodable image (not just a renamed file), and it's re-encoded
+  from scratch through GD (`imagecreatefromstring()` → resample → `imagejpeg()`)
+  before being written to disk — nothing about the original file's bytes,
+  metadata, or embedded content survives into the stored copy.
+- Stored filenames are always server-generated (`random_bytes()`-based), never
+  derived from the original filename, so path traversal and filename
+  collisions aren't possible.
+- `uploads/avatars/` is a plain publicly-readable folder (avatars are visible
+  to any logged-in user by design) but has its own `.htaccess` denying script
+  execution, so even a hypothetical malformed file saved there can't be run
+  as PHP.
+- Uploads are capped (5MB raw, before processing) and MIME-checked against an
+  allow-list (JPEG/PNG/GIF/WEBP) before any processing happens.
+
 ## Audit trail
 
 `audit_logs` records entity type/ID, action, previous and new values (JSON),

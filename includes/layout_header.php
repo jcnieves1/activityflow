@@ -127,6 +127,7 @@ $navItems = [
               <?php else: ?>
                 <?php foreach ($onlineUsers as $ou): ?>
                   <div class="af-online-item">
+                    <?= avatar_html($ou['avatar_path'] ?? null, $ou['full_name'], 22) ?>
                     <span class="af-status-dot af-status-dot-online"></span>
                     <span><?= e($ou['full_name']) ?><?= (int)$ou['id'] === (int)$user['id'] ? ' ' . e(t('topbar.you_suffix')) : '' ?></span>
                   </div>
@@ -150,7 +151,7 @@ $navItems = [
         </div>
         <div class="dropdown">
           <button class="btn btn-light d-flex align-items-center gap-2" data-bs-toggle="dropdown">
-            <span class="af-avatar"><?= e(mb_substr($user['full_name'], 0, 1)) ?></span>
+            <?= avatar_html($user['avatar_path'] ?? null, $user['full_name'], 28) ?>
             <span class="d-none d-md-inline"><?= e($user['full_name']) ?></span>
           </button>
           <ul class="dropdown-menu dropdown-menu-end">

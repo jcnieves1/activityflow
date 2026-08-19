@@ -162,15 +162,28 @@
     });
 
     data.people.forEach((person) => {
-      nodes.push({
-        id: 'u-' + person.id, label: person.name, level: 3, shape: 'dot', size: 14,
-        color: coloredNode(PERSON_COLOR),
-        // Person labels float outside the small dot shape onto the page's
+      const node = {
+        id: 'u-' + person.id, label: person.name, level: 3,
+        // Person labels float outside the small node shape onto the page's
         // own background, which changes with the color theme — a plain dark
         // font is unreadable in dark mode. Give the label its own light
         // pill background so it stays legible regardless of theme.
         font: { color: '#212529', background: '#ffffff', strokeWidth: 0, size: 14 },
-      });
+      };
+      if (person.avatar_url) {
+        // vis-network's built-in circularImage shape crops/masks the photo
+        // into a circle for us — no canvas work needed on our end.
+        node.shape = 'circularImage';
+        node.image = person.avatar_url;
+        node.size = 16;
+        node.borderWidth = 2;
+        node.color = { border: darken(PERSON_COLOR, 0.25) };
+      } else {
+        node.shape = 'dot';
+        node.size = 14;
+        node.color = coloredNode(PERSON_COLOR);
+      }
+      nodes.push(node);
     });
     data.tasks.forEach((t) => {
       edges.push({ from: 't-' + t.id, to: 'u-' + t.assignee_id });

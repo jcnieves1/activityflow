@@ -135,6 +135,13 @@ return [
 
     // ---- Profile ----
     'profile.title' => 'Profile & Settings',
+    'profile.section_photo' => 'Profile photo',
+    'profile.upload_photo' => 'Upload photo',
+    'profile.remove_photo' => 'Remove photo',
+    'profile.photo_hint' => 'JPG, PNG, GIF, or WEBP, up to 5MB. It will be cropped to a square and resized automatically.',
+    'profile.success_avatar_updated' => 'Profile photo updated.',
+    'profile.success_avatar_removed' => 'Profile photo removed.',
+    'profile.error_no_person_linked' => 'Your account is not linked to a person record, so it cannot have a profile photo yet. Contact an administrator.',
     'profile.section_profile' => 'Profile',
     'profile.full_name' => 'Full name',
     'profile.email' => 'Email',

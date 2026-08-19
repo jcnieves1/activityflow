@@ -1,0 +1,13 @@
+# Uploaded avatars are re-encoded through GD before being saved (see
+# process_avatar_upload() in includes/models/avatars.php) and always written
+# with a generated .jpg filename, so nothing here should ever be a script —
+# this is defense in depth in case a misconfigured server ever tries to
+# execute a file in this folder anyway.
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+<FilesMatch "\.(php|phtml|php[0-9]|phar)$">
+    Require all denied
+</FilesMatch>
+Options -ExecCGI
+AddType text/plain .php .phtml .phar

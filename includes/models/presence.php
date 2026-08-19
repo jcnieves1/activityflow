@@ -37,11 +37,12 @@ function touch_user_presence(int $userId): void
 function list_online_users(): array
 {
     $stmt = db()->prepare(
-        "SELECT id, full_name, email, last_seen_at
-         FROM users
-         WHERE status = 'active' AND last_seen_at IS NOT NULL
-           AND last_seen_at >= NOW() - INTERVAL ? MINUTE
-         ORDER BY last_seen_at DESC, full_name"
+        "SELECT u.id, u.full_name, u.email, u.last_seen_at, p.avatar_path
+         FROM users u
+         LEFT JOIN people p ON p.user_id = u.id
+         WHERE u.status = 'active' AND u.last_seen_at IS NOT NULL
+           AND u.last_seen_at >= NOW() - INTERVAL ? MINUTE
+         ORDER BY u.last_seen_at DESC, u.full_name"
     );
     $stmt->execute([AF_ONLINE_THRESHOLD_MINUTES]);
     return $stmt->fetchAll();

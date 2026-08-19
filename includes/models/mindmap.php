@@ -22,7 +22,7 @@ declare(strict_types=1);
  *   releases: array<int, array{id:int,name:string}>,
  *   projects: array<int, array{id:int,name:string,release_id:?int,color:string,completion_pct:float}>,
  *   tasks: array<int, array{id:int,title:string,status:string,priority:string,project_id:?int,project_color:?string,assignee_id:int,is_issue:bool,completion_pct:float}>,
- *   people: array<int, array{id:int,name:string}>,
+ *   people: array<int, array{id:int,name:string,avatar_url:?string}>,
  *   has_no_release_bucket: bool,
  *   has_no_project_bucket: bool,
  * }
@@ -151,11 +151,11 @@ function mindmap_data(array $filters = []): array
             'is_issue' => !empty($t['is_issue']),
             'completion_pct' => (float)($t['completion_pct'] ?? 0),
         ];
-        $peopleById[(int)$t['assignee_id']] = $t['assignee_name'];
+        $peopleById[(int)$t['assignee_id']] = ['name' => $t['assignee_name'], 'avatar_path' => $t['assignee_avatar_path'] ?? null];
     }
     $peopleNodes = [];
-    foreach ($peopleById as $id => $name) {
-        $peopleNodes[] = ['id' => $id, 'name' => $name];
+    foreach ($peopleById as $id => $person) {
+        $peopleNodes[] = ['id' => $id, 'name' => $person['name'], 'avatar_url' => avatar_url($person['avatar_path'])];
     }
 
     return [

@@ -419,16 +419,20 @@ window.afActivities = (function () {
       const isOwner = window.AF_USER_ID != null && String(c.author_id) === String(window.AF_USER_ID);
       const editedNote = c.updated_at && c.updated_at !== c.created_at
         ? ` <span class="text-muted small">(edited ${afEscapeHtml(c.updated_at)})</span>` : '';
+      const avatar = window.afAvatarMarkup ? window.afAvatarMarkup(c.author_avatar_url, c.author_name, 24) : '';
       return `
-      <div class="mb-2" id="am_comment_${c.id}">
-        <div class="d-flex justify-content-between align-items-start">
-          <div><strong>${afEscapeHtml(c.author_name)}</strong> <span class="text-muted small">${afEscapeHtml(c.created_at)}</span>${editedNote}</div>
-          ${isOwner ? `<button type="button" class="btn btn-sm btn-link p-0" onclick="afActivities.editComment(${c.id})">Edit</button>` : ''}
+      <div class="mb-2 d-flex gap-2" id="am_comment_${c.id}">
+        ${avatar}
+        <div class="flex-grow-1">
+          <div class="d-flex justify-content-between align-items-start">
+            <div><strong>${afEscapeHtml(c.author_name)}</strong> <span class="text-muted small">${afEscapeHtml(c.created_at)}</span>${editedNote}</div>
+            ${isOwner ? `<button type="button" class="btn btn-sm btn-link p-0" onclick="afActivities.editComment(${c.id})">Edit</button>` : ''}
+          </div>
+          <!-- c.body is sanitized on write via sanitize_html() in add_activity_comment()/
+               update_activity_comment() -- safe to echo raw here, same convention used
+               for activity descriptions. -->
+          <div id="am_comment_body_${c.id}">${c.body}</div>
         </div>
-        <!-- c.body is sanitized on write via sanitize_html() in add_activity_comment()/
-             update_activity_comment() -- safe to echo raw here, same convention used
-             for activity descriptions. -->
-        <div id="am_comment_body_${c.id}">${c.body}</div>
       </div>`;
     }).join('') || '<p class="text-muted small">No comments yet.</p>';
   }

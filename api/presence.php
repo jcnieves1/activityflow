@@ -10,9 +10,10 @@ $action = $method === 'GET' ? ($_GET['action'] ?? 'list') : (request_input()['ac
 if ($method === 'GET' && $action === 'list') {
     $online = list_online_users();
     $users = array_map(static fn(array $u) => [
-        'id'        => (int)$u['id'],
-        'full_name' => $u['full_name'],
-        'is_self'   => (int)$u['id'] === (int)$user['id'],
+        'id'         => (int)$u['id'],
+        'full_name'  => $u['full_name'],
+        'avatar_url' => avatar_url($u['avatar_path'] ?? null),
+        'is_self'    => (int)$u['id'] === (int)$user['id'],
     ], $online);
     json_response(['ok' => true, 'users' => $users, 'count' => count($users)]);
 }

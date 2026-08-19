@@ -229,6 +229,7 @@
           }
           onlineList.innerHTML = users.map((u) => `
             <div class="af-online-item">
+              ${avatarMarkup(u.avatar_url, u.full_name, 22)}
               <span class="af-status-dot af-status-dot-online"></span>
               <span>${escapeHtml(u.full_name)}${u.is_self ? ' ' + escapeHtml(i18n.you_suffix || '(You)') : ''}</span>
             </div>`).join('');
@@ -260,4 +261,19 @@
     return d.innerHTML;
   }
   window.afEscapeHtml = escapeHtml;
+
+  // Mirrors avatar_html() in includes/models/avatars.php: a circular photo
+  // when one's available, otherwise the same initials-circle fallback used
+  // everywhere else (.af-avatar) — so server-rendered and client-rendered
+  // avatars always look identical.
+  function avatarMarkup(url, name, sizePx) {
+    sizePx = sizePx || 28;
+    if (url) {
+      return `<img src="${escapeHtml(url)}" alt="${escapeHtml(name)}" class="af-avatar-photo" style="width:${sizePx}px;height:${sizePx}px" loading="lazy">`;
+    }
+    const fontPx = Math.max(10, Math.round(sizePx * 0.4));
+    const initial = (name || '').slice(0, 1);
+    return `<span class="af-avatar" style="width:${sizePx}px;height:${sizePx}px;font-size:${fontPx}px">${escapeHtml(initial)}</span>`;
+  }
+  window.afAvatarMarkup = avatarMarkup;
 })();

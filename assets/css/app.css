@@ -174,7 +174,8 @@ body { background: var(--af-body-bg); color: var(--af-body-text); }
 .af-search input { width:100%; border:1px solid var(--af-topbar-border); border-radius:2rem; padding:.45rem .75rem .45rem 2.2rem; background:var(--af-surface-bg); color:var(--af-body-text); }
 .af-topbar-actions { margin-left:auto; display:flex; align-items:center; gap:.5rem; }
 .af-topbar .btn-light { background: var(--af-topbar-btn-bg); color: var(--af-topbar-btn-text); border-color: transparent; }
-.af-avatar { width:28px; height:28px; border-radius:50%; background:var(--bs-primary); color:#fff; display:inline-flex; align-items:center; justify-content:center; font-weight:600; font-size:.85rem; }
+.af-avatar { width:28px; height:28px; border-radius:50%; background:var(--bs-primary); color:#fff; display:inline-flex; align-items:center; justify-content:center; font-weight:600; font-size:.85rem; flex:0 0 auto; }
+.af-avatar-photo { border-radius:50%; object-fit:cover; display:inline-block; flex:0 0 auto; background:var(--af-surface-border); }
 .af-theme-swatch { width:18px; height:18px; border-radius:50%; display:inline-block; border:1px solid rgba(0,0,0,.15); vertical-align:middle; }
 .af-theme-swatch.af-theme-golden { background: linear-gradient(135deg, #fff 50%, #b8860b 50%); }
 .af-theme-swatch.af-theme-green { background: linear-gradient(135deg, #fff 50%, #2e8b57 50%); }

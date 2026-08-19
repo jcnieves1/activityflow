@@ -71,8 +71,14 @@ in with one of the seeded accounts, or register a new one.
   `includes/`, and `database/`.
 - Ensure `mod_rewrite` and `mod_headers` are enabled (both are on by default
   in XAMPP/WAMP).
-- PHP needs the `pdo_mysql`, `session`, and `json` extensions (all enabled by
-  default in standard PHP builds).
+- PHP needs the `pdo_mysql`, `session`, `json`, and `gd` extensions (all
+  enabled by default in standard PHP builds). `gd` is used to resize/crop
+  profile photos on upload (see `includes/models/avatars.php`) — if it's
+  missing, photo uploads on the Profile page will fail with a clear error,
+  but the rest of the app is unaffected.
+- The `uploads/avatars/` folder must be writable by the web server user —
+  that's where processed profile photos are stored (see
+  `includes/models/avatars.php`).
 
 ## Production checklist
 

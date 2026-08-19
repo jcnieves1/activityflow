@@ -134,6 +134,13 @@ return [
 
     // ---- Profile ----
     'profile.title' => 'Perfil y Configuración',
+    'profile.section_photo' => 'Foto de perfil',
+    'profile.upload_photo' => 'Subir foto',
+    'profile.remove_photo' => 'Eliminar foto',
+    'profile.photo_hint' => 'JPG, PNG, GIF o WEBP, hasta 5MB. Se recortará en forma cuadrada y se redimensionará automáticamente.',
+    'profile.success_avatar_updated' => 'Foto de perfil actualizada.',
+    'profile.success_avatar_removed' => 'Foto de perfil eliminada.',
+    'profile.error_no_person_linked' => 'Tu cuenta no está vinculada a una persona, por lo que aún no puede tener foto de perfil. Contacta a un administrador.',
     'profile.section_profile' => 'Perfil',
     'profile.full_name' => 'Nombre completo',
     'profile.email' => 'Correo electrónico',

@@ -1061,6 +1061,47 @@ read-only) — see `has_broad_project_visibility()` in `includes/permissions.php
 - [ ] Switch language to Español and confirm the widget label, dropdown
       heading, and "(You)" suffix are translated.
 
+## Profile photos (avatars)
+
+- [ ] On the Profile page, upload a JPG, PNG, GIF, and WEBP photo in turn
+      (as separate tests) — confirm each is accepted, and that the preview
+      updates to the new photo immediately after saving.
+- [ ] Upload a large or non-square photo (e.g. a wide landscape photo) and
+      confirm the result is displayed as a small circle, cropped to the
+      center of the image (not stretched/squashed, not showing a
+      corner-anchored crop).
+- [ ] Try uploading a non-image file (e.g. a renamed .txt or .pdf) and
+      confirm it's rejected with a clear error, not silently accepted.
+- [ ] Try uploading a photo over 5MB and confirm it's rejected with a clear
+      "too large" message.
+- [ ] After uploading a photo, check the file actually saved on the server
+      (`uploads/avatars/`) and confirm it's meaningfully smaller than the
+      original — resizing/re-encoding should noticeably shrink a typical
+      phone-camera photo.
+- [ ] Confirm your photo now appears (as a circle) in: the topbar avatar
+      button, the "Online" presence dropdown, the People directory list,
+      the Mind Map (as your person node's photo instead of the plain dot),
+      and next to any comments you post on a task.
+- [ ] For a person with no photo, confirm all of the above surfaces still
+      show the existing colored-circle initial instead of a broken image or
+      empty space.
+- [ ] Click "Remove photo" and confirm it reverts to the initials circle
+      everywhere immediately (topbar included), and that the old file is no
+      longer referenced (a second upload afterward should work normally).
+- [ ] Upload a new photo to replace an existing one and confirm the old
+      file is cleaned up (not left behind indefinitely) — e.g. by checking
+      the modified time / file listing in `uploads/avatars/` before and
+      after.
+- [ ] Log in as a user whose account isn't linked to a person record (if one
+      exists in your test data) and confirm the Profile page simply doesn't
+      show the photo upload card, with no error.
+- [ ] Confirm a directly-guessed URL to another person's avatar file loads
+      fine (avatars are intentionally public, like any other profile
+      picture), but that `uploads/avatars/` doesn't allow executing a PHP
+      file even if one were somehow placed there.
+- [ ] Switch language to Español and confirm the photo card's labels
+      ("Subir foto", "Eliminar foto", hint text) are translated.
+
 ## Authorization boundaries
 
 - [ ] As an Employee, confirm Admin pages (`admin/*.php`, `audit_log.php`)

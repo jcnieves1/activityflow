@@ -28,7 +28,7 @@ function load_user_session(int $userId): void
 {
     $pdo = db();
     $stmt = $pdo->prepare(
-        'SELECT u.id, u.full_name, u.email, u.status, u.theme, u.locale, p.id AS person_id
+        'SELECT u.id, u.full_name, u.email, u.status, u.theme, u.locale, p.id AS person_id, p.avatar_path
          FROM users u LEFT JOIN people p ON p.user_id = u.id
          WHERE u.id = ?'
     );
@@ -51,6 +51,7 @@ function load_user_session(int $userId): void
         'full_name' => $user['full_name'],
         'email'     => $user['email'],
         'person_id' => $user['person_id'] !== null ? (int)$user['person_id'] : null,
+        'avatar_path' => $user['avatar_path'] ?? null,
         'roles'     => $roles,
         'theme'     => $user['theme'] ?? 'golden',
         'locale'    => $user['locale'] ?? 'en',

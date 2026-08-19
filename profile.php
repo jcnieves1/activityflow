@@ -10,7 +10,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_require();
     $action = $_POST['action'] ?? '';
 
-    if ($action === 'update_profile') {
+    if ($action === 'upload_avatar') {
+        $personId = current_person_id();
+        if (!$personId) {
+            flash_set('danger', t('profile.error_no_person_linked'));
+        } else {
+            try {
+                $filename = process_avatar_upload($_FILES['avatar'] ?? []);
+                set_person_avatar($personId, $filename);
+                load_user_session($userId); // refresh the session's cached avatar_path so the topbar updates immediately
+                flash_set('success', t('profile.success_avatar_updated'));
+            } catch (InvalidArgumentException $e) {
+                flash_set('danger', $e->getMessage());
+            }
+        }
+    } elseif ($action === 'remove_avatar') {
+        $personId = current_person_id();
+        if ($personId) {
+            remove_person_avatar($personId);
+            load_user_session($userId);
+            flash_set('success', t('profile.success_avatar_removed'));
+        }
+    } elseif ($action === 'update_profile') {
         $fullName = trim((string)($_POST['full_name'] ?? ''));
         if ($fullName === '') {
             flash_set('danger', t('profile.error_name_empty'));
@@ -62,6 +83,13 @@ $stmt = $pdo->prepare('SELECT full_name, email, status, secret_question, theme, 
 $stmt->execute([$userId]);
 $account = $stmt->fetch();
 
+// Avatar lives on the linked people row (avatars are a property of a
+// person, not a login account — see includes/models/avatars.php), so a
+// user who isn't linked to one yet (current_person_id() === null) simply
+// can't have a photo; the upload card below is hidden in that case.
+$profilePersonId = current_person_id();
+$profilePerson = $profilePersonId ? get_person($profilePersonId) : null;
+
 $pageTitle = t('profile.title');
 $activeNav = '';
 $breadcrumbs = [['label' => t('profile.title')]];
@@ -69,6 +97,30 @@ require __DIR__ . '/includes/layout_header.php';
 ?>
 <div class="row g-4">
   <div class="col-lg-6">
+    <?php if ($profilePerson): ?>
+    <div class="af-card mb-4">
+      <h5 class="mb-3"><?= e(t('profile.section_photo')) ?></h5>
+      <div class="d-flex align-items-center gap-3">
+        <?= avatar_html($profilePerson['avatar_path'], $account['full_name'], 72) ?>
+        <div class="flex-grow-1">
+          <form method="post" enctype="multipart/form-data" class="d-flex flex-wrap align-items-center gap-2">
+            <?= csrf_field() ?>
+            <input type="hidden" name="action" value="upload_avatar">
+            <input type="file" class="form-control form-control-sm" name="avatar" accept="image/png,image/jpeg,image/gif,image/webp" style="max-width:220px" required>
+            <button type="submit" class="btn btn-sm btn-primary"><?= e(t('profile.upload_photo')) ?></button>
+          </form>
+          <?php if ($profilePerson['avatar_path']): ?>
+            <form method="post" class="mt-2">
+              <?= csrf_field() ?>
+              <input type="hidden" name="action" value="remove_avatar">
+              <button type="submit" class="btn btn-sm btn-outline-secondary"><?= e(t('profile.remove_photo')) ?></button>
+            </form>
+          <?php endif; ?>
+          <div class="form-text"><?= e(t('profile.photo_hint')) ?></div>
+        </div>
+      </div>
+    </div>
+    <?php endif; ?>
     <div class="af-card mb-4">
       <h5 class="mb-3"><?= e(t('profile.section_profile')) ?></h5>
       <form method="post">

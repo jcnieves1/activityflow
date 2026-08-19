@@ -58,7 +58,7 @@ require __DIR__ . '/includes/layout_header.php';
       <tbody>
       <?php foreach ($people as $p): ?>
         <tr>
-          <td class="fw-semibold"><?= e($p['full_name']) ?></td>
+          <td class="fw-semibold"><div class="d-flex align-items-center gap-2"><?= avatar_html($p['avatar_path'] ?? null, $p['full_name'], 28) ?><span><?= e($p['full_name']) ?></span></div></td>
           <td><?= e($p['job_title'] ?? '—') ?></td>
           <td><?= e($p['department_name'] ?? '—') ?></td>
           <td class="small"><?= e($p['email'] ?? '') ?><?= $p['phone'] ? ' · ' . e($p['phone']) : '' ?></td>
