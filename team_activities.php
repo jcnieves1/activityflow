@@ -89,7 +89,7 @@ require __DIR__ . '/includes/activity_modal.php';
           <td><?= activity_type_badge($a['activity_type']) ?></td>
           <td><?= e($a['assignee_name']) ?></td>
           <td><?= e($a['requester_name']) ?></td>
-          <td><?= $a['project_name'] ? e($a['project_name']) : '<span class="text-muted">—</span>' ?></td>
+          <td><?= $a['project_name'] ? '<a href="' . e(base_url('project_detail.php?id=' . (int)$a['project_id'])) . '" class="text-decoration-none">' . e($a['project_name']) . '</a>' : '<span class="text-muted">—</span>' ?></td>
           <td><span class="badge <?= status_badge_class($a['status']) ?>"><?= e(task_status_label($a['status'])) ?></span></td>
           <td class="small"><?= e(format_datetime($a['requested_at'])) ?></td>
           <td class="text-end"><button class="btn btn-sm btn-outline-secondary" onclick="afActivities.openEdit(<?= (int)$a['id'] ?>)"><?= e(t('common.open')) ?></button></td>
