@@ -80,7 +80,7 @@ require __DIR__ . '/includes/activity_modal.php';
 <div class="af-card p-0">
   <div class="table-responsive">
     <table class="table table-hover align-middle mb-0">
-      <thead class="table-light"><tr><th style="width:2rem"><input type="checkbox" id="af-select-all" aria-label="<?= e(t('tasks.select_all')) ?>"></th><th><?= e(t('tasks.col_task')) ?></th><th><?= e(t('tasks.col_type')) ?></th><th><?= e(t('tasks.col_assignee')) ?></th><th><?= e(t('tasks.col_requester')) ?></th><th><?= e(t('tasks.col_project')) ?></th><th><?= e(t('tasks.col_status')) ?></th><th><?= e(t('tasks.col_requested')) ?></th><th></th></tr></thead>
+      <thead class="table-light"><tr><th style="width:2rem"><input type="checkbox" id="af-select-all" aria-label="<?= e(t('tasks.select_all')) ?>"></th><th><?= e(t('tasks.col_task')) ?></th><th><?= e(t('tasks.col_type')) ?></th><th><?= e(t('tasks.col_assignee')) ?></th><th><?= e(t('tasks.col_requester')) ?></th><th><?= e(t('tasks.col_project')) ?></th><th><?= e(t('tasks.col_status')) ?></th><th style="width:9rem"><?= e(t('tasks.col_progress')) ?></th><th><?= e(t('tasks.col_requested')) ?></th><th></th></tr></thead>
       <tbody>
       <?php foreach ($all as $a): ?>
         <tr>
@@ -91,11 +91,19 @@ require __DIR__ . '/includes/activity_modal.php';
           <td><?= e($a['requester_name']) ?></td>
           <td><?= $a['project_name'] ? '<a href="' . e(base_url('project_detail.php?id=' . (int)$a['project_id'])) . '" class="text-decoration-none">' . e($a['project_name']) . '</a>' : '<span class="text-muted">—</span>' ?></td>
           <td><span class="badge <?= status_badge_class($a['status']) ?>"><?= e(task_status_label($a['status'])) ?></span></td>
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              <div class="progress flex-grow-1" style="height:5px;">
+                <div class="progress-bar" role="progressbar" style="width:<?= (int)$a['completion_pct'] ?>%;" aria-valuenow="<?= (int)$a['completion_pct'] ?>" aria-valuemin="0" aria-valuemax="100"></div>
+              </div>
+              <span class="small text-muted"><?= (int)$a['completion_pct'] ?>%</span>
+            </div>
+          </td>
           <td class="small"><?= e(format_datetime($a['requested_at'])) ?></td>
           <td class="text-end"><button class="btn btn-sm btn-outline-secondary" onclick="afActivities.openEdit(<?= (int)$a['id'] ?>)"><?= e(t('common.open')) ?></button></td>
         </tr>
       <?php endforeach; ?>
-      <?php if (!$all): ?><tr><td colspan="9"><div class="af-empty"><i class="bi bi-people"></i><?= e(t('tasks.no_activities_match')) ?></div></td></tr><?php endif; ?>
+      <?php if (!$all): ?><tr><td colspan="10"><div class="af-empty"><i class="bi bi-people"></i><?= e(t('tasks.no_activities_match')) ?></div></td></tr><?php endif; ?>
       </tbody>
     </table>
   </div>

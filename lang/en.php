@@ -566,6 +566,7 @@ return [
     'tasks.col_task' => 'Task',
     'tasks.col_type' => 'Type',
     'tasks.col_project' => 'Project',
+    'tasks.col_progress' => 'Progress',
     'tasks.col_requester' => 'Requester',
     'tasks.col_priority' => 'Priority',
     'tasks.col_status' => 'Status',

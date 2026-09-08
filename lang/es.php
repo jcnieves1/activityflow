@@ -565,6 +565,7 @@ return [
     'tasks.col_task' => 'Tarea',
     'tasks.col_type' => 'Tipo',
     'tasks.col_project' => 'Proyecto',
+    'tasks.col_progress' => 'Progreso',
     'tasks.col_requester' => 'Solicitante',
     'tasks.col_priority' => 'Prioridad',
     'tasks.col_status' => 'Estado',
