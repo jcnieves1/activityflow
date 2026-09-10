@@ -185,6 +185,11 @@ require __DIR__ . '/includes/layout_header.php';
   </div>
 </div>
 
+<div class="af-card mb-3">
+  <h6><?= e(t('pd.attachments_heading')) ?></h6>
+  <div id="pd_attachments_list"><p class="text-muted small mb-0"><?= e(t('pd.attachments_loading')) ?></p></div>
+</div>
+
 <div class="af-card">
   <h6><?= e(t('pd.recent_activity')) ?></h6>
   <?php if (!$recent): ?><p class="text-muted small mb-0"><?= e(t('pd.no_recent_activity')) ?></p><?php endif; ?>
@@ -289,6 +294,12 @@ require __DIR__ . '/includes/layout_header.php';
               <?php endforeach; ?>
             </div>
             <div class="form-text"><?= e(t('projects.members_hint')) ?></div>
+          </div>
+          <div class="mb-2">
+            <label class="form-label"><?= e(t('pd.attachments_heading')) ?></label>
+            <input type="file" class="form-control" id="epm_attachment_input" multiple>
+            <div class="form-text"><?= e(t('pd.attachments_hint')) ?></div>
+            <div id="epm_attachments_list" class="mt-2"></div>
           </div>
         </div>
         <div class="modal-footer">

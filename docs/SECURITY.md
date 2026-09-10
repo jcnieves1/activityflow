@@ -112,6 +112,52 @@ Cleanup of the underlying files (when an image is removed from a
 description, or the whole task is deleted) is best-effort, not exhaustively
 tracked — see the docblock in `description_images.php` for the reasoning.
 
+## Supporting document attachments (projects & tasks)
+
+Projects and tasks can each have multiple uploaded files attached ("Supporting
+documents" in the Edit Project dialog and the Edit Activity dialog's
+Attachments tab) — see `includes/models/attachments.php` and
+`api/attachments.php`. Unlike avatars/description images, these are NOT
+public-by-design: a restricted Employee who can't see a project shouldn't be
+able to fetch its files either, so this feature departs from the
+avatar/description-image pattern in two important ways:
+
+- Files are stored under `storage/attachments/`, a folder outside the public
+  `uploads/` tree entirely, whose own `.htaccess` denies ALL direct web
+  access (`Require all denied`), not just script execution.
+- There is no public URL for a stored file at all. Every download goes
+  through `api/attachments.php`'s `download` action, which loads the
+  attachment's parent project or task and re-checks `can_view_project()` /
+  `activity_is_visible()` — the exact same visibility rules enforced
+  everywhere else in the app — before streaming a single byte. Upload and
+  delete are gated the same way on `can_manage_project()` /
+  `can_edit_activity()`.
+
+File-type validation is a strict allow-list (never a block-list): common
+office/document formats (PDF, Word, Excel, PowerPoint, OpenDocument, RTF,
+TXT, CSV) and common image formats only — nothing that could plausibly be
+executed by a server or rendered as active content by a browser (no
+`.php`/`.js`/`.html`/`.svg`/`.exe`/generic `.zip`/etc). An upload is accepted
+only if both its extension is on the allow-list AND its fileinfo-sniffed
+content type matches an acceptable value for that extension (see
+`AF_ATTACHMENT_ALLOWED_EXTENSIONS` in `attachments.php` for the full map and
+the reasoning behind the looser MIME tolerance given to zip-based Office/
+OpenDocument formats and legacy OLE binary formats). Stored filenames are
+always server-generated (`random_bytes()`-based), never derived from the
+original filename. Uploads are capped at 25MB per file, with a defensive cap
+on the number of files per request.
+
+On download, the original (uploader-supplied) filename is used only as an
+advisory suggested filename — stripped of characters that could break out of
+the `Content-Disposition` header — and the response always forces a download
+(`Content-Disposition: attachment`) with `X-Content-Type-Options: nosniff`,
+so even a file that somehow slipped past the allow-list is never rendered
+inline in the app's own origin.
+
+Deleting a project or a task deletes its attachments (files and rows) as
+part of the same operation — see `delete_attachments_for_entity()` and its
+call sites in `delete_project()` / `delete_activity()`.
+
 ## Audit trail
 
 `audit_logs` records entity type/ID, action, previous and new values (JSON),

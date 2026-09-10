@@ -208,8 +208,10 @@ return [
     'activity.tab_time' => 'Time & progress',
     'activity.tab_comments' => 'Comments',
     'activity.tab_interruptions' => 'Interruptions',
+    'activity.tab_attachments' => 'Attachments',
     'activity.tab_history' => 'History',
     'activity.interruptions_tab_hint' => 'Unplanned tasks that interrupted this one, most recent first. Click one to open it.',
+    'activity.attachments_hint' => 'PDF, Word, Excel, PowerPoint, OpenDocument, RTF, TXT, CSV, or common image files, up to 25MB each.',
     'history.reason' => 'Reason',
     'history.cloned_from' => 'Cloned from task',
     'history.ad_hoc' => 'Ad-hoc',
@@ -507,6 +509,9 @@ return [
     'pd.requesters_heading' => 'Requesters generating work for this project',
     'pd.requester' => 'Requester',
     'pd.tasks' => 'Tasks',
+    'pd.attachments_heading' => 'Supporting documents',
+    'pd.attachments_loading' => 'Loading files…',
+    'pd.attachments_hint' => 'PDF, Word, Excel, PowerPoint, OpenDocument, RTF, TXT, CSV, or common image files, up to 25MB each.',
     'pd.recent_activity' => 'Recent activity',
     'pd.no_recent_activity' => 'No recent changes recorded.',
     'pd.system' => 'System',
@@ -1002,4 +1007,11 @@ return [
     'impersonation.error_inactive' => 'Only active accounts can be impersonated.',
     'impersonation.error_target_admin' => "Administrator accounts can't be impersonated.",
     'impersonation.error_not_impersonating' => 'You are not currently impersonating anyone.',
+
+    // ---- Supporting documents (project + task attachments) ----
+    'attachments.empty' => 'No files uploaded yet.',
+    'attachments.delete' => 'Delete',
+    'attachments.confirm_delete' => 'Delete this file? This cannot be undone.',
+    'attachments.uploaded_one' => 'File uploaded.',
+    'attachments.uploaded_many' => '{count} files uploaded.',
 ];

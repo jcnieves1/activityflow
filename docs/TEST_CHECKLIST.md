@@ -1246,6 +1246,67 @@ requires selecting the Monospace font first — see the change above where
 - [ ] Switch language to Español and confirm the paste hint text is
       translated (the resize handles themselves have no text to translate).
 
+## Supporting documents (project & task attachments)
+
+- [ ] As a project owner/admin, open a project's "Edit Project" dialog,
+      choose several files at once (mix of a PDF, a Word/Excel file, and an
+      image) via the "Supporting documents" file input, and confirm they
+      appear in the list right away (no page reload needed) with size,
+      uploader, and date.
+- [ ] Reload the Project Detail page (without opening Edit Project again) and
+      confirm the same files appear in the read-only "Supporting documents"
+      section on the page body, each as a working download link.
+- [ ] Click a download link and confirm the browser downloads the file (not
+      navigates to/renders it inline) with its original filename, and that
+      the downloaded file opens correctly and matches the original.
+- [ ] Delete a file from within the Edit Project dialog's list and confirm
+      it disappears from both the modal's list and the page body's read-only
+      list without a reload.
+- [ ] As an Employee who is only a project *member* (not the owner) or not a
+      member at all, confirm you do NOT see an upload control or delete
+      buttons for that project's attachments, but a member with view access
+      can still see and download the list; someone with no visibility into
+      the project at all should not be able to view or download its files
+      even via a direct `api/attachments.php?action=download&id=...` URL
+      (confirm you get a 403, not the file).
+- [ ] Open a task's Edit Activity dialog and confirm a new "Attachments" tab
+      exists alongside Details/Time/Comments/Interruptions/History.
+- [ ] On a task you're allowed to edit, upload a few files under the
+      Attachments tab and confirm they appear immediately with download
+      links and delete buttons; on a task you can only view (not edit),
+      confirm the upload control and delete buttons are hidden but the list
+      of files is still visible and downloadable.
+- [ ] Start creating a brand-new task (not yet saved) — confirm the whole
+      tab bar (including Attachments) stays hidden until the task is saved,
+      matching the existing Comments/Time/History tabs' behavior.
+- [ ] Try uploading a disallowed file type (e.g. rename a `.txt` file to
+      `.exe`, `.php`, `.js`, `.html`, `.svg`, or a generic `.zip`) to both a
+      project and a task, and confirm it's rejected with a clear "file type
+      isn't allowed" error — the file must not end up in
+      `storage/attachments/` or in the database.
+- [ ] Try uploading a file renamed to a fake extension (e.g. rename a `.txt`
+      file to `.pdf`) and confirm it's rejected because its actual content
+      doesn't match the claimed type.
+- [ ] Try uploading a file larger than 25MB and confirm it's rejected with a
+      clear "too large" error rather than hanging or silently failing.
+- [ ] Upload several valid files in one go where one of them is an invalid
+      type — confirm the valid ones still upload successfully and only the
+      invalid one is reported as an error (a batch upload shouldn't
+      all-or-nothing fail because of one bad file).
+- [ ] Delete a task that has attachments and confirm its files are removed
+      from `storage/attachments/` (not just the database rows).
+- [ ] Delete an entire project that has both its own attachments and tasks
+      with their own attachments, and confirm every one of those files is
+      removed from `storage/attachments/` (project deletion bulk-deletes its
+      tasks without calling the normal single-task delete path, so this
+      needs its own cleanup — see `delete_project()`).
+- [ ] Confirm `storage/attachments/` is NOT reachable directly in a browser
+      (e.g. guess a stored filename from the database and try loading
+      `storage/attachments/<filename>` directly — it should be denied, not
+      served).
+- [ ] Switch language to Español and confirm the Attachments tab label,
+      hints, and toast messages are translated.
+
 ## Authorization boundaries
 
 - [ ] As an Employee, confirm Admin pages (`admin/*.php`, `audit_log.php`)

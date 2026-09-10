@@ -8,10 +8,28 @@ window.afActivities = (function () {
   let currentId = null;
   let currentType = 'planned';
   let currentComments = [];
+  let currentCanEdit = false;
   let moveCloneMode = 'move'; // 'move' | 'clone'
   let moveCloneIds = [];
 
   const API = () => window.AF_BASE_URL + 'api/activities.php';
+
+  // ---- Supporting documents ----
+  // Same shared widget the Edit Project modal uses (see assets/js/app.js and
+  // assets/js/project_detail.js) — entityId/canManage are read dynamically
+  // (getEntityId/canManage callbacks) rather than captured once, since this
+  // one modal instance is reused across every task the user opens in a page
+  // session (see the big comment on descriptionQuill below for the same
+  // reused-modal caveat). Upload is gated on currentCanEdit, the same
+  // server-computed can_edit flag (see fillForm()) that already gates the
+  // Clone/Move/Delete buttons for this task.
+  const attachmentsWidget = window.afInitAttachments && window.afInitAttachments({
+    entityType: 'activity',
+    getEntityId: () => currentId,
+    listEl: document.getElementById('am_attachments_list'),
+    uploadInputEl: document.getElementById('am_attachment_input'),
+    canManage: () => currentCanEdit,
+  });
 
   // ---- Rich text description ----
   // Unlike the New/Edit Project modals (each initialized once over a
@@ -267,7 +285,11 @@ window.afActivities = (function () {
     // (am_status, am_completion_pct), so wiping its innerHTML deleted those
     // permanently and broke every subsequent fillForm() call.
     document.getElementById('am_time_totals').textContent = '';
-    ['am_time_entries', 'am_comments', 'am_history', 'am_interruptions_list'].forEach((id) => { document.getElementById(id).innerHTML = ''; });
+    ['am_time_entries', 'am_comments', 'am_history', 'am_interruptions_list', 'am_attachments_list'].forEach((id) => { document.getElementById(id).innerHTML = ''; });
+    currentCanEdit = false;
+    document.getElementById('am_attachment_upload_wrap').classList.add('d-none');
+    const attachmentInput = document.getElementById('am_attachment_input');
+    if (attachmentInput) attachmentInput.value = '';
     syncDatetimeTracking();
   }
 
@@ -402,6 +424,12 @@ window.afActivities = (function () {
 
     currentId = a.id;
     currentType = a.activity_type;
+    // Same can_edit flag the Clone/Move/Delete buttons above already use —
+    // uploading or deleting a supporting document is a write to the task,
+    // so it follows the exact same permission as any other edit.
+    currentCanEdit = !!a.can_edit;
+    document.getElementById('am_attachment_upload_wrap').classList.toggle('d-none', !currentCanEdit);
+    attachmentsWidget && attachmentsWidget.refresh();
     document.getElementById('activityModalTitle').textContent = 'Edit activity';
     document.getElementById('activityTabs').style.display = '';
   }

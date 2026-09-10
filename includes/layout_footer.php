@@ -46,6 +46,11 @@ window.AF_I18N = <?= json_encode([
     'richtext_wrap_text_hint' => t('activity.wrap_text_hint'),
     'richtext_paste_image_hint' => t('activity.paste_image_hint'),
     'richtext_pasted_image_alt' => t('activity.pasted_image_alt'),
+    'attachments_empty' => t('attachments.empty'),
+    'attachments_delete' => t('attachments.delete'),
+    'attachments_confirm_delete' => t('attachments.confirm_delete'),
+    'attachments_uploaded_one' => t('attachments.uploaded_one'),
+    'attachments_uploaded_many' => t('attachments.uploaded_many'),
 ]) ?>;
 </script>
 <script src="<?= e(base_url('assets/js/app.js')) ?>"></script>

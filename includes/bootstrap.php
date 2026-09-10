@@ -30,6 +30,7 @@ require_once __DIR__ . '/models/releases.php';
 require_once __DIR__ . '/models/task_statuses.php';
 require_once __DIR__ . '/models/request_channels.php';
 require_once __DIR__ . '/models/description_images.php';
+require_once __DIR__ . '/models/attachments.php';
 require_once __DIR__ . '/models/activities.php';
 require_once __DIR__ . '/models/workload.php';
 require_once __DIR__ . '/models/mindmap.php';

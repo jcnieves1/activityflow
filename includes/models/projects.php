@@ -132,6 +132,14 @@ function delete_project(int $id): bool
     $activityCount = (int)$stmt->fetchColumn();
     $memberCount = count(list_project_members($id));
 
+    // Collected before the transaction below deletes the activities themselves —
+    // this bulk delete uses a single DELETE...WHERE project_id, not
+    // delete_activity() per row, so nothing else would otherwise clean up the
+    // files attached to each of those tasks.
+    $stmt = $pdo->prepare('SELECT id FROM activities WHERE project_id = ?');
+    $stmt->execute([$id]);
+    $activityIds = array_map('intval', array_column($stmt->fetchAll(), 'id'));
+
     $pdo->beginTransaction();
     try {
         audit_log('project', $id, 'deleted', [
@@ -140,6 +148,11 @@ function delete_project(int $id): bool
             'task_count' => $activityCount,
             'member_count' => $memberCount,
         ], null);
+
+        foreach ($activityIds as $activityId) {
+            delete_attachments_for_entity('activity', $activityId);
+        }
+        delete_attachments_for_entity('project', $id);
 
         $pdo->prepare('DELETE FROM activities WHERE project_id = ?')->execute([$id]);
         $pdo->prepare('DELETE FROM projects WHERE id = ?')->execute([$id]);

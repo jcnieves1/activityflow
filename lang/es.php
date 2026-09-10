@@ -207,8 +207,10 @@ return [
     'activity.tab_time' => 'Tiempo y progreso',
     'activity.tab_comments' => 'Comentarios',
     'activity.tab_interruptions' => 'Interrupciones',
+    'activity.tab_attachments' => 'Adjuntos',
     'activity.tab_history' => 'Historial',
     'activity.interruptions_tab_hint' => 'Tareas no planificadas que interrumpieron esta, de más reciente a más antigua. Haga clic en una para abrirla.',
+    'activity.attachments_hint' => 'PDF, Word, Excel, PowerPoint, OpenDocument, RTF, TXT, CSV o imágenes comunes, hasta 25MB cada uno.',
     'history.reason' => 'Motivo',
     'history.cloned_from' => 'Clonado de la tarea',
     'history.ad_hoc' => 'Ad-hoc',
@@ -506,6 +508,9 @@ return [
     'pd.requesters_heading' => 'Solicitantes que generan trabajo para este proyecto',
     'pd.requester' => 'Solicitante',
     'pd.tasks' => 'Tareas',
+    'pd.attachments_heading' => 'Documentos de apoyo',
+    'pd.attachments_loading' => 'Cargando archivos…',
+    'pd.attachments_hint' => 'PDF, Word, Excel, PowerPoint, OpenDocument, RTF, TXT, CSV o imágenes comunes, hasta 25MB cada uno.',
     'pd.recent_activity' => 'Actividad reciente',
     'pd.no_recent_activity' => 'No se registraron cambios recientes.',
     'pd.system' => 'Sistema',
@@ -998,4 +1003,11 @@ return [
     'impersonation.error_inactive' => 'Solo se pueden suplantar cuentas activas.',
     'impersonation.error_target_admin' => 'Las cuentas de administrador no se pueden suplantar.',
     'impersonation.error_not_impersonating' => 'Actualmente no está suplantando a nadie.',
+
+    // ---- Documentos de apoyo (adjuntos de proyectos y tareas) ----
+    'attachments.empty' => 'Aún no se han subido archivos.',
+    'attachments.delete' => 'Eliminar',
+    'attachments.confirm_delete' => '¿Eliminar este archivo? Esta acción no se puede deshacer.',
+    'attachments.uploaded_one' => 'Archivo subido.',
+    'attachments.uploaded_many' => '{count} archivos subidos.',
 ];

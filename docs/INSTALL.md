@@ -71,15 +71,24 @@ in with one of the seeded accounts, or register a new one.
   `includes/`, and `database/`.
 - Ensure `mod_rewrite` and `mod_headers` are enabled (both are on by default
   in XAMPP/WAMP).
-- PHP needs the `pdo_mysql`, `session`, `json`, and `gd` extensions (all
-  enabled by default in standard PHP builds). `gd` is used to resize/crop
-  profile photos on upload (see `includes/models/avatars.php`) and to
-  downscale/re-encode images pasted into a task description (see
+- PHP needs the `pdo_mysql`, `session`, `json`, `gd`, and `fileinfo`
+  extensions (all enabled by default in standard PHP builds). `gd` is used to
+  resize/crop profile photos on upload (see `includes/models/avatars.php`)
+  and to downscale/re-encode images pasted into a task description (see
   `includes/models/description_images.php`) — if it's missing, both uploads
   will fail with a clear error, but the rest of the app is unaffected.
+  `fileinfo` is used to validate project/task file attachments (see
+  `includes/models/attachments.php`) — if it's missing, uploading a
+  supporting document will fail with a clear error, but the rest of the app
+  is unaffected.
 - The `uploads/avatars/` and `uploads/description_images/` folders must be
   writable by the web server user — that's where processed profile photos
-  and pasted description images are stored, respectively.
+  and pasted description images are stored, respectively. The
+  `storage/attachments/` folder must also be writable — that's where project
+  and task file attachments (Supporting documents) are stored; unlike the two
+  `uploads/` folders above, it is NOT meant to be publicly reachable (its own
+  `.htaccess` denies all direct access — see `docs/SECURITY.md`), so don't
+  point anything at it directly.
 
 ## Production checklist
 

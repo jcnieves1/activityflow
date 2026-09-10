@@ -500,6 +500,33 @@ CREATE TABLE password_recovery_attempts (
     KEY idx_pra_ip_time (ip_address, created_at)
 ) ENGINE=InnoDB;
 
+-- Supporting documents uploaded to a project or a task. Polymorphic the same
+-- way audit_logs is (entity_type + entity_id, no FK on entity_id since it can
+-- point at either projects or activities) — see includes/models/attachments.php.
+-- stored_filename is a server-generated random name (never the uploader's
+-- original name) living under storage/attachments/, a folder outside the
+-- public uploads/ tree and denied all direct web access by its own
+-- .htaccess — unlike avatars/description images, an attachment must respect
+-- its parent project/task's own visibility rules, so it is only ever served
+-- through api/attachments.php's permission-checked download action, never by
+-- a guessable public URL. original_filename is kept only for display and for
+-- the downloaded file's suggested name; it is never used to build a
+-- filesystem path.
+CREATE TABLE attachments (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    entity_type ENUM('project','activity') NOT NULL,
+    entity_id INT UNSIGNED NOT NULL,
+    original_filename VARCHAR(255) NOT NULL,
+    stored_filename VARCHAR(64) NOT NULL,
+    mime_type VARCHAR(120) NOT NULL,
+    size_bytes INT UNSIGNED NOT NULL,
+    uploaded_by INT UNSIGNED DEFAULT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    KEY idx_attachments_entity (entity_type, entity_id),
+    KEY idx_attachments_uploaded_by (uploaded_by),
+    CONSTRAINT fk_attachments_uploaded_by FOREIGN KEY (uploaded_by) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
 CREATE TABLE audit_logs (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     entity_type VARCHAR(60) NOT NULL,

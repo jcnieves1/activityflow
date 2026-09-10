@@ -414,4 +414,117 @@
     return `<span class="af-avatar" style="width:${sizePx}px;height:${sizePx}px;font-size:${fontPx}px">${escapeHtml(initial)}</span>`;
   }
   window.afAvatarMarkup = avatarMarkup;
+
+  // ---- Attachments ("Supporting documents") ----
+  // Shared by the Edit Project modal (assets/js/project_detail.js) and the
+  // Edit Activity dialog's Attachments tab (assets/js/activities.js) — both
+  // wire a file input + a list container to api/attachments.php through this
+  // one implementation rather than duplicating render/upload/delete logic.
+  function formatFileSize(bytes) {
+    bytes = Number(bytes) || 0;
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (Math.round((bytes / 1024) * 10) / 10) + ' KB';
+    return (Math.round((bytes / (1024 * 1024)) * 10) / 10) + ' MB';
+  }
+
+  function renderAttachmentList(listEl, attachments, canManage, onDelete) {
+    const i18n = window.AF_I18N || {};
+    if (!attachments.length) {
+      listEl.innerHTML = `<p class="text-muted small mb-0">${escapeHtml(i18n.attachments_empty || 'No files uploaded yet.')}</p>`;
+      return;
+    }
+    listEl.innerHTML = attachments.map((a) => {
+      const url = window.AF_BASE_URL + 'api/attachments.php?action=download&id=' + encodeURIComponent(a.id);
+      const metaParts = [formatFileSize(a.size_bytes)];
+      if (a.uploaded_by_name) metaParts.push(escapeHtml(a.uploaded_by_name));
+      if (a.created_at) metaParts.push(escapeHtml(a.created_at));
+      return `<div class="d-flex justify-content-between align-items-center border rounded p-2 mb-1 small af-attachment-item">
+        <div class="text-truncate me-2">
+          <a href="${escapeHtml(url)}" target="_blank" rel="noopener"><i class="bi bi-paperclip"></i> ${escapeHtml(a.original_filename)}</a>
+          <div class="text-muted">${metaParts.join(' · ')}</div>
+        </div>
+        ${canManage ? `<button type="button" class="btn btn-sm btn-link text-danger p-0 flex-shrink-0" data-attachment-id="${a.id}" title="${escapeHtml(i18n.attachments_delete || 'Delete')}"><i class="bi bi-trash3"></i></button>` : ''}
+      </div>`;
+    }).join('');
+    if (canManage) {
+      listEl.querySelectorAll('button[data-attachment-id]').forEach((btn) => {
+        btn.addEventListener('click', function () { onDelete(this.dataset.attachmentId); });
+      });
+    }
+  }
+
+  /**
+   * Wires a "Supporting documents" widget: a list container showing existing
+   * files (download links, and delete buttons when canManage), plus an
+   * optional file input for uploading more. entityId is read via
+   * opts.getEntityId() at call time (not captured once) because the Edit
+   * Activity dialog reuses the same DOM elements across different tasks —
+   * see refresh() being called fresh from fillForm() on every open. Returns
+   * { refresh } so the caller can (re)load the list whenever the relevant
+   * project/task changes or the modal opens.
+   */
+  window.afInitAttachments = function (opts) {
+    const listEl = opts.listEl;
+    const inputEl = opts.uploadInputEl || null;
+    if (!listEl) return null;
+    const i18n = window.AF_I18N || {};
+
+    function canManage() {
+      return typeof opts.canManage === 'function' ? !!opts.canManage() : !!opts.canManage;
+    }
+
+    function refresh() {
+      const entityId = opts.getEntityId();
+      if (!entityId) { listEl.innerHTML = ''; return; }
+      afFetch(window.AF_BASE_URL + 'api/attachments.php?action=list&entity_type=' + opts.entityType + '&entity_id=' + encodeURIComponent(entityId))
+        .then((res) => renderAttachmentList(listEl, res.attachments || [], canManage(), handleDelete))
+        .catch((err) => { listEl.innerHTML = `<p class="text-danger small mb-0">${escapeHtml(err.message)}</p>`; });
+    }
+
+    // Called after a successful delete or upload, in addition to re-rendering
+    // this widget's own list — lets a caller that renders the SAME entity's
+    // files in a second, separate widget (e.g. project_detail.js's read-only
+    // page-body list alongside the Edit Project modal's manageable one) keep
+    // that sibling list in sync too, without a full page reload.
+    function notifyChanged() {
+      if (typeof opts.onChange === 'function') opts.onChange();
+    }
+
+    function handleDelete(id) {
+      if (!window.afConfirm(i18n.attachments_confirm_delete || 'Delete this file? This cannot be undone.')) return;
+      afFetch(window.AF_BASE_URL + 'api/attachments.php', { method: 'POST', body: { action: 'delete', id: id } })
+        .then((res) => { renderAttachmentList(listEl, res.attachments || [], canManage(), handleDelete); notifyChanged(); })
+        .catch((err) => afToast(err.message, 'danger'));
+    }
+
+    if (inputEl) {
+      inputEl.addEventListener('change', function () {
+        const entityId = opts.getEntityId();
+        const files = Array.prototype.slice.call(inputEl.files || []);
+        if (!entityId || !files.length) return;
+        const formData = new FormData();
+        formData.append('action', 'upload');
+        formData.append('entity_type', opts.entityType);
+        formData.append('entity_id', entityId);
+        files.forEach((f) => formData.append('files[]', f, f.name));
+        afFetch(window.AF_BASE_URL + 'api/attachments.php', { method: 'POST', body: formData })
+          .then((res) => {
+            renderAttachmentList(listEl, res.attachments || [], canManage(), handleDelete);
+            notifyChanged();
+            if (res.errors && res.errors.length) {
+              afToast(res.errors.join(' '), 'danger');
+            } else if (res.uploaded_count) {
+              const template = res.uploaded_count === 1
+                ? (i18n.attachments_uploaded_one || 'File uploaded.')
+                : (i18n.attachments_uploaded_many || '{count} files uploaded.');
+              afToast(template.replace('{count}', String(res.uploaded_count)), 'success');
+            }
+          })
+          .catch((err) => afToast(err.message, 'danger'))
+          .finally(() => { inputEl.value = ''; });
+      });
+    }
+
+    return { refresh: refresh };
+  };
 })();

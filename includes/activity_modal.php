@@ -57,6 +57,7 @@ foreach ($amProjectMemberIds as $amProjId => $amMemberIds) {
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#am_tab_time"><?= e(t('activity.tab_time')) ?></button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#am_tab_comments"><?= e(t('activity.tab_comments')) ?></button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#am_tab_interruptions"><?= e(t('activity.tab_interruptions')) ?></button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#am_tab_attachments"><?= e(t('activity.tab_attachments')) ?></button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#am_tab_history"><?= e(t('activity.tab_history')) ?></button></li>
       </ul>
       <div class="modal-body tab-content">
@@ -195,6 +196,14 @@ foreach ($amProjectMemberIds as $amProjId => $amMemberIds) {
         <div class="tab-pane fade" id="am_tab_interruptions">
           <p class="text-muted small"><?= e(t('activity.interruptions_tab_hint')) ?></p>
           <div id="am_interruptions_list"></div>
+        </div>
+
+        <div class="tab-pane fade" id="am_tab_attachments">
+          <div class="mb-2 d-none" id="am_attachment_upload_wrap">
+            <input type="file" class="form-control form-control-sm" id="am_attachment_input" multiple>
+            <div class="form-text"><?= e(t('activity.attachments_hint')) ?></div>
+          </div>
+          <div id="am_attachments_list"></div>
         </div>
 
         <div class="tab-pane fade" id="am_tab_history">

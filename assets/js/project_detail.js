@@ -159,6 +159,42 @@
     });
   }
 
+  // Supporting documents: a read-only, download-only list on the main page
+  // body (visible to anyone who can view the project — see attachment_can_view()
+  // in api/attachments.php) plus, only when the Edit Project modal exists at
+  // all (i.e. only for $canManage — see project_detail.php), an upload
+  // control and delete buttons inside that modal. Two separate widgets
+  // rather than one shared list because the two containers have different
+  // permissions (view-only vs. manage) even though they show the exact same
+  // underlying files.
+  let pdAttachments = null;
+  const pdAttachmentsList = document.getElementById('pd_attachments_list');
+  if (pdAttachmentsList && window.afInitAttachments) {
+    pdAttachments = window.afInitAttachments({
+      entityType: 'project',
+      getEntityId: () => P.id,
+      listEl: pdAttachmentsList,
+      canManage: false,
+    });
+    pdAttachments && pdAttachments.refresh();
+  }
+
+  const epmAttachmentsList = document.getElementById('epm_attachments_list');
+  if (epmAttachmentsList && window.afInitAttachments) {
+    const epmAttachments = window.afInitAttachments({
+      entityType: 'project',
+      getEntityId: () => P.id,
+      listEl: epmAttachmentsList,
+      uploadInputEl: document.getElementById('epm_attachment_input'),
+      canManage: true,
+      // Keep the read-only page-body list in sync with uploads/deletes made
+      // from inside the Edit Project modal, without waiting for a full
+      // location.reload() (which only happens if the user also clicks Save).
+      onChange: () => pdAttachments && pdAttachments.refresh(),
+    });
+    epmAttachments && epmAttachments.refresh();
+  }
+
   window.afProjectDetail = {
     removeMember(personId) {
       if (!afConfirm('Remove this member from the project?')) return;

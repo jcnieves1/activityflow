@@ -297,6 +297,7 @@ function delete_activity(int $id): bool
     ], null);
 
     delete_description_images_in_html($activity['description'] ?? null);
+    delete_attachments_for_entity('activity', $id);
     db()->prepare('DELETE FROM activities WHERE id = ?')->execute([$id]);
     return true;
 }

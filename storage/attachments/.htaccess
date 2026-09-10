@@ -1,0 +1,23 @@
+# Unlike uploads/avatars/ and uploads/description_images/ (intentionally
+# public to any logged-in user, under the app's web-accessible uploads/
+# folder), files in this folder must respect their parent project/task's own
+# visibility rules — a restricted Employee who can't see a project shouldn't
+# be able to see its attachments either. So this folder is NOT served
+# directly at all: every download goes through api/attachments.php's
+# permission-checked "download" action (see stream_attachment_download() in
+# includes/models/attachments.php), which re-checks can_view_project() /
+# activity_is_visible() before ever reading the file. This .htaccess is
+# defense in depth for that design, denying ALL direct access (not just
+# script execution, unlike the uploads/ folders' .htaccess files) in case a
+# stored filename is ever guessed or leaked.
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+    Order deny,allow
+    Deny from all
+</IfModule>
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+Options -ExecCGI -Indexes
