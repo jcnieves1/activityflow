@@ -42,6 +42,8 @@ window.AF_I18N = <?= json_encode([
     'calendar_project_plural' => t('calendar.project_plural'),
     'admin_impersonate' => t('admin.impersonate'),
     'admin_impersonate_confirm' => t('admin.impersonate_confirm'),
+    'richtext_wrap_text' => t('activity.wrap_text'),
+    'richtext_wrap_text_hint' => t('activity.wrap_text_hint'),
 ]) ?>;
 </script>
 <script src="<?= e(base_url('assets/js/app.js')) ?>"></script>

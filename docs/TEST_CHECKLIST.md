@@ -1102,6 +1102,36 @@ read-only) — see `has_broad_project_visibility()` in `includes/permissions.php
 - [ ] Switch language to Español and confirm the photo card's labels
       ("Subir foto", "Eliminar foto", hint text) are translated.
 
+## Rich text wrap toggle (Edit Activity description)
+
+- [ ] Open any task's Edit Activity dialog and confirm a "Wrap text" switch
+      appears above the Description editor, on by default.
+- [ ] Paste a block of text with a long line that has no natural break point
+      (e.g. a long unbroken string, or ASCII-aligned columns/a code snippet)
+      into the Description field and confirm it wraps normally with the
+      switch on.
+- [ ] Turn the switch off and confirm the long line no longer wraps — the
+      editor should show a horizontal scrollbar and let you scroll right to
+      read the rest of the line instead of it breaking or being cut off.
+- [ ] With the switch off, confirm pasted content with intentional spacing/
+      alignment (e.g. an ASCII table) keeps its original alignment when
+      scrolled into view, rather than being reflowed.
+- [ ] Turn the switch back on and confirm the text reflows back to normal
+      wrapping immediately (no page reload needed).
+- [ ] Save the task with the switch in either position and confirm the
+      switch's on/off state itself is never saved — it only affects how the
+      editor displays content locally, not the stored HTML — and reopening
+      the dialog always starts with wrapping on.
+- [ ] Confirm the toggle only appears on the Description field of the Edit
+      Activity dialog, not on the comment editors in the same dialog or on
+      the New/Edit Project description editors.
+- [ ] Switch language to Español and confirm the switch's label and tooltip
+      are translated.
+- [ ] With a browser extension or dev-tools trick that blocks the Quill CDN
+      script, confirm the plain textarea (and therefore no wrap toggle)
+      still appears and the field remains usable — the feature is a
+      progressive enhancement, not a hard requirement.
+
 ## Authorization boundaries
 
 - [ ] As an Employee, confirm Admin pages (`admin/*.php`, `audit_log.php`)

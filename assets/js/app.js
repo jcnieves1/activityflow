@@ -137,13 +137,38 @@
   // of throwing — a third-party CDN script failing here should never be able
   // to break the form around it (see project_detail.js's Chart.js handling for
   // the same principle).
-  window.afInitRichText = function (textareaId) {
+  // `opts.wrapToggle: true` adds a small "Wrap text" switch above the editor
+  // (off by default is NOT the default — wrapping starts ON, matching normal
+  // text behavior). Switching it off stops long lines from reflowing and lets
+  // the editor scroll horizontally instead, so content whose original layout
+  // matters (pasted logs, code, ASCII tables/diagrams) stays exactly as
+  // pasted and can be read by scrolling rather than being squashed by
+  // word-wrap. See .af-richtext-nowrap in app.css.
+  window.afInitRichText = function (textareaId, opts) {
+    opts = opts || {};
     const textarea = document.getElementById(textareaId);
     if (!textarea || typeof Quill === 'undefined') return null;
 
     try {
+      const wrapperEl = document.createElement('div');
+      wrapperEl.className = 'af-richtext-wrapper';
+      textarea.insertAdjacentElement('afterend', wrapperEl);
+
+      if (opts.wrapToggle) {
+        const i18n = window.AF_I18N || {};
+        const toggleId = textareaId + '_wraptoggle';
+        const toggleEl = document.createElement('div');
+        toggleEl.className = 'form-check form-switch af-richtext-wraptoggle mb-1';
+        toggleEl.innerHTML = `<input class="form-check-input" type="checkbox" role="switch" id="${toggleId}" checked>
+          <label class="form-check-label small text-muted" for="${toggleId}" title="${escapeHtml(i18n.richtext_wrap_text_hint || '')}">${escapeHtml(i18n.richtext_wrap_text || 'Wrap text')}</label>`;
+        wrapperEl.appendChild(toggleEl);
+        toggleEl.querySelector('input').addEventListener('change', function () {
+          wrapperEl.classList.toggle('af-richtext-nowrap', !this.checked);
+        });
+      }
+
       const editorEl = document.createElement('div');
-      textarea.insertAdjacentElement('afterend', editorEl);
+      wrapperEl.appendChild(editorEl);
 
       const quill = new Quill(editorEl, {
         theme: 'snow',

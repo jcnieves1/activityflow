@@ -220,6 +220,8 @@ return [
     'history.time_entry_count' => 'Time entries',
     'activity.field_title' => 'Title *',
     'activity.field_description' => 'Description',
+    'activity.wrap_text' => 'Wrap text',
+    'activity.wrap_text_hint' => 'Turn off to scroll long lines horizontally instead of wrapping them — useful for pasted content whose original formatting matters.',
     'activity.field_project' => 'Project',
     'activity.no_project' => 'No project',
     'activity.field_category' => 'Category',

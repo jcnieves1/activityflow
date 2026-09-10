@@ -297,6 +297,14 @@ body { background: var(--af-body-bg); color: var(--af-body-text); }
 [data-theme="blue"] .ql-toolbar.ql-snow,
 [data-theme="blue"] .ql-container.ql-snow { border-color: var(--af-card-border); }
 [data-theme="blue"] .ql-snow .ql-stroke { stroke: var(--af-body-text); }
+
+/* Wrap-text toggle (see afInitRichText() in app.js) — sits right-aligned
+   above the editor. Off state (.af-richtext-nowrap) stops the editor's
+   content from reflowing so long lines/pasted formatting stay intact and
+   scroll horizontally instead of wrapping/breaking. */
+.af-richtext-wraptoggle { display:flex; justify-content:flex-end; gap:.4rem; }
+.af-richtext-nowrap .ql-editor { white-space: pre; overflow-x: auto; }
+.af-richtext-nowrap .ql-editor > * { white-space: pre; }
 [data-theme="blue"] .ql-snow .ql-fill, [data-theme="blue"] .ql-snow .ql-stroke.ql-fill { fill: var(--af-body-text); }
 [data-theme="blue"] .ql-snow .ql-picker { color: var(--af-body-text); }
 [data-theme="blue"] .ql-snow .ql-picker-options { background: var(--af-card-bg); border-color: var(--af-card-border); }
