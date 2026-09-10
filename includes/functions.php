@@ -16,8 +16,10 @@ function e(?string $value): string
  *
  * - Tags not on the allow-list are unwrapped (their content is kept, the tag
  *   itself is dropped); <script>/<style> are removed entirely, contents included.
- * - All attributes are stripped except href/target/rel on <a>, and href is only
- *   kept if it uses http(s) or mailto (blocks javascript: and similar).
+ * - All attributes are stripped except href/target/rel on <a> (kept only if
+ *   href uses http(s) or mailto — blocks javascript: and similar), and class
+ *   on <span> (kept only if it's exactly "ql-font-monospace", the class the
+ *   rich text editor's Font dropdown uses for its "Monospace" option).
  */
 function sanitize_html(?string $html): string
 {
@@ -26,7 +28,7 @@ function sanitize_html(?string $html): string
         return '';
     }
 
-    $allowedTags = ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'strike', 'ol', 'ul', 'li', 'blockquote', 'h1', 'h2', 'h3', 'a'];
+    $allowedTags = ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'strike', 'ol', 'ul', 'li', 'blockquote', 'h1', 'h2', 'h3', 'a', 'span'];
     $removedEntirely = ['script', 'style'];
 
     $dom = new DOMDocument('1.0', 'UTF-8');
@@ -95,6 +97,19 @@ function _sanitize_html_children(DOMNode $node, array $allowedTags, array $remov
                 }
             }
 
+            // <span> only ever exists here to carry Quill's monospace-font class
+            // (the "Monospace" option in the rich text editor's Font dropdown —
+            // see afInitRichText() in app.js). Any other class is dropped, which
+            // leaves a bare, harmless <span> around the text rather than
+            // deleting the text itself.
+            $safeSpanClass = null;
+            if ($tag === 'span') {
+                $rawClass = trim($child->getAttribute('class'));
+                if (in_array($rawClass, ['ql-font-monospace'], true)) {
+                    $safeSpanClass = $rawClass;
+                }
+            }
+
             if ($child->hasAttributes()) {
                 foreach (iterator_to_array($child->attributes) as $attr) {
                     $child->removeAttribute($attr->name);
@@ -113,6 +128,10 @@ function _sanitize_html_children(DOMNode $node, array $allowedTags, array $remov
                     }
                     $node->removeChild($child);
                 }
+            }
+
+            if ($tag === 'span' && $safeSpanClass !== null) {
+                $child->setAttribute('class', $safeSpanClass);
             }
         }
 

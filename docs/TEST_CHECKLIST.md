@@ -1132,6 +1132,32 @@ read-only) — see `has_broad_project_visibility()` in `includes/permissions.php
       still appears and the field remains usable — the feature is a
       progressive enhancement, not a hard requirement.
 
+## Rich text monospace font (Edit Activity description)
+
+- [ ] Open any task's Edit Activity dialog and confirm a Font dropdown
+      (showing "Sans Serif" by default) appears next to the Heading dropdown
+      above the Description editor.
+- [ ] Type or paste some text, select it, open the Font dropdown, and choose
+      "Monospace" — confirm the selected text switches to a fixed-width
+      typeface where every character (letters, digits, punctuation/symbols)
+      takes up the same width, so pasted code/aligned columns line up
+      correctly.
+- [ ] Select monospaced text and switch the Font dropdown back to
+      "Sans Serif" and confirm it reverts to the normal body font.
+- [ ] Save the task, reopen it, and confirm the monospace formatting persists
+      (both in the editor and if the same content is later reopened for
+      editing again).
+- [ ] Confirm this Font dropdown also appears on the New/Edit Project
+      description editors and the task comment editors (it's part of the
+      same shared rich text toolbar).
+- [ ] As a defense-in-depth check: submit a description containing a `<span
+      class="something-else">` (e.g. via the API directly, bypassing the
+      editor) and confirm the saved/displayed HTML keeps the text but drops
+      the unrecognized class — only `ql-font-monospace` is ever preserved.
+- [ ] Confirm the dropdown's dark-mode appearance (text/background/border of
+      both the closed picker and its open option list) is readable in the
+      blue theme, matching the existing Heading dropdown.
+
 ## Authorization boundaries
 
 - [ ] As an Employee, confirm Admin pages (`admin/*.php`, `audit_log.php`)

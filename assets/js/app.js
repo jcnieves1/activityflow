@@ -137,6 +137,27 @@
   // of throwing — a third-party CDN script failing here should never be able
   // to break the form around it (see project_detail.js's Chart.js handling for
   // the same principle).
+  // Registers a "Monospace" option on Quill's built-in Font format (once —
+  // Quill.register() on the same format repeatedly is harmless but pointless).
+  // This is what powers the Font dropdown's "Monospace" choice below: every
+  // character comes from a fixed-width typeface, so letters, digits, and
+  // punctuation/symbols all render at the same width — exactly what makes
+  // pasted code, logs, or aligned/tabular text line up correctly instead of
+  // the proportional body font (where e.g. "i" and "m" differ in width)
+  // throwing the alignment off.
+  let richTextFontRegistered = false;
+  function ensureRichTextFontRegistered() {
+    if (richTextFontRegistered) return;
+    try {
+      const Font = Quill.import('formats/font');
+      Font.whitelist = ['monospace'];
+      Quill.register(Font, true);
+    } catch (err) {
+      console.warn('Could not register the monospace font option for rich text editors.', err);
+    }
+    richTextFontRegistered = true;
+  }
+
   // `opts.wrapToggle: true` adds a small "Wrap text" switch above the editor
   // (off by default is NOT the default — wrapping starts ON, matching normal
   // text behavior). Switching it off stops long lines from reflowing and lets
@@ -150,6 +171,7 @@
     if (!textarea || typeof Quill === 'undefined') return null;
 
     try {
+      ensureRichTextFontRegistered();
       const wrapperEl = document.createElement('div');
       wrapperEl.className = 'af-richtext-wrapper';
       textarea.insertAdjacentElement('afterend', wrapperEl);
@@ -174,7 +196,7 @@
         theme: 'snow',
         modules: {
           toolbar: [
-            [{ header: [1, 2, 3, false] }],
+            [{ font: ['monospace'] }, { header: [1, 2, 3, false] }],
             ['bold', 'italic', 'underline', 'strike'],
             [{ list: 'ordered' }, { list: 'bullet' }],
             ['blockquote', 'link'],

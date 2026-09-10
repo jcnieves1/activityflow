@@ -309,6 +309,18 @@ body { background: var(--af-body-bg); color: var(--af-body-text); }
 [data-theme="blue"] .ql-snow .ql-picker { color: var(--af-body-text); }
 [data-theme="blue"] .ql-snow .ql-picker-options { background: var(--af-card-bg); border-color: var(--af-card-border); }
 
+/* Font dropdown (see afInitRichText() in app.js) — adds a "Monospace" choice
+   next to the Heading dropdown for pasted code/logs/tabular text, so every
+   character (letters, digits, symbols alike) renders at a fixed width
+   instead of the body font's proportional spacing. Quill's own CDN CSS
+   already draws the "Sans Serif"/"Monospace" picker labels and applies
+   Monaco/Courier New to .ql-font-monospace content for us; this just widens
+   the picker slightly so "Monospace" doesn't get clipped, and repeats the
+   font-family as a fallback in case a different Quill build is ever loaded.
+   */
+.ql-snow .ql-picker.ql-font { width: 118px; }
+.ql-font-monospace { font-family: Monaco, 'Courier New', Consolas, monospace; }
+
 /* Rendered output (project detail view): reset the typography a WYSIWYG editor
    produces so headings/lists don't look oversized or lose their bullets inside
    our narrower card layout. */
