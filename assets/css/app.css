@@ -306,11 +306,13 @@ body { background: var(--af-body-bg); color: var(--af-body-text); }
 [data-theme="blue"] .ql-container.ql-snow { border-color: var(--af-card-border); }
 [data-theme="blue"] .ql-snow .ql-stroke { stroke: var(--af-body-text); }
 
-/* Wrap-text toggle (see afInitRichText() in app.js) — sits right-aligned
-   above the editor. Off state (.af-richtext-nowrap) stops the editor's
-   content from reflowing so long lines/pasted formatting stay intact and
-   scroll horizontally instead of wrapping/breaking. */
-.af-richtext-wraptoggle { display:flex; justify-content:flex-end; gap:.4rem; }
+/* Wrap-text toggle (see afInitRichText() in app.js) — shares a row with the
+   field's own label (e.g. "Description") rather than stacking above the
+   editor on its own line, so it doesn't read as an unrelated control. Off
+   state (.af-richtext-nowrap) stops the editor's content from reflowing so
+   long lines/pasted formatting stay intact and scroll horizontally instead
+   of wrapping/breaking. */
+.af-richtext-wraptoggle { display:flex; align-items:center; gap:.4rem; flex:0 0 auto; }
 .af-richtext-nowrap .ql-editor { white-space: pre; overflow-x: auto; }
 .af-richtext-nowrap .ql-editor > * { white-space: pre; }
 [data-theme="blue"] .ql-snow .ql-fill, [data-theme="blue"] .ql-snow .ql-stroke.ql-fill { fill: var(--af-body-text); }

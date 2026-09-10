@@ -206,13 +206,29 @@
         const i18n = window.AF_I18N || {};
         const toggleId = textareaId + '_wraptoggle';
         const toggleEl = document.createElement('div');
-        toggleEl.className = 'form-check form-switch af-richtext-wraptoggle mb-1';
+        toggleEl.className = 'form-check form-switch af-richtext-wraptoggle';
         toggleEl.innerHTML = `<input class="form-check-input" type="checkbox" role="switch" id="${toggleId}" checked>
           <label class="form-check-label small text-muted" for="${toggleId}" title="${escapeHtml(i18n.richtext_wrap_text_hint || '')}">${escapeHtml(i18n.richtext_wrap_text || 'Wrap text')}</label>`;
-        wrapperEl.appendChild(toggleEl);
         toggleEl.querySelector('input').addEventListener('change', function () {
           wrapperEl.classList.toggle('af-richtext-nowrap', !this.checked);
         });
+
+        // Put the switch on the same line as the field's own <label>
+        // (e.g. "Description") rather than tucked in above the toolbar,
+        // where it reads as if it belongs to a different field entirely.
+        // Falls back to stacking above the editor if there's no adjacent
+        // <label> to share a row with.
+        const fieldLabel = textarea.previousElementSibling;
+        if (fieldLabel && fieldLabel.tagName === 'LABEL') {
+          const labelRow = document.createElement('div');
+          labelRow.className = 'd-flex align-items-center justify-content-between flex-wrap gap-2';
+          fieldLabel.parentNode.insertBefore(labelRow, fieldLabel);
+          labelRow.appendChild(fieldLabel);
+          labelRow.appendChild(toggleEl);
+        } else {
+          toggleEl.classList.add('mb-1');
+          wrapperEl.appendChild(toggleEl);
+        }
       }
 
       const editorEl = document.createElement('div');
