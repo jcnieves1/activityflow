@@ -319,7 +319,29 @@ body { background: var(--af-body-bg); color: var(--af-body-text); }
    font-family as a fallback in case a different Quill build is ever loaded.
    */
 .ql-snow .ql-picker.ql-font { width: 118px; }
-.ql-font-monospace { font-family: Monaco, 'Courier New', Consolas, monospace; }
+/* A monospace typeface already gives every character — letters, digits,
+   punctuation, and the space character itself — the same advance width, so
+   in isolation "spaces are a different size" isn't actually possible with a
+   real monospace font. What breaks alignment is normal HTML/CSS whitespace
+   handling: browsers collapse any run of spaces down to one and drop tabs
+   entirely unless white-space is set to preserve them. `pre-wrap` fixes
+   that — every space and tab in pasted code/columns renders exactly as
+   pasted — while still letting long lines wrap at the editor's edge (see
+   the nowrap override below for when the user wants no wrapping at all).
+   `tab-size` picks a consistent, editor-like tab width instead of the
+   browser default (usually 8, which reads as excessive here). */
+.ql-font-monospace {
+  font-family: Monaco, 'Courier New', Consolas, monospace;
+  white-space: pre-wrap;
+  tab-size: 4;
+  -moz-tab-size: 4;
+}
+/* When "Wrap text" is off (.af-richtext-nowrap — see above), monospace runs
+   should stop wrapping too, not just scroll independently of the rest of
+   the content; this beats .ql-font-monospace's own white-space on
+   specificity since it targets the same element with one more ancestor
+   class. */
+.af-richtext-nowrap .ql-editor .ql-font-monospace { white-space: pre; }
 
 /* Rendered output (project detail view): reset the typography a WYSIWYG editor
    produces so headings/lists don't look oversized or lose their bullets inside

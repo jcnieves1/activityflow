@@ -1157,6 +1157,17 @@ read-only) — see `has_broad_project_visibility()` in `includes/permissions.php
 - [ ] Confirm the dropdown's dark-mode appearance (text/background/border of
       both the closed picker and its open option list) is readable in the
       blue theme, matching the existing Heading dropdown.
+- [ ] Paste a chunk of text that relies on multiple spaces to line up in
+      columns (e.g. a `key    value` style list, or output copied from a
+      terminal/spreadsheet) into the Description field, select it, and apply
+      "Monospace" — confirm the columns line up correctly instead of the
+      extra spaces collapsing down to one.
+- [ ] Paste (or type, if your OS lets you insert a literal tab) text
+      containing tab characters, apply "Monospace", and confirm each tab
+      renders as a consistent, editor-like indent rather than being dropped.
+- [ ] With "Wrap text" off and a monospace block whose lines are too long to
+      fit, confirm those lines still scroll horizontally instead of
+      wrapping (the two features should combine, not conflict).
 
 ## Authorization boundaries
 
