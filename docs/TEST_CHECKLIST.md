@@ -1157,17 +1157,35 @@ read-only) — see `has_broad_project_visibility()` in `includes/permissions.php
 - [ ] Confirm the dropdown's dark-mode appearance (text/background/border of
       both the closed picker and its open option list) is readable in the
       blue theme, matching the existing Heading dropdown.
-- [ ] Paste a chunk of text that relies on multiple spaces to line up in
-      columns (e.g. a `key    value` style list, or output copied from a
-      terminal/spreadsheet) into the Description field, select it, and apply
-      "Monospace" — confirm the columns line up correctly instead of the
-      extra spaces collapsing down to one.
-- [ ] Paste (or type, if your OS lets you insert a literal tab) text
-      containing tab characters, apply "Monospace", and confirm each tab
-      renders as a consistent, editor-like indent rather than being dropped.
 - [ ] With "Wrap text" off and a monospace block whose lines are too long to
       fit, confirm those lines still scroll horizontally instead of
       wrapping (the two features should combine, not conflict).
+
+## Rich text preserves pasted spacing (Edit Activity description)
+
+Spacing preservation is now a default editor behavior, not something that
+requires selecting the Monospace font first — see the change above where
+`.ql-editor` itself got `white-space: pre-wrap`.
+
+- [ ] Paste a chunk of plain text that relies on multiple spaces to line up
+      in columns (e.g. a `key    value` style list, or output copied from a
+      terminal/spreadsheet) into the Description field *without* changing
+      the font — confirm the columns line up correctly instead of the extra
+      spaces collapsing down to one.
+- [ ] Paste (or type, if your OS lets you insert a literal tab) text
+      containing tab characters *without* changing the font, and confirm
+      each tab renders as a consistent, editor-like indent rather than
+      being dropped or collapsed to a single space.
+- [ ] Confirm normal paragraph text still wraps at the edge of the editor as
+      before — the fix should only stop spaces/tabs from collapsing, not
+      change how long lines wrap.
+- [ ] Save a description containing this kind of pasted alignment, then view
+      it read-only on the Project Detail page (if it's a project
+      description) and confirm the spacing/tabs still line up there too, not
+      just while editing.
+- [ ] Confirm the same paste-preserves-spacing behavior in the task comment
+      editors and the New/Edit Project description editors (all share the
+      same rich text component).
 
 ## Authorization boundaries
 

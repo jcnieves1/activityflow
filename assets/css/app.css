@@ -289,7 +289,15 @@ body { background: var(--af-body-bg); color: var(--af-body-text); }
    rounded-corner/border look so it doesn't feel like a foreign widget. */
 .ql-container { min-height: 120px; border-bottom-left-radius:.375rem; border-bottom-right-radius:.375rem; font-size:1rem; color:var(--af-body-text); }
 .ql-toolbar { border-top-left-radius:.375rem; border-top-right-radius:.375rem; background:var(--af-surface-bg); }
-.ql-editor { min-height: 120px; }
+/* white-space: pre-wrap (rather than the browser default `normal`) stops
+   the editor from silently collapsing runs of spaces down to one and
+   dropping tabs — the characters were always preserved in the pasted text
+   itself, only the *display* was collapsing them. This keeps normal
+   wrapping (long lines still break at the editor's edge) but stops pasted
+   alignment/columns/indentation from getting squashed. tab-size gives
+   pasted tabs a consistent, editor-like width instead of the browser
+   default (usually 8, which reads as excessive). */
+.ql-editor { min-height: 120px; white-space: pre-wrap; tab-size: 4; -moz-tab-size: 4; }
 /* Quill (loaded from a third-party CDN) ships its own fixed light-mode colors
    for the toolbar's icon strokes/fills and the border around the whole
    widget — without this, the editor stays a light widget with barely-visible
@@ -319,33 +327,17 @@ body { background: var(--af-body-bg); color: var(--af-body-text); }
    font-family as a fallback in case a different Quill build is ever loaded.
    */
 .ql-snow .ql-picker.ql-font { width: 118px; }
-/* A monospace typeface already gives every character — letters, digits,
-   punctuation, and the space character itself — the same advance width, so
-   in isolation "spaces are a different size" isn't actually possible with a
-   real monospace font. What breaks alignment is normal HTML/CSS whitespace
-   handling: browsers collapse any run of spaces down to one and drop tabs
-   entirely unless white-space is set to preserve them. `pre-wrap` fixes
-   that — every space and tab in pasted code/columns renders exactly as
-   pasted — while still letting long lines wrap at the editor's edge (see
-   the nowrap override below for when the user wants no wrapping at all).
-   `tab-size` picks a consistent, editor-like tab width instead of the
-   browser default (usually 8, which reads as excessive here). */
-.ql-font-monospace {
-  font-family: Monaco, 'Courier New', Consolas, monospace;
-  white-space: pre-wrap;
-  tab-size: 4;
-  -moz-tab-size: 4;
-}
-/* When "Wrap text" is off (.af-richtext-nowrap — see above), monospace runs
-   should stop wrapping too, not just scroll independently of the rest of
-   the content; this beats .ql-font-monospace's own white-space on
-   specificity since it targets the same element with one more ancestor
-   class. */
-.af-richtext-nowrap .ql-editor .ql-font-monospace { white-space: pre; }
+/* Just the typeface — .ql-editor above already preserves spaces/tabs (and
+   .af-richtext-nowrap below already stops wrapping when requested) for all
+   text, monospace or not, so this class doesn't need to repeat either. */
+.ql-font-monospace { font-family: Monaco, 'Courier New', Consolas, monospace; }
 
 /* Rendered output (project detail view): reset the typography a WYSIWYG editor
    produces so headings/lists don't look oversized or lose their bullets inside
-   our narrower card layout. */
+   our narrower card layout. white-space/tab-size mirror .ql-editor above so a
+   description that relied on pasted spacing/tabs for alignment still looks
+   right once it's saved and shown read-only here, not just while editing. */
+.af-rich-text { white-space: pre-wrap; tab-size: 4; -moz-tab-size: 4; }
 .af-rich-text :first-child { margin-top: 0; }
 .af-rich-text :last-child { margin-bottom: 0; }
 .af-rich-text h1 { font-size: 1.3rem; }
