@@ -22,6 +22,7 @@ $pageStyles = [
 ];
 $pageScripts = [
     'https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js',
+    'https://cdn.jsdelivr.net/npm/quill-image-resize-module@3.0.0/image-resize.min.js',
     'https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.9/standalone/umd/vis-network.min.js',
     base_url('assets/js/activities.js'),
     base_url('assets/js/mindmap.js'),

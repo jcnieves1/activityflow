@@ -25,6 +25,7 @@ $breadcrumbs = [['label' => t('nav.my_tasks')]];
 $pageStyles = ['https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css'];
 $pageScripts = [
     'https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js',
+    'https://cdn.jsdelivr.net/npm/quill-image-resize-module@3.0.0/image-resize.min.js',
     base_url('assets/js/activities.js'), base_url('assets/js/my_tasks.js'),
 ];
 require __DIR__ . '/includes/layout_header.php';

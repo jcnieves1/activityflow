@@ -222,6 +222,8 @@ return [
     'activity.field_description' => 'Description',
     'activity.wrap_text' => 'Wrap text',
     'activity.wrap_text_hint' => 'Turn off to scroll long lines horizontally instead of wrapping them — useful for pasted content whose original formatting matters.',
+    'activity.paste_image_hint' => 'Tip: paste an image from your clipboard to add it here.',
+    'activity.pasted_image_alt' => 'Pasted image',
     'activity.field_project' => 'Project',
     'activity.no_project' => 'No project',
     'activity.field_category' => 'Category',

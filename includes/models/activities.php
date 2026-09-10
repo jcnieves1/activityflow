@@ -296,6 +296,7 @@ function delete_activity(int $id): bool
         'time_entry_count' => $timeEntryCount,
     ], null);
 
+    delete_description_images_in_html($activity['description'] ?? null);
     db()->prepare('DELETE FROM activities WHERE id = ?')->execute([$id]);
     return true;
 }
@@ -459,6 +460,11 @@ function update_activity(int $id, array $data): void
         $parentId = null; // a task cannot be its own parent
     }
     $data['description'] = sanitize_html($data['description'] ?? null);
+    // Any pasted image that was in the old description but didn't make it
+    // into the new one (removed by the user, or the whole field replaced)
+    // has its stored file deleted here — see description_images.php's
+    // docblock for why this is best-effort rather than fully tracked.
+    cleanup_removed_description_images($before['description'] ?? null, $data['description']);
 
     $stmt = db()->prepare(
         'UPDATE activities SET title=?, description=?, project_id=?, parent_activity_id=?, assignee_id=?, requester_id=?,

@@ -64,24 +64,53 @@ flow in `includes/auth.php` is defensive by design:
 - `config/`, `includes/`, and `database/` are denied by `.htaccess` in case
   the document root is ever pointed above this folder.
 
-## File uploads (profile photos)
+## File uploads (profile photos, pasted description images)
 
-- The only user-controlled file upload in the app is the profile photo on
-  `profile.php` — see `includes/models/avatars.php`.
+There are two user-controlled file upload paths in the app, and they share
+the same defensive shape:
+
+- The profile photo on `profile.php` — see `includes/models/avatars.php`.
+- Images pasted into a task description's rich text editor (Edit Activity
+  dialog) — see `includes/models/description_images.php` and the
+  `upload_description_image` action in `api/activities.php`. Unlike the
+  avatar upload, this isn't scoped to a specific record (a new task doesn't
+  have an id yet when its description is being drafted), so it's reachable
+  by any logged-in user, the same trust level as creating a task or leaving
+  a comment.
+
+Both follow the same pattern:
+
 - The upload is never trusted as-is: `getimagesize()` validates it's
   actually a decodable image (not just a renamed file), and it's re-encoded
-  from scratch through GD (`imagecreatefromstring()` → resample → `imagejpeg()`)
-  before being written to disk — nothing about the original file's bytes,
-  metadata, or embedded content survives into the stored copy.
+  from scratch through GD (`imagecreatefromstring()` → resample →
+  `imagejpeg()`/`imagepng()`) before being written to disk — nothing about
+  the original file's bytes, metadata, or embedded content survives into the
+  stored copy.
 - Stored filenames are always server-generated (`random_bytes()`-based), never
   derived from the original filename, so path traversal and filename
   collisions aren't possible.
-- `uploads/avatars/` is a plain publicly-readable folder (avatars are visible
-  to any logged-in user by design) but has its own `.htaccess` denying script
-  execution, so even a hypothetical malformed file saved there can't be run
-  as PHP.
-- Uploads are capped (5MB raw, before processing) and MIME-checked against an
-  allow-list (JPEG/PNG/GIF/WEBP) before any processing happens.
+- `uploads/avatars/` and `uploads/description_images/` are plain
+  publicly-readable folders (visible to any logged-in user by design) but
+  each has its own `.htaccess` denying script execution, so even a
+  hypothetical malformed file saved there can't be run as PHP.
+- Uploads are capped (5MB raw for avatars, 10MB for pasted images, before
+  processing) and MIME-checked against an allow-list (JPEG/PNG/GIF/WEBP)
+  before any processing happens.
+
+Pasted description images have one more layer, since (unlike an avatar) the
+resulting `<img>` tag ends up embedded directly in rich text HTML that
+`sanitize_html()` (`includes/functions.php`) has to let through on every
+future save: an `<img src>` is kept only if it starts with this app's own
+`base_url('uploads/description_images/')` prefix followed by exactly a
+generated filename (32 hex characters + `.jpg`/`.png`, nothing else) — every
+other attribute (`style`, `srcset`, `onerror`, ...) is stripped, and `width`
+is kept only as a bare number in a plausible range. An `<img>` that fails
+that check is dropped entirely rather than left half-sanitized. This is what
+stops a crafted request from embedding an arbitrary external image, a
+tracking pixel, or a `javascript:`/`data:` URL disguised as a pasted image.
+Cleanup of the underlying files (when an image is removed from a
+description, or the whole task is deleted) is best-effort, not exhaustively
+tracked — see the docblock in `description_images.php` for the reasoning.
 
 ## Audit trail
 

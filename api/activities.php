@@ -232,6 +232,20 @@ if ($method === 'POST') {
         json_response(['ok' => true, 'activity' => get_activity($newId)]);
     }
 
+    // Pasted from the clipboard into the description's rich text editor (see
+    // the paste handler in assets/js/app.js's afInitRichText()). Deliberately
+    // not scoped to a specific activity — this fires while creating a new
+    // task too, before it has an id — so any logged-in user may call it, the
+    // same trust level as creating a task or leaving a comment.
+    if ($action === 'upload_description_image') {
+        try {
+            $url = process_description_image_upload($_FILES['image'] ?? []);
+        } catch (InvalidArgumentException $e) {
+            json_error($e->getMessage());
+        }
+        json_response(['ok' => true, 'url' => $url]);
+    }
+
     if ($action === 'add_comment') {
         $activity = get_activity((int)($data['id'] ?? 0));
         if (!$activity) json_error('Activity not found.', 404);

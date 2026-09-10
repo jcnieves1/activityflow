@@ -73,12 +73,23 @@
   // ---- Fetch wrapper with CSRF + JSON ----
   window.afFetch = function (url, options) {
     options = options || {};
+    // A FormData body (file uploads — see the paste-image handler in
+    // afInitRichText() below) must NOT get 'Content-Type: application/json'
+    // or get JSON.stringify'd: the browser needs to set its own
+    // 'multipart/form-data; boundary=...' Content-Type itself, which only
+    // happens if we don't set one ourselves. CSRF still travels fine via the
+    // X-CSRF-Token header either way.
+    const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
     const headers = Object.assign(
-      { 'X-CSRF-Token': window.AF_CSRF, 'Content-Type': 'application/json' },
+      isFormData
+        ? { 'X-CSRF-Token': window.AF_CSRF }
+        : { 'X-CSRF-Token': window.AF_CSRF, 'Content-Type': 'application/json' },
       options.headers || {}
     );
     const opts = Object.assign({ credentials: 'same-origin' }, options, { headers });
-    if (opts.body && typeof opts.body !== 'string') {
+    if (isFormData) {
+      opts.body = options.body;
+    } else if (opts.body && typeof opts.body !== 'string') {
       opts.body = JSON.stringify(Object.assign({ csrf_token: window.AF_CSRF }, opts.body));
     }
     window.afLoadingShow();
@@ -165,6 +176,21 @@
   // matters (pasted logs, code, ASCII tables/diagrams) stays exactly as
   // pasted and can be read by scrolling rather than being squashed by
   // word-wrap. See .af-richtext-nowrap in app.css.
+  //
+  // `opts.allowImagePaste: true` lets the user paste an image straight from
+  // the clipboard (a screenshot, typically) into the editor. Quill's own
+  // default behavior for a pasted image is to embed it as a giant base64
+  // data: URL right in the document — great for a demo, terrible for a
+  // database column that gets fetched on every page load — so this
+  // intercepts the paste ourselves, uploads the image to the server (where
+  // it's downscaled/re-encoded — see process_description_image_upload() in
+  // includes/models/description_images.php) and inserts a normal <img
+  // src="..."> pointing at the stored file instead. The
+  // quill-image-resize-module CDN script (loaded alongside Quill on pages
+  // that need this — see team_activities.php etc.) adds the actual
+  // click-and-drag resize handles once an image is inserted; if that script
+  // didn't load for some reason, the image still pastes in and displays
+  // fine, it just can't be resized by hand.
   window.afInitRichText = function (textareaId, opts) {
     opts = opts || {};
     const textarea = document.getElementById(textareaId);
@@ -192,22 +218,71 @@
       const editorEl = document.createElement('div');
       wrapperEl.appendChild(editorEl);
 
-      const quill = new Quill(editorEl, {
-        theme: 'snow',
-        modules: {
-          toolbar: [
-            [{ font: ['monospace'] }, { header: [1, 2, 3, false] }],
-            ['bold', 'italic', 'underline', 'strike'],
-            [{ list: 'ordered' }, { list: 'bullet' }],
-            ['blockquote', 'link'],
-            ['clean'],
-          ],
-        },
-      });
+      const modules = {
+        toolbar: [
+          [{ font: ['monospace'] }, { header: [1, 2, 3, false] }],
+          ['bold', 'italic', 'underline', 'strike'],
+          [{ list: 'ordered' }, { list: 'bullet' }],
+          ['blockquote', 'link'],
+          ['clean'],
+        ],
+      };
+      // Only wire in the resize module if its CDN script actually loaded and
+      // self-registered (see the comment above) — referencing an unregistered
+      // module name would throw when Quill starts up, taking the *whole*
+      // editor down with it (caught below, falling back to a plain textarea)
+      // over what should only cost this one optional capability.
+      if (opts.allowImagePaste && Quill.import('modules/imageResize')) {
+        modules.imageResize = { modules: ['Resize', 'DisplaySize'] };
+      }
+
+      const quill = new Quill(editorEl, { theme: 'snow', modules });
       quill.root.innerHTML = textarea.value;
 
       const sync = () => { textarea.value = quill.root.innerHTML; };
       quill.on('text-change', sync);
+
+      if (opts.allowImagePaste) {
+        const i18n = window.AF_I18N || {};
+        const hintEl = document.createElement('div');
+        hintEl.className = 'form-text';
+        hintEl.textContent = i18n.richtext_paste_image_hint || 'Tip: paste an image from your clipboard to add it here.';
+        wrapperEl.appendChild(hintEl);
+
+        // Capture phase so this runs — and can preventDefault/stopPropagation
+        // — before Quill's own paste handler (bound in the bubble phase on
+        // this same element) ever sees the event.
+        quill.root.addEventListener('paste', function (e) {
+          const items = e.clipboardData && e.clipboardData.items;
+          if (!items) return;
+          let imageItem = null;
+          for (let i = 0; i < items.length; i++) {
+            if (items[i].type && items[i].type.indexOf('image/') === 0) { imageItem = items[i]; break; }
+          }
+          if (!imageItem) return; // no image on the clipboard — let Quill handle the paste normally
+
+          e.preventDefault();
+          e.stopPropagation();
+          const file = imageItem.getAsFile();
+          if (!file) return;
+
+          const range = quill.getSelection(true);
+          const insertIndex = range ? range.index : quill.getLength();
+          const formData = new FormData();
+          formData.append('action', 'upload_description_image');
+          formData.append('image', file, file.name || 'pasted-image.png');
+
+          afFetch(window.AF_BASE_URL + 'api/activities.php', { method: 'POST', body: formData })
+            .then((res) => {
+              quill.insertEmbed(insertIndex, 'image', res.url, 'user');
+              const imgEl = quill.root.querySelector('img[src="' + res.url + '"]');
+              if (imgEl) imgEl.setAttribute('alt', i18n.richtext_pasted_image_alt || 'Pasted image');
+              quill.setSelection(insertIndex + 1, 0, 'user');
+              sync();
+            })
+            .catch((err) => afToast(err.message, 'danger'));
+        }, true);
+      }
 
       const form = textarea.closest('form');
       // Capture phase + belt-and-braces sync in case text-change ever lags a

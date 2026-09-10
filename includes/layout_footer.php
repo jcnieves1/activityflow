@@ -44,6 +44,8 @@ window.AF_I18N = <?= json_encode([
     'admin_impersonate_confirm' => t('admin.impersonate_confirm'),
     'richtext_wrap_text' => t('activity.wrap_text'),
     'richtext_wrap_text_hint' => t('activity.wrap_text_hint'),
+    'richtext_paste_image_hint' => t('activity.paste_image_hint'),
+    'richtext_pasted_image_alt' => t('activity.pasted_image_alt'),
 ]) ?>;
 </script>
 <script src="<?= e(base_url('assets/js/app.js')) ?>"></script>

@@ -332,6 +332,19 @@ body { background: var(--af-body-bg); color: var(--af-body-text); }
    text, monospace or not, so this class doesn't need to repeat either. */
 .ql-font-monospace { font-family: Monaco, 'Courier New', Consolas, monospace; }
 
+/* Pasted images (Edit Activity description — see the paste handler in
+   afInitRichText()). A freshly pasted image has no width set yet (it's
+   inserted at whatever size it came back from the server at, up to
+   AF_DESC_IMAGE_MAX_DIMENSION_PX — see description_images.php), so cap it to
+   the editor's own width by default rather than letting it overflow the
+   modal; the quill-image-resize-module's drag handles (loaded alongside
+   Quill on pages that need it) then let the user size it down further from
+   there. The module draws its own handles/size-label with fixed white
+   backgrounds — legible against either theme, so left as-is rather than
+   fighting them with theme overrides for what's transient editing chrome,
+   not real page content. */
+.ql-editor img { max-width: 100%; height: auto; }
+
 /* Rendered output (project detail view): reset the typography a WYSIWYG editor
    produces so headings/lists don't look oversized or lose their bullets inside
    our narrower card layout. white-space/tab-size mirror .ql-editor above so a
@@ -344,6 +357,7 @@ body { background: var(--af-body-bg); color: var(--af-body-text); }
 .af-rich-text h2 { font-size: 1.15rem; }
 .af-rich-text h3 { font-size: 1.05rem; }
 .af-rich-text ul, .af-rich-text ol { padding-left: 1.25rem; }
+.af-rich-text img { max-width: 100%; height: auto; }
 .af-rich-text blockquote { border-left: 3px solid var(--af-card-border); padding-left: .75rem; color: var(--af-muted-text); margin-left: 0; }
 .af-rich-text a { word-break: break-word; }
 

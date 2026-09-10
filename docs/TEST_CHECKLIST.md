@@ -1187,6 +1187,65 @@ requires selecting the Monospace font first — see the change above where
       editors and the New/Edit Project description editors (all share the
       same rich text component).
 
+## Pasted images in the Description field (Edit Activity dialog)
+
+- [ ] Copy an image to your clipboard (a screenshot is the easiest way),
+      click into the Description field, and paste (Ctrl/Cmd+V). Confirm the
+      image appears inline in the editor within a moment, not as a giant
+      block of base64 text.
+- [ ] While the upload is in flight, confirm the app's loading indicator
+      shows briefly and the editor doesn't appear frozen or double-insert
+      the image if you wait.
+- [ ] Confirm a small "paste an image" hint is visible under the toolbar.
+- [ ] Click the pasted image and confirm resize handles appear at its
+      corners; drag one and confirm the image resizes smoothly and a small
+      pixel-size readout appears near it.
+- [ ] Resize the image down, save the task, reopen it, and confirm the
+      chosen size persisted (not reset to the original pasted size).
+- [ ] Confirm you can also resize an image back up (within reason) and that
+      it never exceeds the width of the editor itself.
+- [ ] Paste a very large screenshot (e.g. a full 4K/retina screen capture)
+      and confirm it's still accepted, appears at a reasonable size (not
+      overflowing the dialog), and check the actual saved file in
+      `uploads/description_images/` is meaningfully smaller than the
+      original clipboard image.
+- [ ] Paste an image with transparency (e.g. a screenshot of a window with
+      rounded/transparent corners, or any PNG with an alpha channel) and
+      confirm the transparency is preserved (saved as `.png`, not flattened
+      onto a solid background).
+- [ ] Paste an opaque photo/screenshot (most common case) and confirm it's
+      saved as `.jpg` (check the network request's response URL, or the
+      file extension in `uploads/description_images/`) for a smaller file.
+- [ ] Paste plain text alongside/after having pasted an image earlier in the
+      same session and confirm normal text pasting still works exactly as
+      before — the image interception shouldn't affect non-image pastes.
+- [ ] Add an image, then delete it from the editor (select + Delete/Backspace
+      or undo) *before* saving, then save. Reopen the task and confirm no
+      broken image placeholder is left behind.
+- [ ] Add an image to a task's description, save, then edit the task again
+      and remove that image (replace the description or delete just the
+      image), then save again. Confirm the previously-uploaded file is
+      deleted from `uploads/description_images/` (best-effort cleanup — see
+      `cleanup_removed_description_images()`).
+- [ ] Delete a task whose description contains a pasted image entirely, and
+      confirm the image file is also deleted from
+      `uploads/description_images/`.
+- [ ] Start creating a *new* task (not yet saved), paste an image into its
+      description, and confirm the upload works even though the task has no
+      id yet.
+- [ ] As a defense-in-depth check: try (via browser dev tools or a direct
+      API call) submitting a description containing an `<img>` tag pointing
+      at an external URL, or with a `style`/`onerror` attribute, and confirm
+      the saved/displayed HTML either drops the image entirely (bad `src`)
+      or strips everything except `src`/`width`/`alt` (good `src`) — never a
+      raw external image or an event-handler attribute.
+- [ ] Try pasting a very large image (over 10MB) and confirm it's rejected
+      with a clear error rather than hanging or silently failing.
+- [ ] Confirm the resize handles and image are usable/legible in both the
+      light and blue (dark) themes.
+- [ ] Switch language to Español and confirm the paste hint text is
+      translated (the resize handles themselves have no text to translate).
+
 ## Authorization boundaries
 
 - [ ] As an Employee, confirm Admin pages (`admin/*.php`, `audit_log.php`)

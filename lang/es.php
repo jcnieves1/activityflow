@@ -221,6 +221,8 @@ return [
     'activity.field_description' => 'Descripción',
     'activity.wrap_text' => 'Ajustar texto',
     'activity.wrap_text_hint' => 'Desactívalo para desplazar las líneas largas horizontalmente en vez de ajustarlas — útil para contenido pegado cuyo formato original importa.',
+    'activity.paste_image_hint' => 'Consejo: pega una imagen desde tu portapapeles para agregarla aquí.',
+    'activity.pasted_image_alt' => 'Imagen pegada',
     'activity.field_project' => 'Proyecto',
     'activity.no_project' => 'Sin proyecto',
     'activity.field_category' => 'Categoría',

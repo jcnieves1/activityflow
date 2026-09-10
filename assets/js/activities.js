@@ -26,7 +26,7 @@ window.afActivities = (function () {
   // instead, which pushes the new HTML into the live Quill instance too
   // (mirroring how afInitRichText() itself seeds Quill's very first
   // content from the textarea at init time: `quill.root.innerHTML = ...`).
-  const descriptionQuill = window.afInitRichText && window.afInitRichText('am_description', { wrapToggle: true });
+  const descriptionQuill = window.afInitRichText && window.afInitRichText('am_description', { wrapToggle: true, allowImagePaste: true });
   function setDescriptionHtml(html) {
     const textarea = document.getElementById('am_description');
     if (textarea) textarea.value = html || '';

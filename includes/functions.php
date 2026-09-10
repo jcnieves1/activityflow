@@ -17,9 +17,16 @@ function e(?string $value): string
  * - Tags not on the allow-list are unwrapped (their content is kept, the tag
  *   itself is dropped); <script>/<style> are removed entirely, contents included.
  * - All attributes are stripped except href/target/rel on <a> (kept only if
- *   href uses http(s) or mailto — blocks javascript: and similar), and class
- *   on <span> (kept only if it's exactly "ql-font-monospace", the class the
- *   rich text editor's Font dropdown uses for its "Monospace" option).
+ *   href uses http(s) or mailto — blocks javascript: and similar), class on
+ *   <span> (kept only if it's exactly "ql-font-monospace", the class the
+ *   rich text editor's Font dropdown uses for its "Monospace" option), and
+ *   src/width/alt on <img> (src kept only if it points at our own
+ *   uploads/description_images/ folder — see description_images.php — so
+ *   this can't be used to embed arbitrary external images or a
+ *   javascript:/data: URL; width kept only if it's a plausible pixel count;
+ *   an <img> with no safe src is dropped entirely rather than unwrapped,
+ *   since unlike a link or a styled span there's no meaningful text content
+ *   underneath it to keep).
  */
 function sanitize_html(?string $html): string
 {
@@ -28,7 +35,7 @@ function sanitize_html(?string $html): string
         return '';
     }
 
-    $allowedTags = ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'strike', 'ol', 'ul', 'li', 'blockquote', 'h1', 'h2', 'h3', 'a', 'span'];
+    $allowedTags = ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'strike', 'ol', 'ul', 'li', 'blockquote', 'h1', 'h2', 'h3', 'a', 'span', 'img'];
     $removedEntirely = ['script', 'style'];
 
     $dom = new DOMDocument('1.0', 'UTF-8');
@@ -110,6 +117,33 @@ function _sanitize_html_children(DOMNode $node, array $allowedTags, array $remov
                 }
             }
 
+            // Only ever accept an <img> this app generated and stored itself
+            // (see process_description_image_upload() in
+            // includes/models/description_images.php) — comparing against
+            // our own base_url() prefix (rather than e.g. matching just the
+            // path suffix) means an attacker-chosen external domain crafted
+            // to merely *end* with a matching-looking path can't sneak
+            // through. width is kept only as a bare pixel count in a
+            // plausible range; nothing else (style, onerror, srcset, ...) is
+            // ever allowed through.
+            $safeImgSrc = null;
+            $safeImgWidth = null;
+            $safeImgAlt = null;
+            if ($tag === 'img') {
+                $rawSrc = trim($child->getAttribute('src'));
+                $expectedPrefix = base_url('uploads/description_images/');
+                if (str_starts_with($rawSrc, $expectedPrefix)
+                    && preg_match('/^[a-f0-9]{32}\.(?:jpg|png)$/', substr($rawSrc, strlen($expectedPrefix)))
+                ) {
+                    $safeImgSrc = $rawSrc;
+                }
+                $rawWidth = trim($child->getAttribute('width'));
+                if ($rawWidth !== '' && preg_match('/^\d{1,5}$/', $rawWidth) && (int)$rawWidth >= 10 && (int)$rawWidth <= 4000) {
+                    $safeImgWidth = $rawWidth;
+                }
+                $safeImgAlt = mb_substr(trim($child->getAttribute('alt')), 0, 300);
+            }
+
             if ($child->hasAttributes()) {
                 foreach (iterator_to_array($child->attributes) as $attr) {
                     $child->removeAttribute($attr->name);
@@ -132,6 +166,20 @@ function _sanitize_html_children(DOMNode $node, array $allowedTags, array $remov
 
             if ($tag === 'span' && $safeSpanClass !== null) {
                 $child->setAttribute('class', $safeSpanClass);
+            }
+
+            if ($tag === 'img') {
+                if ($safeImgSrc !== null) {
+                    $child->setAttribute('src', $safeImgSrc);
+                    $child->setAttribute('alt', $safeImgAlt !== '' ? $safeImgAlt : 'Pasted image');
+                    if ($safeImgWidth !== null) {
+                        $child->setAttribute('width', $safeImgWidth);
+                    }
+                } else {
+                    // No safe src: drop the image entirely. Unlike <a> there's
+                    // no text content underneath an <img> worth unwrapping/keeping.
+                    $node->removeChild($child);
+                }
             }
         }
 
