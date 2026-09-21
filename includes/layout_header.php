@@ -10,6 +10,10 @@ $pageTitle = $pageTitle ?? t('app.name');
 $activeNav = $activeNav ?? '';
 $user = current_user();
 $unread = $user ? unread_notification_count($user['id']) : 0;
+// Cheap enough to run on every admin page load (a single COUNT query) —
+// powers the small badge on the "Account Approvals" nav link below, the same
+// at-a-glance-without-a-click treatment the notification bell already gets.
+$pendingAccountCount = ($user && is_admin()) ? count_pending_accounts() : 0;
 // Presence has already been touched for this very request in bootstrap.php,
 // so the current user is guaranteed to be counted here — the topbar widget
 // never has to explain why "you" appear offline to yourself.
@@ -68,6 +72,7 @@ $navItems = [
       <?php if (is_admin()): ?>
         <div class="af-nav-heading"><?= e(t('nav.admin_heading')) ?></div>
         <a href="<?= e(base_url('admin/users.php')) ?>" class="af-nav-link <?= $activeNav === 'admin_users' ? 'active' : '' ?>"><i class="bi bi-people-fill"></i> <span><?= e(t('nav.admin_users')) ?></span></a>
+        <a href="<?= e(base_url('admin/account_approvals.php')) ?>" class="af-nav-link <?= $activeNav === 'admin_account_approvals' ? 'active' : '' ?>"><i class="bi bi-person-check"></i> <span><?= e(t('nav.admin_account_approvals')) ?></span><?php if ($pendingAccountCount > 0): ?> <span class="badge rounded-pill bg-danger"><?= (int)$pendingAccountCount ?></span><?php endif; ?></a>
         <a href="<?= e(base_url('admin/categories.php')) ?>" class="af-nav-link <?= $activeNav === 'admin_categories' ? 'active' : '' ?>"><i class="bi bi-tags"></i> <span><?= e(t('nav.admin_categories')) ?></span></a>
         <a href="<?= e(base_url('admin/departments.php')) ?>" class="af-nav-link <?= $activeNav === 'admin_departments' ? 'active' : '' ?>"><i class="bi bi-diagram-3"></i> <span><?= e(t('nav.admin_departments')) ?></span></a>
         <a href="<?= e(base_url('admin/statuses.php')) ?>" class="af-nav-link <?= $activeNav === 'admin_statuses' ? 'active' : '' ?>"><i class="bi bi-flag"></i> <span><?= e(t('nav.admin_statuses')) ?></span></a>

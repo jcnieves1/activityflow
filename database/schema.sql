@@ -34,7 +34,16 @@ CREATE TABLE users (
     password_hash VARCHAR(255) NOT NULL,
     secret_question VARCHAR(255) NOT NULL,
     secret_answer_hash VARCHAR(255) NOT NULL,
-    status ENUM('active','inactive','locked') NOT NULL DEFAULT 'active',
+    -- 'pending_approval': just self-registered via register.php, awaiting an
+    -- administrator's decision — cannot log in yet (see attempt_login()).
+    -- 'rejected': an administrator declined the registration request (see
+    -- account_approval_actions below for the reason) — cannot log in, and a
+    -- new registration attempt with the same email is shown the reason
+    -- rather than silently allowed to duplicate. An administrator can still
+    -- flip a rejected account to 'active' later (re-approval). 'active' is
+    -- also used directly by database/seed_users.php's demo accounts, which
+    -- bypass the approval queue entirely.
+    status ENUM('pending_approval','active','inactive','locked','rejected') NOT NULL DEFAULT 'active',
     failed_login_count INT UNSIGNED NOT NULL DEFAULT 0,
     locked_until DATETIME DEFAULT NULL,
     last_login_at DATETIME DEFAULT NULL,
@@ -60,6 +69,29 @@ CREATE TABLE user_roles (
     UNIQUE KEY uq_user_role (user_id, role_id),
     CONSTRAINT fk_user_roles_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT fk_user_roles_role FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- One row per approve/reject decision made on a self-registered account —
+-- an immutable audit trail, never updated or deleted, so a later
+-- re-approval of a previously-rejected account (see includes/models/
+-- account_approvals.php's approve_account()) adds a new row rather than
+-- overwriting the rejection it's reversing. reason is free text the deciding
+-- administrator types in (required when rejecting; optional when approving,
+-- but especially useful to fill in when re-approving a previously-rejected
+-- account, for later audit). Powers both the pending-approval queue (via
+-- users.status) and the "Decision history" list on admin/account_approvals.php.
+CREATE TABLE account_approval_actions (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNSIGNED NOT NULL,
+    action ENUM('approved','rejected') NOT NULL,
+    reason TEXT DEFAULT NULL,
+    actor_user_id INT UNSIGNED DEFAULT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    KEY idx_aaa_user (user_id, created_at),
+    KEY idx_aaa_actor (actor_user_id),
+    KEY idx_aaa_created (created_at),
+    CONSTRAINT fk_aaa_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_aaa_actor FOREIGN KEY (actor_user_id) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 CREATE TABLE people (

@@ -10,14 +10,23 @@ $method = $_SERVER['REQUEST_METHOD'];
 $action = $method === 'GET' ? ($_GET['action'] ?? '') : (request_input()['action'] ?? '');
 
 if ($method === 'GET' && $action === 'users') {
+    // Accounts still awaiting a decision ('pending_approval') or declined
+    // ('rejected') are deliberately excluded here — they're managed
+    // exclusively through admin/account_approvals.php, which requires a
+    // reason and records it for audit. Surfacing them on this generic page
+    // too would let the plain Activate button flip one straight to 'active'
+    // with no reason captured, bypassing that flow entirely. A rejected
+    // account that's later approved becomes 'active' and appears here
+    // normally, same as any other user.
     $stmt = $pdo->query(
-        'SELECT u.id, u.full_name, u.email, u.status, u.last_login_at, p.id AS person_id,
+        "SELECT u.id, u.full_name, u.email, u.status, u.last_login_at, p.id AS person_id,
                 GROUP_CONCAT(r.name) AS roles
          FROM users u
          LEFT JOIN people p ON p.user_id = u.id
          LEFT JOIN user_roles ur ON ur.user_id = u.id
          LEFT JOIN roles r ON r.id = ur.role_id
-         GROUP BY u.id ORDER BY u.full_name'
+         WHERE u.status NOT IN ('pending_approval', 'rejected')
+         GROUP BY u.id ORDER BY u.full_name"
     );
     json_response(['ok' => true, 'users' => $stmt->fetchAll()]);
 }
@@ -34,6 +43,19 @@ if ($method === 'POST') {
         $id = (int)$data['id'];
         $status = $data['status'];
         if (!in_array($status, ['active', 'inactive', 'locked'], true)) json_error('Invalid status.');
+        // An account still awaiting a decision, or already declined, must go
+        // through admin/account_approvals.php's approve/reject actions
+        // instead — those require (and record) a reason, and log to
+        // account_approval_actions for the Decision history list. Blocking
+        // it here too (not just hiding the button in the UI) keeps that the
+        // only path, so every activation of one of these accounts is always
+        // accounted for there.
+        $currentStmt = $pdo->prepare('SELECT status FROM users WHERE id = ?');
+        $currentStmt->execute([$id]);
+        $currentStatus = $currentStmt->fetchColumn();
+        if (in_array($currentStatus, ['pending_approval', 'rejected'], true)) {
+            json_error('This account is awaiting approval — use Account Approvals to approve or reject it.');
+        }
         $pdo->prepare('UPDATE users SET status = ?, failed_login_count = 0 WHERE id = ?')->execute([$status, $id]);
         audit_log('user', $id, 'status_changed', null, ['status' => $status]);
         json_response(['ok' => true]);

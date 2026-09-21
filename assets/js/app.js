@@ -325,12 +325,21 @@
           notifList.innerHTML = `<div class="p-3 text-muted small">${i18n.no_notifications || 'No notifications yet.'}</div>`;
           return;
         }
-        notifList.innerHTML = items.map((n) => `
+        notifList.innerHTML = items.map((n) => {
+          // account_pending_approval notifications are only ever sent to
+          // administrators (see notify_admins_of_pending_account() in
+          // includes/models/account_approvals.php), so this link is always
+          // safe to show without a separate role check here.
+          const titleHtml = n.type === 'account_pending_approval'
+            ? `<a href="${window.AF_BASE_URL}admin/account_approvals.php" class="text-reset">${escapeHtml(n.title)}</a>`
+            : escapeHtml(n.title);
+          return `
           <div class="notif-item ${n.is_read ? '' : 'unread'}">
-            <div class="fw-semibold">${escapeHtml(n.title)}</div>
+            <div class="fw-semibold">${titleHtml}</div>
             ${n.body ? `<div class="text-muted">${escapeHtml(n.body)}</div>` : ''}
             <div class="text-muted" style="font-size:.72rem">${n.created_at}</div>
-          </div>`).join('');
+          </div>`;
+        }).join('');
       })
       .catch(() => {
         const i18n = window.AF_I18N || {};

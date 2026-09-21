@@ -18,7 +18,13 @@ require __DIR__ . '/includes/layout_header.php';
   <?php foreach ($notifications as $n): ?>
     <div class="p-3 border-bottom <?= $n['is_read'] ? '' : 'bg-light' ?>">
       <div class="d-flex justify-content-between">
-        <strong><?= e($n['title']) ?></strong>
+        <strong>
+          <?php if ($n['type'] === 'account_pending_approval' && is_admin()): ?>
+            <a href="<?= e(base_url('admin/account_approvals.php')) ?>" class="text-reset"><?= e($n['title']) ?></a>
+          <?php else: ?>
+            <?= e($n['title']) ?>
+          <?php endif; ?>
+        </strong>
         <span class="small text-muted"><?= e(format_datetime($n['created_at'])) ?></span>
       </div>
       <?php if ($n['body']): ?><div class="small text-muted"><?= e($n['body']) ?></div><?php endif; ?>

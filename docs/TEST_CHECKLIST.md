@@ -22,7 +22,9 @@ Mapped to the acceptance criteria. Run through this after installation
       the landing page — confirm the hero, cards, mascot color, and stats
       band all re-theme correctly, including in the dark "blue" scheme.
 - [ ] Register a new account with full name, email, password, secret
-      question/answer — no email verification step, can log in immediately.
+      question/answer — confirm the success message says the account is
+      awaiting administrator approval (no email verification step, but it
+      can *not* log in immediately — see "Account approvals" below).
 - [ ] Log in with a valid demo account (e.g. `carla.diaz@activityflow.test` /
       `Password123!`).
 - [ ] On the Log in page, submit the form with a wrong answer to the "what
@@ -48,10 +50,12 @@ Mapped to the acceptance criteria. Run through this after installation
 - [ ] As an administrator, add a person to the People Directory with no
       system account (e.g. email `newhire@activityflow.test`), assign them as
       a requester/assignee on a task, then register a new account using that
-      same email — confirm the flash message says the existing directory
-      entry was linked, and check the People Directory afterward to confirm
-      there is still only **one** person row (not a duplicate) and the task
-      it was assigned to still shows the same person.
+      same email — confirm the pending-approval success message is shown (the
+      linking happens silently either way now that every registration needs
+      approval). After approving the account (see "Account approvals" below),
+      check the People Directory to confirm there is still only **one**
+      person row (not a duplicate) and the task it was assigned to still
+      shows the same person.
 - [ ] Log out, confirm the session is cleared and protected pages redirect to
       login.
 
@@ -1306,6 +1310,69 @@ requires selecting the Monospace font first — see the change above where
       served).
 - [ ] Switch language to Español and confirm the Attachments tab label,
       hints, and toast messages are translated.
+
+## Account approvals (admin)
+
+- [ ] Register a new account (see "Authentication & accounts" above) and
+      confirm you cannot log in with it yet — the login form should reject
+      it with a "still awaiting approval" message, not "invalid credentials".
+- [ ] Log in as an administrator and confirm the notification bell shows a
+      new unread notification for the registration, with a title like "New
+      account pending approval"; click it and confirm it navigates straight
+      to Admin → Account Approvals. Confirm a non-admin user does NOT see
+      this notification title rendered as a link (even if they somehow had
+      one).
+- [ ] Confirm a red pending-count badge appears next to "Account Approvals"
+      in the admin nav, matching the number of accounts awaiting a decision,
+      and disappears once the queue is empty.
+- [ ] Open Admin → Account Approvals as an administrator and confirm the
+      new account appears in the "Pending accounts" table with its name,
+      email, and requested date.
+- [ ] Click Approve, optionally type a reason, and confirm: the account
+      disappears from the pending list, a new row appears at the top of
+      "Decision history" showing Approved / the reason (or a dash if none
+      was given) / your name, and the previously-blocked account can now log
+      in normally.
+- [ ] Register a second new account, then click Reject on it WITHOUT typing
+      a reason — confirm the confirm button stays disabled and a "please
+      enter a reason" message is shown; type a reason and confirm it
+      succeeds, the account moves out of the pending list, and a "Rejected"
+      row with that reason appears in Decision history.
+- [ ] Attempt to log in as the rejected account — confirm the error message
+      includes the exact reason the admin typed.
+- [ ] Attempt to register again using the same rejected account's email —
+      confirm the registration is refused and the same rejection reason is
+      shown on the form, rather than creating a second pending account or
+      silently letting registration succeed.
+- [ ] From the Decision history table, find the rejected account's row and
+      click "Re-approve" — confirm the intro text differs from a first-time
+      approval (mentions it was previously rejected), optionally type a new
+      reason, confirm, and verify: the account can now log in, a new
+      "Approved" row is added to Decision history (the original "Rejected"
+      row from earlier stays in place, unaltered), and the "Re-approve"
+      button no longer shows for that account (only "current status is
+      rejected" rows offer it).
+- [ ] As an administrator, open Admin → Users & Roles and confirm accounts
+      that are still pending or were rejected do NOT appear in that list at
+      all (only active/inactive/locked accounts do) — they're only visible
+      and actionable from Account Approvals.
+- [ ] While an account is pending or rejected, try to hit
+      `api/admin.php?action=set_status` directly for that user id (e.g. via
+      browser dev tools) and confirm it's refused with a message pointing to
+      Account Approvals, rather than silently activating/deactivating it.
+- [ ] Use "Forgot password" on a pending or rejected account's email, answer
+      the recovery question correctly, and set a new password — confirm the
+      account is still blocked from logging in afterward (status is
+      unchanged by the reset) rather than being silently reactivated. Repeat
+      for a `locked` account (one that hit the failed-login cap) and confirm
+      that one DOES reactivate via a successful reset, as before.
+- [ ] Switch language to Español and confirm the Account Approvals page
+      (headings, table columns, modals, toasts) and the auth-flow messages
+      (pending/rejected/reason strings on login and register) are all
+      translated.
+- [ ] Confirm `project_manager` and other non-administrator roles do not see
+      the Account Approvals nav link and get an access-denied page if they
+      browse to `admin/account_approvals.php` directly.
 
 ## Authorization boundaries
 

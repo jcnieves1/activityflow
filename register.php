@@ -23,10 +23,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $result = register_user($fullName, $email, $password, $question, $answer);
         if ($result['ok']) {
-            $message = $result['linked_existing']
-                ? t('auth.register_success_linked')
-                : t('auth.register_success');
-            flash_set('success', $message);
+            // Every new registration now goes through admin approval (see
+            // register_user() in includes/auth.php) — the message is the same
+            // regardless of whether an existing "placeholder" person record was
+            // claimed, so both branches share one pending-approval string.
+            flash_set('success', t('auth.register_success_pending'));
             redirect('login.php');
         }
         $error = $result['error'];

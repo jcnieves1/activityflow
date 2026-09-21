@@ -21,6 +21,7 @@ require_once __DIR__ . '/permissions.php';
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/models/audit.php';
 require_once __DIR__ . '/models/notifications.php';
+require_once __DIR__ . '/models/account_approvals.php';
 require_once __DIR__ . '/models/people.php';
 require_once __DIR__ . '/models/avatars.php';
 require_once __DIR__ . '/models/vacations.php';

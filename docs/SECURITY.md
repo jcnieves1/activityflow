@@ -158,10 +158,61 @@ Deleting a project or a task deletes its attachments (files and rows) as
 part of the same operation — see `delete_attachments_for_entity()` and its
 call sites in `delete_project()` / `delete_activity()`.
 
+## Account approval workflow
+
+Self-registered accounts can't log in until an administrator approves them —
+see `includes/models/account_approvals.php`, the `register_user()` /
+`attempt_login()` changes in `includes/auth.php`, and `admin/account_approvals.php`.
+
+- `register_user()` creates new accounts with `status = 'pending_approval'`
+  rather than `'active'`. `attempt_login()` rejects `pending_approval` and
+  `rejected` accounts with a status-specific message (the rejection message
+  includes the admin's reason, if one was recorded) — the account simply
+  cannot authenticate, regardless of a correct password, until an admin acts.
+- Every administrator (`role = administrator`, `status = active`) gets a
+  notification when a new account registers (`notify_admins_of_pending_account()`),
+  linking straight to `admin/account_approvals.php`. That page lists accounts
+  awaiting a decision and a full decision history (who approved/rejected each
+  account, when, and why), and is gated by `require_role([ROLE_ADMIN])` like
+  every other admin page.
+- Approve/reject decisions are written to a dedicated, append-only
+  `account_approval_actions` table (never updated or deleted, same philosophy
+  as `audit_logs`) inside a transaction alongside the `users.status` change,
+  so the audit trail and the account's actual state can never drift apart. A
+  rejection requires a non-empty reason; an approval's reason is optional. A
+  previously-rejected account can be re-approved later directly from the
+  decision history (with its own optional reason recorded), without losing
+  the earlier rejection record.
+- If someone re-registers with an email that was already rejected or is still
+  pending, `register_user()` detects the existing row and returns the
+  rejection reason (or a "still pending" message) instead of creating a
+  second account or silently resetting it — only an admin, via the approval
+  page, can move a rejected account forward.
+- **Password-recovery bypass fix**: `recovery_reset_password()` previously
+  reactivated *any* account (`status = 'active'`) on a successful reset. That
+  would have let a pending or rejected user regain access using only their
+  own secret-question answer, completely bypassing this feature. It now only
+  auto-reactivates a `locked` account (the case it was originally meant for —
+  clearing a failed-login lockout); `pending_approval`, `rejected`, and
+  `inactive` accounts keep their status through a password reset, so none of
+  them can self-reactivate.
+- **`set_status` hardening**: the generic Users & Roles admin action
+  (`api/admin.php`, `action=set_status`, used by the plain Activate/Deactivate
+  toggle) now refuses to change the status of an account currently
+  `pending_approval` or `rejected`, forcing those through the dedicated
+  approve/reject flow instead — the generic toggle doesn't collect or record
+  a reason, so allowing it here would create an unaudited back door. The same
+  accounts are also excluded from the Users & Roles list entirely
+  (`api/admin.php`, `action=users`) so the only place to act on them is the
+  Account Approvals page.
+
 ## Audit trail
 
 `audit_logs` records entity type/ID, action, previous and new values (JSON),
 acting user, IP address, and timestamp for activity, project, person, time
-entry, project membership, and account-recovery changes. Users can view the
-history of entities they're authorized to access from within the relevant
-page; administrators can view the full log at `audit_log.php`.
+entry, project membership, and account-recovery changes. Account approval and
+rejection decisions are also written to `audit_logs` (`account_approved` /
+`account_rejected`), in addition to the dedicated `account_approval_actions`
+table described above, which drives the Decision History UI directly. Users
+can view the history of entities they're authorized to access from within
+the relevant page; administrators can view the full log at `audit_log.php`.

@@ -104,6 +104,20 @@ function attempt_login(string $email, string $password): array
         return ['ok' => false, 'error' => t('auth.account_unavailable')];
     }
 
+    if ($user['status'] === 'pending_approval') {
+        record_login_attempt($email, false);
+        return ['ok' => false, 'error' => t('auth.account_pending_approval')];
+    }
+
+    if ($user['status'] === 'rejected') {
+        record_login_attempt($email, false);
+        $decision = latest_account_decision((int)$user['id']);
+        $reason = $decision['reason'] ?? null;
+        return ['ok' => false, 'error' => $reason
+            ? t('auth.account_rejected_with_reason', ['reason' => $reason])
+            : t('auth.account_rejected')];
+    }
+
     if (!password_verify($password, $user['password_hash'])) {
         record_login_attempt($email, false);
         db()->prepare('UPDATE users SET failed_login_count = failed_login_count + 1 WHERE id = ?')->execute([$user['id']]);
@@ -155,9 +169,25 @@ function register_user(string $fullName, string $email, string $password, string
         return ['ok' => false, 'error' => t('auth.register_answer_too_short')];
     }
 
-    $stmt = db()->prepare('SELECT id FROM users WHERE email = ?');
+    $stmt = db()->prepare('SELECT id, status FROM users WHERE email = ?');
     $stmt->execute([$email]);
-    if ($stmt->fetch()) {
+    $existingUser = $stmt->fetch();
+    if ($existingUser) {
+        // A rejected or still-pending applicant trying again with the same
+        // email doesn't get a second row (see the approval history's design
+        // note in account_approvals.php) — instead they're told exactly
+        // where their existing request stands, rather than a generic
+        // "email exists" error that gives no indication anything is wrong.
+        if ($existingUser['status'] === 'rejected') {
+            $decision = latest_account_decision((int)$existingUser['id']);
+            $reason = $decision['reason'] ?? null;
+            return ['ok' => false, 'error' => $reason
+                ? t('auth.register_email_rejected_with_reason', ['reason' => $reason])
+                : t('auth.register_email_rejected')];
+        }
+        if ($existingUser['status'] === 'pending_approval') {
+            return ['ok' => false, 'error' => t('auth.register_email_pending')];
+        }
         return ['ok' => false, 'error' => t('auth.register_email_exists')];
     }
 
@@ -167,9 +197,14 @@ function register_user(string $fullName, string $email, string $password, string
     $pdo = db();
     $pdo->beginTransaction();
     try {
+        // New self-registrations start locked out of logging in until an
+        // administrator approves them — see attempt_login()'s status check
+        // and admin/account_approvals.php. Demo accounts created by
+        // database/seed_users.php bypass this entirely by inserting 'active'
+        // directly.
         $pdo->prepare(
             'INSERT INTO users (full_name, email, password_hash, secret_question, secret_answer_hash, status)
-             VALUES (?, ?, ?, ?, ?, "active")'
+             VALUES (?, ?, ?, ?, ?, "pending_approval")'
         )->execute([trim($fullName), $email, $passwordHash, trim($question), $answerHash]);
         $userId = (int)$pdo->lastInsertId();
 
@@ -214,6 +249,12 @@ function register_user(string $fullName, string $email, string $password, string
         }
 
         $pdo->commit();
+
+        // Outside the transaction: a notification failure shouldn't be able to
+        // roll back an otherwise-successful registration, and notify_*() does
+        // its own independent insert anyway.
+        notify_admins_of_pending_account($userId, trim($fullName), $email);
+
         return ['ok' => true, 'user_id' => $userId, 'person_id' => $personId, 'linked_existing' => (bool)$existingPerson];
     } catch (Throwable $e) {
         $pdo->rollBack();
@@ -341,7 +382,7 @@ function recovery_reset_password(string $email, string $newPassword, string $tok
         return ['ok' => false, 'error' => t('auth.register_password_length')];
     }
 
-    $stmt = db()->prepare('SELECT id FROM users WHERE email = ?');
+    $stmt = db()->prepare('SELECT id, status FROM users WHERE email = ?');
     $stmt->execute([$email]);
     $user = $stmt->fetch();
     if (!$user) {
@@ -349,9 +390,20 @@ function recovery_reset_password(string $email, string $newPassword, string $tok
         return ['ok' => false, 'error' => 'Unable to reset password.'];
     }
 
+    // Only a status of 'locked' (the failed-login-attempt lockout this
+    // self-service flow exists to clear) is turned back into 'active' here —
+    // that's this UPDATE's original purpose. A 'pending_approval' or
+    // 'rejected' account must NOT be silently activated by knowing the
+    // correct secret answer: that would let anyone skip the administrator
+    // approval queue entirely just by resetting their own password. Their
+    // status is left exactly as it was; they still can't log in until an
+    // administrator approves them (attempt_login() enforces this
+    // regardless of whether the password itself is now correct).
+    $newStatus = $user['status'] === 'locked' ? 'active' : $user['status'];
+
     $hash = password_hash($newPassword, PASSWORD_DEFAULT);
-    db()->prepare('UPDATE users SET password_hash = ?, failed_login_count = 0, status = "active" WHERE id = ?')
-        ->execute([$hash, $user['id']]);
+    db()->prepare('UPDATE users SET password_hash = ?, failed_login_count = 0, status = ? WHERE id = ?')
+        ->execute([$hash, $newStatus, $user['id']]);
 
     record_recovery_attempt($email, 'password_reset', true);
     unset($_SESSION['recovery']);
